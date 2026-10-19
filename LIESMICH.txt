@@ -1,0 +1,45 @@
+KANALBUCH – Android-App (Version 3.1)
+=====================================
+
+NEU in 3.1
+  - 2D-Skizzen bei Übergängen (US, UA, RS, RA, ES, EA) jetzt maßstäblich nach deinen
+    Eingaben – inkl. Versatz e/f und neuer "Ansicht V2". Bögen und Winkel mit echtem Winkel.
+  - "Messen" entfernt, dafür neuer Bereich "Bestellung": Material per Mikrofon ansagen,
+    Liste bearbeiten, PDF teilen oder Text für WhatsApp kopieren. Letzte Bestellungen
+    bleiben gespeichert und können als Vorlage genommen werden.
+  - Jede PDF (Aufmaß, Stundenzettel, Bautagebuch, Bestellung) mit Krüger-Logo und Firmenname.
+  - Bautagebuch-PDF komplett neu: Deckblatt mit Übersicht, je Tag eine Seite mit
+    Datumskachel, Wetter-Symbol, Kennzahlen, Abschnitten, Fotoseite und Unterschriften.
+
+UPDATE einer bestehenden Installation:
+  In deinem GitHub-Repository einfach index.html, sw.js und manifest.webmanifest durch
+  die neuen Dateien ersetzen (Add file > Upload files). Nach 1–2 Minuten die App auf dem
+  Handy zweimal schließen und neu öffnen – dann ist 3.1 drauf (steht unter Mehr > Einstellungen).
+  Deine Daten bleiben erhalten.
+
+Inhalt dieses Ordners:
+  index.html            die komplette App
+  manifest.webmanifest  App-Name, Farben, Symbole (damit Android sie als App erkennt)
+  sw.js                 sorgt dafür, dass die App auch ohne Internet startet
+  icons/                App-Symbole
+  .nojekyll             leere Datei, wird für GitHub Pages gebraucht – NICHT löschen
+
+So geht's (ausführlich mit Bildern in der PDF-Anleitung):
+  1. Kostenloses Konto auf github.com anlegen
+  2. Neues Repository mit dem Namen  DEINNAME.github.io  anlegen (öffentlich)
+  3. ALLE Dateien und den Ordner "icons" aus diesem Ordner hochladen
+  4. Settings > Pages > Branch "main" / "(root)" > Save
+  5. Nach 1–2 Minuten auf dem Handy in Chrome öffnen:  https://DEINNAME.github.io
+  6. Chrome-Menü (⋮) > "App installieren" bzw. "Zum Startbildschirm hinzufügen"
+
+Optional: echte APK-Datei über https://www.pwabuilder.com erzeugen (siehe Anleitung).
+
+Was in der Android-App zusätzlich funktioniert:
+  - Wetter automatisch (Deutscher Wetterdienst über Bright Sky)
+  - Ort automatisch per GPS (OpenStreetMap)
+  - Kamera direkt aus der App
+  - PDF direkt teilen, z. B. per WhatsApp
+  - Arbeiten ohne Internet (Daten bleiben auf dem Handy)
+
+WICHTIG: Die Daten liegen nur auf deinem Handy. Unter "Mehr" > "Datensicherung"
+regelmäßig eine Sicherung erstellen und z. B. per Mail an dich selbst schicken.

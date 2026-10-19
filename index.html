@@ -1,0 +1,2347 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kanalbuch</title>
+<meta name="description" content="Aufmaß für Lüftungskanäle, Materialbestellung, Zeiterfassung und Bautagebuch">
+<meta name="theme-color" content="#2d4a6e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Layout: native Werkstatt-App — dunkelblaue Kopfleiste mit Zurück/Aktion, Arbeitsbereich, Tab-Leiste unten, Bernstein-FAB */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#16222e; --muted:#5b6b78; --line:#d3dae0;
+  --bar:#2d4a6e; --bar-ink:#ffffff; --bar-sub:#b9cbe0;
+  --accent:#d9881c; --accent-ink:#1a1206;
+  --steel:#2f5d7c; --part:#a9b2ba; --part-edge:#2a3138;
+  --good:#2e7d4f; --warn:#b26a00; --bad:#b3261e; --sketch-bg:#f6f8fa;
+  --c-ab:#4656d0; --c-ef:#11917f; --c-r:#e2700e; --c-l:#8f45c4; --c-v:#64748b;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e151b;--panel:#16202a;--ink:#e3eaef;--muted:#93a4b1;--line:#2a3845;--bar:#1b2f47;--bar-ink:#f2f6fa;--bar-sub:#90a8c4;
+  --accent:#f0a33a;--steel:#7fb3d6;--part:#6f7b86;--part-edge:#d5dde3;--good:#5cc489;--warn:#f0b54d;--bad:#ff8a80;--sketch-bg:#111a21;
+  --c-ab:#8b97ff;--c-ef:#3fd3bd;--c-r:#ff9d47;--c-l:#c88bf2;--c-v:#9fb0c0;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151b;--panel:#16202a;--ink:#e3eaef;--muted:#93a4b1;--line:#2a3845;--bar:#1b2f47;--bar-ink:#f2f6fa;--bar-sub:#90a8c4;
+  --accent:#f0a33a;--steel:#7fb3d6;--part:#6f7b86;--part-edge:#d5dde3;--good:#5cc489;--warn:#f0b54d;--bad:#ff8a80;--sketch-bg:#111a21;
+  --c-ab:#8b97ff;--c-ef:#3fd3bd;--c-r:#ff9d47;--c-l:#c88bf2;--c-v:#9fb0c0;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
+[hidden]{display:none!important}
+img{max-width:100%}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bar);color:var(--bar-ink);
+  padding-block:10px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;gap:8px;min-height:62px;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.hback{background:none;border:0;color:var(--bar-ink);width:40px;height:40px;display:grid;place-items:center;cursor:pointer;border-radius:8px;flex:0 0 auto}
+.hback svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.2}
+.htext{flex:1;min-width:0;padding-left:6px}
+.htitle{font-family:var(--f-display);font-weight:600;font-size:24px;letter-spacing:.01em;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsub{font-size:13px;color:var(--bar-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.haction{background:none;border:0;color:var(--bar-ink);font:700 15px var(--f-body);cursor:pointer;padding:8px 6px;flex:0 0 auto}
+.haction:disabled{opacity:.45}
+main{padding-block:16px 130px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+main.flush{padding-left:0;padding-right:0;gap:0}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{background:none;border:0;color:var(--muted);padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 11.5px var(--f-body);cursor:pointer;min-width:0}
+nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7}
+nav.tabs button[aria-selected="true"]{color:var(--ink)}
+nav.tabs button[aria-selected="true"] svg{stroke:var(--accent)}
+h2{font-family:var(--f-display);font-weight:600;font-size:24px;margin:0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:19px;margin:0;text-wrap:balance}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.note{font-size:12.5px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.grid.g2{grid-template-columns:1fr 1fr}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--ink);min-width:0}
+input,select,textarea{font:16px var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 10px;width:100%;min-width:0}
+input[type=number],input[type=time]{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+textarea{min-height:76px;resize:vertical}
+.unit{position:relative}
+.unit input{padding-right:46px}
+.unit::after{content:attr(data-unit);position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:11px 16px;font:600 15px var(--f-body);cursor:pointer;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad)}
+.btn.small{padding:7px 11px;font-size:13px}
+.btn.big{padding:16px 10px;font-size:17px;flex:1;min-width:140px}
+.btn:disabled{opacity:.5;cursor:default}
+.fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 4px 14px rgba(0,0,0,.28);cursor:pointer;z-index:7;display:grid;place-items:center}
+.fab svg{width:28px;height:28px;stroke:currentColor;stroke-width:2.4;fill:none}
+.list{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.li{display:flex;align-items:center;gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));border:0;border-bottom:1px solid var(--line);cursor:pointer;min-height:70px;background:none;width:100%;text-align:left;color:inherit;font:inherit}
+.li:last-child{border-bottom:0}
+.li .tx{flex:1;min-width:0}
+.li .code{font:600 17px var(--f-mono);letter-spacing:.02em}
+.li .nm{color:var(--muted);font-size:14px}
+.li .num{font:500 13px var(--f-mono);color:var(--muted);width:30px;flex:0 0 auto;align-self:flex-start;padding-top:3px}
+.icons{display:flex;gap:14px;align-items:center;flex:0 0 auto}
+.icons svg{width:48px;height:40px;display:block}
+.li .more{background:none;border:0;width:34px;height:40px;color:var(--muted);cursor:pointer;flex:0 0 auto;font-size:22px;line-height:1}
+.ic{fill:var(--part);stroke:var(--part-edge);stroke-width:1.4;stroke-linejoin:round}
+.ic-l{fill:none;stroke:var(--part-edge);stroke-width:1.1}
+.ic-o{fill:none;stroke:var(--part-edge);stroke-width:1.8}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
+.card .tx{flex:1;min-width:0}
+.card .t{font-weight:600;font-size:17px}
+.card .s{color:var(--muted);font-size:13.5px}
+.status{font:700 12.5px var(--f-body);letter-spacing:.04em}
+.status.open{color:var(--accent)} .status.done{color:var(--good)} .status.ask{color:var(--bad)}
+.summary{background:color-mix(in srgb,var(--bar) 12%,var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:12px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));display:flex;gap:10px;align-items:flex-start}
+.summary .tx{flex:1;min-width:0}
+.subtabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bar);color:var(--bar-sub)}
+.subtabs button{background:none;border:0;color:inherit;font:600 16px var(--f-body);padding:12px 6px 13px;border-bottom:3px solid transparent;cursor:pointer}
+.subtabs button[aria-selected="true"]{color:var(--bar-ink);border-bottom-color:var(--accent)}
+.iconbtn{background:none;border:0;width:40px;height:40px;display:grid;place-items:center;color:var(--muted);cursor:pointer;border-radius:8px}
+.iconbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9}
+.menu{display:flex;gap:6px;flex-wrap:wrap;padding:8px 16px 12px 58px;border-bottom:1px solid var(--line);background:var(--bg)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.preview{background:var(--sketch-bg);border-bottom:1px solid var(--line);position:relative}
+.preview .sketch svg{display:block;width:100%;height:auto;max-height:46vh}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;color:var(--ink);font:600 13px var(--f-body);padding:8px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.seg button:disabled{opacity:.45}
+.prevtools{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:12px;display:flex;gap:8px;z-index:2}
+.prevtools .iconbtn{background:var(--panel);border:1px solid var(--line);width:38px;height:34px}
+.viewer{position:relative;height:300px;overflow:hidden;touch-action:none}
+.viewer canvas{display:block;width:100%;height:100%}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.labels span{position:absolute;transform:translate(-50%,-50%);font:700 22px var(--f-body);text-shadow:0 0 3px var(--sketch-bg),0 0 6px var(--sketch-bg);white-space:nowrap}
+.labels span.v{font-size:26px;font-weight:500;opacity:.85}
+.viewer .hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;color:var(--muted);pointer-events:none}
+.nogl{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;padding:16px;text-align:center}
+.sk-body{fill:var(--part);fill-opacity:.55;stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round}
+.sk-open{fill:none;stroke:var(--ink);stroke-width:1.5}
+.sk-thin{fill:none;stroke:var(--ink);stroke-width:.8}
+.sk-center{fill:none;stroke:var(--muted);stroke-width:.7;stroke-dasharray:12 3 2 3}
+.sk-dim{stroke:var(--steel);stroke-width:.8;fill:none}
+.sk-arrow{fill:var(--steel)}
+.sk-txt{fill:var(--steel);font:600 11.5px var(--f-mono)}
+.sk-lbl{fill:var(--muted);font:600 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase}
+.sk-frame{fill:var(--ink);stroke:none}
+.banner{background:color-mix(in srgb,var(--steel) 14%,var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.banner .bh{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:16px}
+.banner .bh button{background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.banner .ba{align-self:flex-end;background:none;border:0;color:var(--steel);font:700 15px var(--f-body);cursor:pointer;padding:4px 0}
+.stepper{display:grid;grid-template-columns:1fr 52px 52px;gap:10px}
+.stepper button{border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:24px;cursor:pointer}
+.footbar{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--panel);border-top:1px solid var(--line);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:12px;align-items:center;justify-content:space-between}
+.footbar .a{font:600 20px var(--f-mono)}
+.footbar .s{font-size:12px;color:var(--muted)}
+.errs{color:var(--bad);font-size:13px}
+.modal{position:fixed;inset:0;z-index:30;background:rgba(10,16,22,.55);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 12px) max(12px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 12px) max(12px,env(safe-area-inset-left,0px))}
+.modal .box{background:var(--sketch-bg);border-radius:12px;overflow:hidden;width:100%;max-width:720px;max-height:100%;display:flex;flex-direction:column}
+.modal .mh{background:var(--bar);color:var(--bar-ink);display:flex;align-items:center;gap:10px;padding:10px 14px}
+.modal .mh b{font:600 22px var(--f-display)}
+.modal .mh button{background:none;border:0;color:inherit;font-size:28px;cursor:pointer;width:36px;line-height:1}
+.views{display:flex;gap:8px;justify-content:flex-end;padding:12px 14px 0;flex-wrap:wrap}
+.modal .viewer{height:min(58vh,520px)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 16px 16px;font:600 14px var(--f-mono)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font:600 13px var(--f-body);color:var(--ink)}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tablewrap{overflow-x:auto;background:var(--panel)}
+.zcount input{width:72px;padding:7px 6px;text-align:center}
+.sugg{font:500 12px var(--f-mono);color:var(--steel);background:none;border:1px dashed var(--steel);border-radius:6px;padding:2px 6px;cursor:pointer;margin-top:4px}
+.empty{color:var(--muted);text-align:center;padding:26px 14px;border:1px dashed var(--line);border-radius:var(--r);background:var(--panel)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 14px var(--f-body);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--steel);border-color:var(--steel);color:var(--panel)}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.photos figure{margin:0;position:relative;aspect-ratio:1;max-width:100%;border-radius:8px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+.photos img{width:100%;height:100%;object-fit:cover;display:block}
+.photos figure button{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
+.photos .add{display:grid;place-items:center;aspect-ratio:1;border:1.5px dashed var(--line);border-radius:8px;color:var(--muted);font-size:13px;text-align:center;cursor:pointer;padding:6px}
+.entry{display:flex;flex-direction:column;gap:8px;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.entry .meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.entry .date{font:600 17px var(--f-display);color:var(--ink);letter-spacing:.02em}
+.entry p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.entry .thumbs{display:flex;gap:6px;overflow-x:auto}
+.entry .thumbs img{width:74px;height:74px;object-fit:cover;border-radius:6px;flex:0 0 auto;cursor:zoom-in}
+.tag{font:500 12px var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--ink)}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg);border:1px solid var(--bad);border-radius:8px;padding:8px 10px;font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:8px;font-size:14px;z-index:40;max-width:calc(100% - 32px)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:35;display:grid;place-items:center;padding:16px}
+.lightbox img{max-height:90%;max-width:100%;border-radius:6px}
+.measure-wrap{position:relative;background:#000;border-radius:8px;overflow:hidden;touch-action:none}
+.measure-wrap canvas{display:block;width:100%;height:auto}
+.loupe{position:absolute;width:120px;height:120px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.5);pointer-events:none;overflow:hidden;background:#000}
+.loupe canvas{width:100%;height:100%}
+.mlist{display:flex;flex-direction:column;gap:6px}
+.mitem{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.mitem b{font:600 17px var(--f-mono)}
+.big-empty{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;padding:30px 16px;border:1.5px dashed var(--line);border-radius:var(--r);background:var(--panel)}
+.big-empty svg{width:64px;height:64px;stroke:var(--muted);fill:none;stroke-width:1.4}
+details summary{cursor:pointer;font:600 18px var(--f-display);list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font:400 22px var(--f-mono);color:var(--muted)}
+details[open] summary::after{content:"–"}
+details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
+.tool details{border-top:1px solid var(--line);padding-top:10px}
+.tool details:first-child{border-top:0;padding-top:0}
+.result{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kv{border-left:3px solid var(--line);padding:2px 0 2px 10px}
+.kv.main{border-left-color:var(--accent)}
+.kv span{display:block;font-size:12px;color:var(--muted)}
+.kv strong{font:500 20px var(--f-mono);font-variant-numeric:tabular-nums}
+.kv.bad strong{color:var(--bad)} .kv.good strong{color:var(--good)}
+/* Zeiterfassung */
+.clock{background:var(--bar);color:var(--bar-ink);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.clock .now{font:600 44px var(--f-mono);letter-spacing:.02em;line-height:1}
+.clock .st{color:var(--bar-sub);font-size:14px}
+.clock .stamps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font:500 12px var(--f-mono);color:var(--bar-sub)}
+.clock .stamps b{display:block;font-size:16px;color:var(--bar-ink)}
+.clock .btn{border-color:transparent}
+.clock .btn:not(.primary){background:rgba(255,255,255,.12);color:var(--bar-ink)}
+.monthbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.monthbar b{font:600 20px var(--f-display)}
+.zrow{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--panel);cursor:pointer;width:100%;text-align:left;color:inherit;font:inherit;border-left:0;border-right:0;border-top:0}
+.zrow .d{font:600 15px var(--f-mono);line-height:1.15}
+.zrow .d small{display:block;font:500 11px var(--f-body);color:var(--muted)}
+.zrow .h{font:600 16px var(--f-mono);text-align:right}
+.zrow.missing{background:color-mix(in srgb,var(--bad) 6%,var(--panel))}
+.art{display:inline-block;font:700 11px var(--f-body);letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--bg);border:1px solid var(--line)}
+.art.urlaub{background:#2e9e5b22;border-color:#2e9e5b66}
+.art.krank{background:#b3261e1f;border-color:#b3261e66}
+.art.feiertag{background:#8f45c41f;border-color:#8f45c466}
+.pause-row{display:grid;grid-template-columns:1fr 1fr 40px;gap:8px;align-items:center}
+.warnbox{border:1px solid var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--panel));border-radius:8px;padding:8px 10px;font-size:13px}
+.autobox{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+/* Skizzen: Ende V2, Hinweise, schräge Rahmen */
+.sk-end{fill:none;stroke:var(--c-r);stroke-width:1.6;stroke-dasharray:5 3}
+.sk-endc{fill:none;stroke:var(--c-r);stroke-width:1}
+.sk-endt{fill:var(--c-r)}
+.sk-note{fill:var(--muted);font:italic 10px var(--f-body)}
+.sk-fr{fill:none;stroke:var(--ink);stroke-width:4}
+/* Materialbestellung */
+.bo-brand{display:flex;align-items:center;gap:12px}
+.bo-brand svg{width:46px;height:46px;flex:none}
+.bo-co{font:500 13px var(--f-body);color:#e8743b;letter-spacing:.03em}
+.bo-co b{font-weight:700}
+.bo-sub{font:600 22px var(--f-display);line-height:1.1}
+.bo-head{border-top:3px solid transparent;border-image:linear-gradient(90deg,#3f9bdb 25%,#4db0c8 25% 50%,#e8743b 50% 75%,#1f4e8c 75%) 1}
+.bo-mic{display:flex;gap:12px;align-items:center}
+.bo-mic b{font:600 18px var(--f-display)}
+.bo-micbtn{width:72px;height:72px;border-radius:50%;border:0;background:#e8743b;color:#fff;display:grid;place-items:center;cursor:pointer;flex:none;box-shadow:0 4px 14px rgba(232,116,59,.35)}
+.bo-micbtn svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.bo-micbtn.rec{background:var(--bad);animation:bopulse 1.2s ease-in-out infinite}
+@keyframes bopulse{0%,100%{box-shadow:0 0 0 0 rgba(179,38,30,.45)}50%{box-shadow:0 0 0 12px rgba(179,38,30,0)}}
+.bo-items{display:flex;flex-direction:column}
+.bo-item{display:grid;grid-template-columns:auto 74px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.bo-item:first-child{border-top:0}
+.bo-item select,.bo-item .bo-mat{padding:8px 7px;height:42px}
+.bo-item.new{animation:boflash 1.2s ease-out}
+@keyframes boflash{from{background:color-mix(in srgb,var(--good) 18%,transparent)}to{background:transparent}}
+.bo-step{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.bo-step button{border:0;background:var(--bg);color:var(--ink);width:30px;height:40px;font-size:18px;cursor:pointer}
+.bo-step input{width:46px;border:0;border-radius:0;text-align:center;padding:0;font:600 15px var(--f-mono);background:var(--panel)}
+.bo-del{border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer;height:40px}
+.bo-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+.bo-chips button{flex:none;white-space:nowrap}
+.bo-hist{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.bo-hist .tx{min-width:0;flex:1}
+@media (max-width:430px){.bo-item{grid-template-columns:auto 66px minmax(0,1fr) 26px;gap:6px}.bo-step button{width:26px}.bo-step input{width:40px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="hback" id="hBack" aria-label="Zurück" hidden><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="htext"><div class="htitle" id="hTitle">Kanalbuch</div><div class="hsub" id="hSub"></div></div>
+  <button class="haction" id="hAction" hidden></button>
+</header>
+
+<main id="view-aufmass" class="flush"></main>
+<main id="view-bestellung" hidden></main>
+<main id="view-zeit" hidden></main>
+
+<main id="view-tagebuch" hidden>
+  <section class="panel" id="tbForm">
+    <h3 id="tbTitle">Neuer Eintrag</h3>
+    <div class="grid">
+      <label class="f">Datum &amp; Uhrzeit<input type="datetime-local" id="tbDate"></label>
+      <label class="f">Baustelle<input id="tbSite" list="projektListe" placeholder="Baustelle"></label>
+    </div>
+    <label class="f">Ort<input id="tbOrt" placeholder="wird per GPS ermittelt oder von Hand"></label>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="autobox"><span id="tbAutoInfo">Wetter</span><button class="btn small" id="tbAuto" type="button">↻ Wetter &amp; Ort automatisch</button></div>
+      <div class="chips" id="tbWeather" role="group" aria-label="Wetter"></div>
+      <div class="grid">
+        <label class="f">Temperatur<div class="unit" data-unit="°C"><input type="number" id="tbTemp" step="1" inputmode="decimal" placeholder="9"></div></label>
+        <label class="f">Wind<select id="tbWind"><option value="">–</option><option>windstill</option><option>leichter Wind</option><option>mäßiger Wind</option><option>starker Wind</option><option>Sturm</option></select></label>
+      </div>
+    </div>
+    <div class="grid">
+      <label class="f">Mitarbeiter<input id="tbStaff" placeholder="z. B. Basti, Jonas"></label>
+      <label class="f">Arbeitsstunden gesamt<div class="unit" data-unit="h"><input type="number" id="tbHours" step="0.5" min="0" inputmode="decimal"></div></label>
+    </div>
+    <label class="f">Ausgeführte Arbeiten<textarea id="tbWork" placeholder="z. B. Zuluftkanal EG Flur Achse 1–4 montiert, Abhängungen gesetzt"></textarea></label>
+    <label class="f">Material / Lieferungen<textarea id="tbMat" placeholder="z. B. 12 m Kanal 500×300 geliefert, Brandschutzklappen fehlen"></textarea></label>
+    <label class="f">Behinderungen / Besonderheiten<textarea id="tbIssues" placeholder="z. B. Elektriker blockiert Trasse, Abnahme mit Bauleitung"></textarea></label>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="note">Fotos</span>
+      <div class="photos" id="tbPhotos"></div>
+      <input type="file" id="tbFile" accept="image/*" multiple hidden>
+      <input type="file" id="tbCam" accept="image/*" capture="environment" hidden>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="tbSave">Eintrag speichern</button>
+      <button class="btn" id="tbCancel" hidden>Abbrechen</button>
+    </div>
+  </section>
+  <div class="row" style="justify-content:space-between"><h3>Einträge</h3><select id="tbFilter" style="width:auto;max-width:60%"></select></div>
+  <div class="row"><button class="btn" id="tbPdfAll">Angezeigte Einträge als PDF</button></div>
+  <div id="tbList" style="display:flex;flex-direction:column;gap:10px"></div>
+</main>
+
+<main id="view-tools" hidden>
+  <section class="panel tool">
+    <details open><summary>Kanal dimensionieren</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Volumenstrom<div class="unit" data-unit="m³/h"><input type="number" id="t1v" value="1800" inputmode="decimal"></div></label>
+        <label class="f">Geschwindigkeit<div class="unit" data-unit="m/s"><input type="number" id="t1w" value="4" step="0.1" inputmode="decimal"></div></label>
+        <label class="f">Kanalbreite a<div class="unit" data-unit="mm"><input type="number" id="t1a" value="500" inputmode="decimal"></div></label>
+      </div>
+      <div class="result" id="t1r"></div>
+    </div></details>
+    <details><summary>Geschwindigkeit im Kanal</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Volumenstrom<div class="unit" data-unit="m³/h"><input type="number" id="t2v" value="1500" inputmode="decimal"></div></label>
+        <label class="f">a<div class="unit" data-unit="mm"><input type="number" id="t2a" value="400" inputmode="decimal"></div></label>
+        <label class="f">b<div class="unit" data-unit="mm"><input type="number" id="t2b" value="250" inputmode="decimal"></div></label>
+      </div>
+      <div class="result" id="t2r"></div>
+    </div></details>
+    <details><summary>Luftwechsel</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Länge<div class="unit" data-unit="m"><input type="number" id="t3l" value="8" step="0.1" inputmode="decimal"></div></label>
+        <label class="f">Breite<div class="unit" data-unit="m"><input type="number" id="t3b" value="7" step="0.1" inputmode="decimal"></div></label>
+        <label class="f">Höhe<div class="unit" data-unit="m"><input type="number" id="t3h" value="3" step="0.1" inputmode="decimal"></div></label>
+        <label class="f">Luftwechsel<div class="unit" data-unit="1/h"><input type="number" id="t3n" value="4" step="0.5" inputmode="decimal"></div></label>
+      </div>
+      <div class="result" id="t3r"></div>
+    </div></details>
+    <details><summary>Personen-Außenluft</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Personen<input type="number" id="t5p" value="28" inputmode="numeric"></label>
+        <label class="f">je Person<div class="unit" data-unit="m³/h"><input type="number" id="t5q" value="30" inputmode="decimal"></div></label>
+      </div>
+      <div class="result" id="t5r"></div>
+      <p class="note">30 m³/h pro Person ist ein gängiger Ansatz für Büro und Klassenraum. Maßgeblich bleiben Planung und gültige Norm.</p>
+    </div></details>
+    <details><summary>Kältemittel CO₂-Äquivalent</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Kältemittel<select id="t4k"></select></label>
+        <label class="f">Füllmenge<div class="unit" data-unit="kg"><input type="number" id="t4m" value="3.2" step="0.1" inputmode="decimal"></div></label>
+      </div>
+      <div class="result" id="t4r"></div>
+      <p class="note">GWP-Werte nach F-Gase-Verordnung (AR4). Prüfintervalle als Richtwert ohne Leckage-Erkennungssystem. Für hermetisch geschlossene Geräte gilt die Grenze 10 t.</p>
+    </div></details>
+    <details><summary>Blechgewicht</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Fläche<div class="unit" data-unit="m²"><input type="number" id="t6a" value="12" step="0.1" inputmode="decimal"></div></label>
+        <label class="f">Blechdicke<div class="unit" data-unit="mm"><input type="number" id="t6s" value="0.8" step="0.1" inputmode="decimal"></div></label>
+      </div>
+      <div class="result" id="t6r"></div>
+    </div></details>
+  </section>
+
+  <section class="panel">
+    <h3>Einstellungen</h3>
+    <label class="f">Zusatz im PDF-Kopf (optional)<input id="setFirma" placeholder="z. B. Niederlassung Schwerin oder Kolonne 2"></label><p class="note" style="margin:-6px 0 0">Logo und Firmenname D+W Krüger stehen automatisch auf jeder PDF.</p>
+    <div class="grid">
+      <label class="f">Name Mitarbeiter<input id="setName" placeholder="z. B. Basti Muster"></label>
+      <label class="f">Personalnummer<input id="setPers" placeholder="z. B. 042"></label>
+      <label class="f">Sollstunden pro Tag (Mo–Fr)<div class="unit" data-unit="h"><input type="number" id="setSoll" step="0.25" min="0" inputmode="decimal"></div></label>
+    </div>
+    <label class="row" style="gap:10px;font-size:14px"><input type="checkbox" id="setFahrt"> Fahrzeit zählt als Arbeitszeit</label>
+    <p class="note" id="modeInfo"></p>
+  </section>
+
+  <section class="panel">
+    <h3>Datensicherung</h3>
+    <p class="note" style="margin:0">Sichert Aufmaß, Zeiterfassung, Bautagebuch und Fotos in eine Datei. Mach das regelmäßig und vor jedem Handywechsel.</p>
+    <div class="row"><button class="btn" id="bkExport">Sicherung erstellen</button><button class="btn" id="bkImport">Sicherung einspielen</button></div>
+    <input type="file" id="bkFile" accept=".json,application/json" hidden>
+  </section>
+</main>
+
+<datalist id="projektListe"></datalist>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="aufmass" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M3 8h13l5 5v3H3z"/><path d="M3 8l4-4h13v9"/><path d="M16 8v5h5"/></svg>Aufmaß</button>
+  <button role="tab" data-tab="bestellung" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.5h6V4M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>Bestellung</button>
+  <button role="tab" data-tab="zeit" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 3h6"/></svg>Zeit</button>
+  <button role="tab" data-tab="tagebuch" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18M11 8h6M11 12h6"/></svg>Tagebuch</button>
+  <button role="tab" data-tab="tools" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 18h2M12 18h2"/></svg>Mehr</button>
+</nav>
+
+<div class="modal" id="viz" hidden role="dialog" aria-label="Visualisierung">
+  <div class="box">
+    <div class="mh"><button id="vizClose" aria-label="Schließen">×</button><b>Visualisierung</b></div>
+    <div class="views">
+      <button class="btn small" data-view="links">Links</button>
+      <button class="btn small" data-view="vorne">Vorne</button>
+      <button class="btn small" data-view="rechts">Rechts</button>
+      <button class="btn small" data-view="oben">Oben</button>
+    </div>
+    <div class="viewer" id="vizHost"><div class="labels"></div><span class="hint">↶ Wischen zum Drehen · zwei Finger zum Zoomen ↷</span></div>
+    <div class="legend" id="vizLegend"></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="lightbox" id="lightbox" hidden><img id="lbImg" alt="Foto"></div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(() => {
+"use strict";
+const APP_VERSION = "3.1";
+const $ = s => document.querySelector(s);
+const fmt = (n, d=2) => Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const toast = msg => { const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,3400); };
+const deg = Math.PI/180;
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+// "artifact" = läuft im Claude-Chat, "app" = eigenständige App auf dem Handy (PWA / APK)
+const MODE = (window.claude && typeof window.claude.use === "function") ? "artifact" : "app";
+
+/* ================= Einstellungen (lokal) ================= */
+const LS = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+};
+const settings = () => ({firma:LS.get("kb_firma",""), name:LS.get("kb_name",""), pers:LS.get("kb_pers",""), soll:LS.get("kb_soll",8), fahrt:LS.get("kb_fahrt",false)});
+
+/* ================= Speicher ================= */
+const COLLS=["aufmass","tagebuch","bereiche","zeit","bestellungen"];
+const state = Object.fromEntries(COLLS.map(c=>[c,[]]));
+const idb = {
+  db:null,
+  open(){ return new Promise((res,rej)=>{ if(!window.indexedDB) return rej(new Error("kein IndexedDB"));
+    const r=indexedDB.open("kanalbuch",1);
+    r.onupgradeneeded=()=>{ const d=r.result; if(!d.objectStoreNames.contains("kv")) d.createObjectStore("kv"); if(!d.objectStoreNames.contains("blobs")) d.createObjectStore("blobs"); };
+    r.onsuccess=()=>{ this.db=r.result; res(); }; r.onerror=()=>rej(r.error); }); },
+  tx(store,mode,fn){ return new Promise((res,rej)=>{ const t=this.db.transaction(store,mode), s=t.objectStore(store); const q=fn(s); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); }); },
+  get(store,key){ return this.tx(store,"readonly",s=>s.get(key)); },
+  put(store,key,val){ return this.tx(store,"readwrite",s=>s.put(val,key)); },
+  del(store,key){ return this.tx(store,"readwrite",s=>s.delete(key)); },
+  keys(store){ return this.tx(store,"readonly",s=>s.getAllKeys()); }
+};
+let base=null, assets=null, onDataChange=()=>{};
+const persistTimers={};
+function persist(coll){
+  if(MODE!=="app"||!idb.db){ LS.set("kb_"+coll,state[coll]); return; }
+  clearTimeout(persistTimers[coll]);
+  persistTimers[coll]=setTimeout(()=>idb.put("kv",coll,state[coll]).catch(()=>toast("Speichern fehlgeschlagen – Speicher voll?")),150);
+}
+const store = {
+  async save(coll,obj){
+    const i=state[coll].findIndex(x=>x.id===obj.id); if(i>=0) state[coll][i]=obj; else state[coll].push(obj);
+    onDataChange();
+    if(base){ try{ await base.collection(coll).doc(obj.id).set(obj); }catch(e){ toast("Speichern fehlgeschlagen: "+(e.message||e.code)); } }
+    else persist(coll);
+  },
+  async del(coll,id){
+    state[coll]=state[coll].filter(x=>x.id!==id); onDataChange();
+    if(base){ try{ await base.collection(coll).doc(id).delete(); }catch(e){ toast("Löschen fehlgeschlagen"); } }
+    else persist(coll);
+  }
+};
+async function initStorage(){
+  // zuerst alte lokale Daten (frühere Versionen) laden
+  for(const c of COLLS) state[c]=LS.get("kb_"+c,[]);
+  if(MODE==="app"){
+    try{
+      await idb.open();
+      for(const c of COLLS){
+        const v=await idb.get("kv",c);
+        if(Array.isArray(v)) { const loc=state[c]; state[c]=v; loc.filter(l=>!v.some(x=>x.id===l.id)).forEach(l=>state[c].push(l)); }
+        if(LS.get("kb_"+c,null)){ await idb.put("kv",c,state[c]); try{localStorage.removeItem("kb_"+c);}catch(e){} }
+      }
+      if(navigator.storage?.persist) navigator.storage.persist().catch(()=>{});
+    }catch(e){ toast("Lokaler Speicher eingeschränkt – Daten bleiben nur in diesem Browser"); }
+    onDataChange(); return;
+  }
+  onDataChange();
+  try{
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    assets=await claude.use("assets").catch(()=>null);
+    if(!db||!user) return;
+    const id=await user.id(); if(!id) return;
+    base=db.doc("data/users/"+id+"/app");
+    for(const coll of COLLS){
+      const local=LS.get("kb_"+coll,[]); let first=true;
+      base.collection(coll).onSnapshot(snap=>{
+        state[coll]=snap.docs.map(d=>d.data());
+        if(first){ first=false;
+          local.filter(l=>!state[coll].some(s=>s.id===l.id)).forEach(m=>{state[coll].push(m);base.collection(coll).doc(m.id).set(m).catch(()=>{});});
+          LS.set("kb_"+coll,[]);
+        }
+        onDataChange();
+      },()=>{});
+    }
+  }catch(e){}
+}
+
+/* ================= Fotos ================= */
+const blobURLs=new Map(), blobLoading=new Set();
+const BLANK="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+function photoURL(p){
+  if(p.asset) return "/_blob/"+p.asset;
+  if(p.data) return p.data;
+  if(p.blob){
+    if(blobURLs.has(p.blob)) return blobURLs.get(p.blob);
+    if(!blobLoading.has(p.blob) && idb.db){ blobLoading.add(p.blob);
+      idb.get("blobs",p.blob).then(b=>{ if(b){ blobURLs.set(p.blob,URL.createObjectURL(b)); onDataChange(); } }).catch(()=>{}); }
+    return BLANK;
+  }
+  return BLANK;
+}
+function resizeImage(file,max,q){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);c.toBlob(b=>b?res({blob:b,canvas:c}):rej(),"image/jpeg",q);};img.onerror=rej;img.src=url;});}
+async function storePhoto(fileOrBlob){
+  if(MODE==="app" && idb.db){ const {blob}=await resizeImage(fileOrBlob,1800,0.82); const id="b"+uid(); await idb.put("blobs",id,blob); blobURLs.set(id,URL.createObjectURL(blob)); return {blob:id}; }
+  if(assets){ const {blob}=await resizeImage(fileOrBlob,1600,0.82); const r=await assets.upload(blob); return {asset:r.id}; }
+  const {canvas}=await resizeImage(fileOrBlob,900,0.6); return {data:canvas.toDataURL("image/jpeg",0.6)};
+}
+
+/* ================= Dateien teilen / speichern ================= */
+async function saveFile(blob,filename,okMsg){
+  if(MODE==="artifact"){
+    let dl=null; try{ dl=await claude.use("downloads"); }catch(e){}
+    if(!dl){ toast("Dateien speichern geht in dieser Ansicht nicht"); return; }
+    try{ await dl.save({filename,data:blob}); toast(okMsg||"Gespeichert"); }
+    catch(e){ if(!/declin|cancel|abort/i.test(e?.code||"")) toast("Speichern nicht möglich: "+(e?.message||e?.code||"")); }
+    return;
+  }
+  const file=new File([blob],filename,{type:blob.type||"application/octet-stream"});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],title:filename}); return; }
+    catch(e){ if(e.name==="AbortError") return; }
+  }
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; document.body.append(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},5000); toast("In Downloads gespeichert");
+}
+const fileSafe = s => String(s||"").replace(/[^\wäöüÄÖÜß-]+/g,"_").replace(/^_|_$/g,"")||"Datei";
+async function copyText(txt){ try{await navigator.clipboard.writeText(txt);toast("Kopiert");}catch(e){ const ta=document.createElement("textarea");ta.value=txt;document.body.append(ta);ta.select();try{document.execCommand("copy");toast("Kopiert");}catch(_){toast("Kopieren nicht möglich");} ta.remove(); } }
+
+/* ================= Standort & Wetter ================= */
+function getPos(){ return new Promise((res,rej)=>{ if(!navigator.geolocation) return rej(new Error("Kein GPS"));
+  navigator.geolocation.getCurrentPosition(p=>res({lat:+p.coords.latitude.toFixed(5),lon:+p.coords.longitude.toFixed(5),acc:Math.round(p.coords.accuracy)}),e=>rej(e),{enableHighAccuracy:true,timeout:12000,maximumAge:180000}); }); }
+async function reverseGeo(lat,lon){
+  const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=de`);
+  if(!r.ok) throw new Error("Ort nicht gefunden");
+  const j=await r.json(), a=j.address||{};
+  const street=[a.road,a.house_number].filter(Boolean).join(" ");
+  const city=a.city||a.town||a.village||a.municipality||a.suburb||"";
+  return [street,[a.postcode,city].filter(Boolean).join(" ")].filter(Boolean).join(", ")||j.display_name||"";
+}
+const WEATHER=["☀️ sonnig","⛅ heiter","☁️ bewölkt","🌫️ Nebel","🌦️ Schauer","🌧️ Regen","🌨️ Schnee","❄️ Frost","⛈️ Gewitter","💨 windig"];
+async function fetchWeather(lat,lon){
+  // Bright Sky: offene Daten des Deutschen Wetterdienstes, ohne Schlüssel
+  const r=await fetch(`https://api.brightsky.dev/current_weather?lat=${lat}&lon=${lon}`);
+  if(!r.ok) throw new Error("Wetterdienst nicht erreichbar");
+  const w=(await r.json()).weather||{};
+  const icon=w.icon||"", chips=[];
+  const map={"clear-day":"☀️ sonnig","clear-night":"☀️ sonnig","partly-cloudy-day":"⛅ heiter","partly-cloudy-night":"⛅ heiter","cloudy":"☁️ bewölkt","fog":"🌫️ Nebel","wind":"💨 windig","rain":"🌧️ Regen","sleet":"🌨️ Schnee","snow":"🌨️ Schnee","hail":"⛈️ Gewitter","thunderstorm":"⛈️ Gewitter"};
+  if(map[icon]) chips.push(map[icon]);
+  if(Number.isFinite(w.temperature) && w.temperature<=0) chips.push("❄️ Frost");
+  const ws=w.wind_speed_10 ?? w.wind_speed_30 ?? w.wind_speed_60;
+  const wind=!Number.isFinite(ws)?"":ws<2?"windstill":ws<20?"leichter Wind":ws<39?"mäßiger Wind":ws<75?"starker Wind":"Sturm";
+  return {chips,temp:Number.isFinite(w.temperature)?Math.round(w.temperature):"",wind,raw:{icon,temp:w.temperature,ws}};
+}
+async function autoPlaceWeather(){
+  const pos=await getPos();
+  const [ort,wx]=await Promise.allSettled([reverseGeo(pos.lat,pos.lon),fetchWeather(pos.lat,pos.lon)]);
+  return {pos, ort:ort.status==="fulfilled"?ort.value:"", wx:wx.status==="fulfilled"?wx.value:null, wxErr:wx.status==="rejected"};
+}
+function geoErrText(e){ if(e?.code===1) return "Standort nicht erlaubt – in den App-Einstellungen freigeben"; if(e?.code===3) return "GPS antwortet nicht – draußen nochmal versuchen"; return MODE==="artifact"?"Wetter & Ort automatisch gibt es in der Android-App":"Kein Standort/Internet verfügbar"; }
+
+/* ================= Teilekatalog ================= */
+const TYPES = {
+  KT:{name:"Kanalteil", f:{a:500,b:300,l:1000}},
+  BS:{name:"Bogen symmetrisch", f:{a:400,b:300,r:0,w:90,e:50,f:50}},
+  BA:{name:"Bogen asymmetrisch", f:{a:500,c:300,b:300,r:0,w:90,e:50,f:50}},
+  WS:{name:"Winkel symmetrisch", f:{a:400,b:300,w:90,e:50,f:50}},
+  WA:{name:"Winkel asymmetrisch", f:{a:500,c:300,b:300,w:90,e:50,f:50}},
+  US:{name:"Übergang symmetrisch", f:{a:600,b:400,c:400,d:300,l:500,g:50}},
+  UA:{name:"Übergang asymmetrisch", f:{a:600,b:400,c:400,d:300,l:500,e:100,f:50,g:50}},
+  RS:{name:"Rohrübergang symmetrisch", f:{a:400,b:300,d:250,l:400,g:50}, round:true},
+  RA:{name:"Rohrübergang asymmetrisch", f:{a:500,b:300,d:250,l:400,e:125,f:0,g:50}, round:true},
+  ES:{name:"Etage symmetrisch", f:{a:400,b:300,l:600,e:200,g:50}},
+  EA:{name:"Etage asymmetrisch", f:{a:400,b:300,l:600,e:200,f:100,g:50}},
+  TG:{name:"T-Stück oben gerade", f:{a:500,b:300,l:800,c:300,d:200,h:150,x:400}},
+};
+const FIELD_LABEL={a:"a-Maß",b:"b-Maß",c:"c-Maß",d:"d-Maß",l:"Länge l",e:"e-Maß",f:"f-Maß",g:"g-Maß",r:"Radius r",w:"Winkel α",h:"h-Maß",x:"x-Maß"};
+const FIELD_HINT={
+  KT:{a:"Breite",b:"Höhe"}, BS:{a:"Breite in Biegeebene",b:"Höhe",e:"gerade bis Rahmen",f:"gerade bis Rahmen",r:"innen"},
+  BA:{a:"Breite Anfang",c:"Breite Ende",b:"Höhe",e:"gerade bis Rahmen",f:"gerade bis Rahmen",r:"innen"},
+  WS:{a:"Breite",b:"Höhe",e:"innen bis Ecke",f:"innen bis Ecke"}, WA:{a:"Breite Anfang",c:"Breite Ende",b:"Höhe",e:"innen bis Ecke",f:"innen bis Ecke"},
+  US:{g:"gerader Ansatz"}, UA:{e:"Versatz seitlich",f:"Versatz Höhe",g:"gerader Ansatz"},
+  RS:{d:"Rohr-Ø",g:"gerader Ansatz"}, RA:{d:"Rohr-Ø",e:"Versatz seitlich",f:"Versatz Höhe",g:"gerader Ansatz"},
+  ES:{e:"Versatz",g:"gerader Ansatz"}, EA:{e:"Versatz seitlich",f:"Versatz Höhe",g:"gerader Ansatz"},
+  TG:{c:"Abzweig Breite",d:"Abzweig Höhe",h:"Stutzen",x:"Lage Mitte Abzweig"}
+};
+const SIGNED={UA:["e","f"],RA:["e","f"],ES:["e"],EA:["e","f"]};
+const LEGACY_MAP={kanal:"KT",bogen:"BS",etage:"ES",abzweig:"TG",rs:"RS",ra:"RA"};
+const LEGACY_NAME={rohr:"Rohr rund",deckel:"Enddeckel"};
+const LUFT=[["","–"],["ZUL","Zuluft"],["ABL","Abluft"],["AUL","Außenluft"],["FOL","Fortluft"],["UML","Umluft"]];
+const LUFT_COLOR={ZUL:"#2f7fd8",ABL:"#d9b21c",AUL:"#2e9e5b",FOL:"#8a5a2b",UML:"#9b59b6"};
+const CONN_RECT=[["auto","Automatisch"],["R20","20 mm Rahmen"],["R30","30 mm Rahmen"],["R40","40 mm Rahmen"],["SL","Schiebeleiste"],["0","ohne"]];
+const CONN_ROUND=[["NP","Nippel"],["MU","Muffe"],["0","ohne"]];
+const CONN_NAME=Object.fromEntries([...CONN_RECT,...CONN_ROUND]);
+const DRUCK=["Niederdruck","Mitteldruck","Hochdruck"];
+const typeName=t=>TYPES[t]?.name||LEGACY_NAME[t]||t;
+const defaults=t=>({...TYPES[t].f});
+const rahmenFor=s=>s<=500?"R20":s<=1250?"R30":"R40";
+const blechRichtwert=s=>s<=500?0.6:s<=1000?0.8:s<=2000?1.0:1.2;
+function normPos(p){
+  if(TYPES[p.type]||LEGACY_NAME[p.type]) return p;
+  const q={...p,v:{...p.v}};
+  if(p.type==="uebergang"){ q.type=(p.v.e||p.v.f)?"UA":"US"; if(q.type==="US"){delete q.v.e;delete q.v.f;} }
+  else q.type=LEGACY_MAP[p.type]||p.type;
+  if(!q.conn){ const r=p.rahmen?("R"+p.rahmen):"0"; q.conn={v1:r,v2:TYPES[q.type]?.round?"NP":r,v3:r}; }
+  if(!q.bez) q.bez="Pos. "+q.pos;
+  return q;
+}
+
+/* ================= Geometrie (mm) ================= */
+const add=(p,q)=>[p[0]+q[0],p[1]+q[1],p[2]+q[2]], mul=(p,s)=>[p[0]*s,p[1]*s,p[2]*s];
+const rectPts=(w,h,cx,cy,z)=>[[cx-w/2,cy-h/2,z],[cx+w/2,cy-h/2,z],[cx+w/2,cy+h/2,z],[cx-w/2,cy+h/2,z]];
+const loft=(A,B)=>A.map((_,i)=>{const j=(i+1)%A.length;return [A[i],A[j],B[j],B[i]];});
+const circlePts=(d,cx,cy,z,N=48)=>Array.from({length:N},(_,i)=>{const t=2*Math.PI*i/N;return [cx+d/2*Math.cos(t),cy+d/2*Math.sin(t),z];});
+function rectToRound(a,b,z0,d,cx,cy,z1){
+  const P=rectPts(a,b,0,0,z0),R=d/2,Q=t=>[cx+R*Math.cos(t),cy+R*Math.sin(t),z1],o=[],M=12;
+  for(let k=0;k<4;k++){ const th=(-90+90*k)*deg,P1=P[k],P2=P[(k+1)%4]; o.push([P1,P2,Q(th)]);
+    for(let i=0;i<M;i++) o.push([P2,Q(th+i*90*deg/M),Q(th+(i+1)*90*deg/M)]); }
+  return o;
+}
+function triArea(p,q,r){const u=[q[0]-p[0],q[1]-p[1],q[2]-p[2]],w=[r[0]-p[0],r[1]-p[1],r[2]-p[2]];return Math.hypot(u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0])/2;}
+const polyArea=p=>{let s=0;for(let i=1;i<p.length-1;i++)s+=triArea(p[0],p[i],p[i+1]);return s;};
+function geometry(type,v){
+  const polys=[],ends=[],dims=[],Z=[0,0,1],nZ=[0,0,-1],X=[1,0,0],Y=[0,1,0];
+  const D=(p1,p2,k,col)=>dims.push({p1,p2,k,col});
+  switch(type){
+    case "KT":
+      polys.push(...loft(rectPts(v.a,v.b,0,0,0),rectPts(v.a,v.b,0,0,v.l)));
+      ends.push({key:"v1",o:[0,0,0],n:nZ,u:X,v:Y,w:v.a,h:v.b},{key:"v2",o:[0,0,v.l],n:Z,u:X,v:Y,w:v.a,h:v.b});
+      D([-v.a/2,-v.b/2,0],[v.a/2,-v.b/2,0],"a","ab"); D([v.a/2,-v.b/2,0],[v.a/2,v.b/2,0],"b","ab"); D([v.a/2,-v.b/2,0],[v.a/2,-v.b/2,v.l],"l","l");
+      break;
+    case "US": case "UA": case "ES": case "EA": case "RS": case "RA": {
+      const round=type==="RS"||type==="RA", same=type==="ES"||type==="EA";
+      const c=same?v.a:v.c, d=round?v.d:(same?v.b:v.d);
+      const e=(type==="UA"||type==="RA"||same)?(v.e||0):0, f=(type==="UA"||type==="RA"||type==="EA")?(v.f||0):0;
+      polys.push(...loft(rectPts(v.a,v.b,0,0,0),rectPts(v.a,v.b,0,0,v.g)));
+      if(round){ polys.push(...rectToRound(v.a,v.b,v.g,d,e,f,v.l-v.g)); polys.push(...loft(circlePts(d,e,f,v.l-v.g),circlePts(d,e,f,v.l))); }
+      else { polys.push(...loft(rectPts(v.a,v.b,0,0,v.g),rectPts(c,d,e,f,v.l-v.g))); polys.push(...loft(rectPts(c,d,e,f,v.l-v.g),rectPts(c,d,e,f,v.l))); }
+      ends.push({key:"v1",o:[0,0,0],n:nZ,u:X,v:Y,w:v.a,h:v.b});
+      ends.push(round?{key:"v2",o:[e,f,v.l],n:Z,round:true,d}:{key:"v2",o:[e,f,v.l],n:Z,u:X,v:Y,w:c,h:d});
+      D([-v.a/2,-v.b/2,0],[v.a/2,-v.b/2,0],"a","ab"); D([-v.a/2,-v.b/2,0],[-v.a/2,v.b/2,0],"b","ab");
+      if(round) D([e-d/2,f,v.l],[e+d/2,f,v.l],"d","ab");
+      else if(!same){ D([e-c/2,f-d/2,v.l],[e+c/2,f-d/2,v.l],"c","ab"); D([e+c/2,f-d/2,v.l],[e+c/2,f+d/2,v.l],"d","ab"); }
+      D([v.a/2+30,-v.b/2,0],[v.a/2+30,-v.b/2,v.l],"l","l");
+      D([-v.a/2,v.b/2,0],[-v.a/2,v.b/2,v.g],"g","ef");
+      if(e) D([0,0,v.l],[e,0,v.l],"e","ef");
+      if(f) D([e,0,v.l],[e,f,v.l],"f","ef");
+      break; }
+    case "BS": case "BA": {
+      const al=v.w*deg,c=type==="BA"?v.c:v.a,N=Math.max(12,Math.ceil(v.w/3)),B=v.b/2,cx=v.r+v.a/2;
+      const wid=th=>v.a+(c-v.a)*th/al;
+      const pt=(th,rr,y)=>[cx-rr*Math.cos(th),y,rr*Math.sin(th)];
+      const ring=th=>[pt(th,v.r+wid(th),-B),pt(th,v.r,-B),pt(th,v.r,B),pt(th,v.r+wid(th),B)];
+      polys.push(...loft(ring(0).map(p=>[p[0],p[1],p[2]-v.e]),ring(0)));
+      for(let i=0;i<N;i++) polys.push(...loft(ring(al*i/N),ring(al*(i+1)/N)));
+      const T=[Math.sin(al),0,Math.cos(al)],U=[-Math.cos(al),0,Math.sin(al)];
+      polys.push(...loft(ring(al),ring(al).map(p=>add(p,mul(T,v.f)))));
+      ends.push({key:"v1",o:[0,0,-v.e],n:nZ,u:X,v:Y,w:v.a,h:v.b},{key:"v2",o:add(pt(al,v.r+c/2,0),mul(T,v.f)),n:T,u:U,v:Y,w:c,h:v.b});
+      D([-v.a/2,-B,-v.e],[v.a/2,-B,-v.e],"a","ab"); D([-v.a/2,-B,-v.e],[-v.a/2,B,-v.e],"b","ab");
+      if(type==="BA"){ const o=add(pt(al,v.r,-B),mul(T,v.f)); D(o,add(o,mul(U,c)),"c","ab"); }
+      D([v.a/2,-B,-v.e],[v.a/2,-B,0],"e","ef");
+      D(pt(al,v.r,-B),add(pt(al,v.r,-B),mul(T,v.f)),"f","ef");
+      if(v.r>0) D([cx,-B,0],pt(al/2,v.r,-B),"r","r"); else dims.push({p1:[v.a/2,-B,0],p2:[v.a/2,-B,0],k:"r",col:"r"});
+      break; }
+    case "WS": case "WA": {
+      const al=v.w*deg,c=type==="WA"?v.c:v.a,B=v.b/2,A2=v.a/2;
+      const T=[Math.sin(al),0,Math.cos(al)],U=[-Math.cos(al),0,Math.sin(al)];
+      const s0=(c*Math.cos(al)-v.a)/Math.sin(al);
+      const I0=[A2,0,0],Oc=[A2-c*Math.cos(al)+s0*Math.sin(al),0,c*Math.sin(al)+s0*Math.cos(al)];
+      const Iend=add(I0,mul(T,v.f)),Oend=add(add(I0,mul(U,c)),mul(T,v.f));
+      const Yp=(p,y)=>[p[0],y,p[2]];
+      const L1=[[A2,0,-v.e],I0,Oc,[-A2,0,-v.e]],L2=[I0,Oc,Oend,Iend];
+      for(const y of [-B,B]){ polys.push(L1.map(p=>Yp(p,y)),L2.map(p=>Yp(p,y))); }
+      const side=(p,q)=>polys.push([Yp(p,-B),Yp(q,-B),Yp(q,B),Yp(p,B)]);
+      side([A2,0,-v.e],I0); side([-A2,0,-v.e],Oc); side(I0,Iend); side(Oc,Oend);
+      ends.push({key:"v1",o:[0,0,-v.e],n:nZ,u:X,v:Y,w:v.a,h:v.b},{key:"v2",o:add(add(I0,mul(U,c/2)),mul(T,v.f)),n:T,u:U,v:Y,w:c,h:v.b});
+      D([-A2,-B,-v.e],[A2,-B,-v.e],"a","ab"); D([-A2,-B,-v.e],[-A2,B,-v.e],"b","ab");
+      if(type==="WA") D(Yp(Iend,-B),Yp(Oend,-B),"c","ab");
+      D([A2,-B,-v.e],[A2,-B,0],"e","ef"); D(Yp(I0,-B),Yp(Iend,-B),"f","ef");
+      break; }
+    case "TG": {
+      const x=v.a/2,bz0=v.x-v.c/2,bz1=v.x+v.c/2,by0=-v.d/2,by1=v.d/2,B=v.b/2,A=v.a/2;
+      const q=(...p)=>polys.push(p);
+      q([-A,-B,0],[A,-B,0],[A,-B,v.l],[-A,-B,v.l]); q([-A,B,0],[-A,B,v.l],[A,B,v.l],[A,B,0]); q([-A,-B,0],[-A,-B,v.l],[-A,B,v.l],[-A,B,0]);
+      const face=(za,zb,ya,yb)=>{ if(zb>za&&yb>ya) q([x,ya,za],[x,yb,za],[x,yb,zb],[x,ya,zb]); };
+      face(0,bz0,-B,B); face(bz1,v.l,-B,B); face(bz0,bz1,-B,by0); face(bz0,bz1,by1,B);
+      polys.push(...loft([[x,by0,bz0],[x,by0,bz1],[x,by1,bz1],[x,by1,bz0]],[[x+v.h,by0,bz0],[x+v.h,by0,bz1],[x+v.h,by1,bz1],[x+v.h,by1,bz0]]));
+      ends.push({key:"v1",o:[0,0,0],n:nZ,u:X,v:Y,w:v.a,h:v.b},{key:"v2",o:[0,0,v.l],n:Z,u:X,v:Y,w:v.a,h:v.b},{key:"v3",o:[x+v.h,0,v.x],n:X,u:[0,0,1],v:Y,w:v.c,h:v.d});
+      D([-A,-B,0],[A,-B,0],"a","ab"); D([-A,-B,0],[-A,B,0],"b","ab"); D([-A,-B,0],[-A,-B,v.l],"l","l");
+      D([x+v.h,by1,bz0],[x+v.h,by1,bz1],"c","ab"); D([x+v.h,by0,bz1],[x+v.h,by1,bz1],"d","ab");
+      D([x,by0,bz1],[x+v.h,by0,bz1],"h","l"); D([x,-B,0],[x,-B,v.x],"x","l");
+      break; }
+  }
+  return {polys,ends,dims};
+}
+const area=(type,v)=>geometry(type,v).polys.reduce((s,p)=>s+polyArea(p),0)/1e6;
+function resolveConn(conn,end){ if(end.round) return conn==="auto"?"NP":conn; return conn==="auto"?rahmenFor(Math.max(end.w,end.h)):conn; }
+function frameInfo(type,v,conn){
+  return geometry(type,v).ends.map(e=>{ const c=resolveConn(conn?.[e.key]||"auto",e); return {key:e.key,conn:c,round:!!e.round,w:e.w,h:e.h,d:e.d,per:e.round?Math.PI*e.d:2*(e.w+e.h)}; });
+}
+const endSection=p=>geometry(p.type,p.v).ends.find(x=>x.key==="v2");
+function validate(type,v){
+  const errs=[],signed=SIGNED[type]||[];
+  for(const [k,val] of Object.entries(v)){
+    if(!Number.isFinite(val)){ errs.push(`${k}-Maß fehlt`); continue; }
+    if(signed.includes(k)) continue;
+    if(["r","g","e","f","x"].includes(k)){ if(val<0) errs.push(`${k} darf nicht negativ sein`); }
+    else if(!(val>0)) errs.push(`${k} muss größer 0 sein`);
+  }
+  if((type==="BS"||type==="BA")&&(v.w<=0||v.w>180)) errs.push("Winkel zwischen 1 und 180°");
+  if((type==="WS"||type==="WA")&&(v.w<=0||v.w>150)) errs.push("Winkel zwischen 1 und 150°");
+  if(["US","UA","ES","EA","RS","RA"].includes(type)&&v.l<=2*v.g) errs.push("l muss größer als 2 × g sein");
+  if(type==="TG"){ if(v.d>v.b) errs.push("d darf nicht größer als b sein"); if(v.x-v.c/2<0||v.x+v.c/2>v.l) errs.push("Abzweig liegt außerhalb von l"); }
+  return errs;
+}
+function maszText(type,v){
+  const m=k=>v[k];
+  switch(type){
+    case "KT": return `${m("a")}×${m("b")} · l=${m("l")}`;
+    case "BS": return `${m("a")}×${m("b")} · r=${m("r")} · ${m("w")}° · e=${m("e")} f=${m("f")}`;
+    case "BA": return `${m("a")}/${m("c")}×${m("b")} · r=${m("r")} · ${m("w")}° · e=${m("e")} f=${m("f")}`;
+    case "WS": return `${m("a")}×${m("b")} · ${m("w")}° · e=${m("e")} f=${m("f")}`;
+    case "WA": return `${m("a")}/${m("c")}×${m("b")} · ${m("w")}° · e=${m("e")} f=${m("f")}`;
+    case "US": return `${m("a")}×${m("b")} → ${m("c")}×${m("d")} · l=${m("l")} · g=${m("g")}`;
+    case "UA": return `${m("a")}×${m("b")} → ${m("c")}×${m("d")} · l=${m("l")} · e=${m("e")} f=${m("f")} · g=${m("g")}`;
+    case "RS": return `${m("a")}×${m("b")} → Ø${m("d")} · l=${m("l")} · g=${m("g")}`;
+    case "RA": return `${m("a")}×${m("b")} → Ø${m("d")} · l=${m("l")} · e=${m("e")} f=${m("f")} · g=${m("g")}`;
+    case "ES": return `${m("a")}×${m("b")} · l=${m("l")} · e=${m("e")} · g=${m("g")}`;
+    case "EA": return `${m("a")}×${m("b")} · l=${m("l")} · e=${m("e")} f=${m("f")} · g=${m("g")}`;
+    case "TG": return `${m("a")}×${m("b")} · l=${m("l")} · Abzw. ${m("c")}×${m("d")} h=${m("h")} x=${m("x")}`;
+    case "rohr": return `Ø${m("d")} · l=${m("l")}`;
+    case "deckel": return `${m("a")}×${m("b")} · h=${m("h")}`;
+  }
+  return "";
+}
+
+/* ================= Icons ================= */
+function iconSide(t){
+  const P=d=>`<path class="ic" d="${d}"/>`;
+  switch(t){
+    case "KT": return P("M4,10H44V30H4Z");
+    case "BS": return P("M4,4H12A30,30 0 0 1 42,34V38H30V34A18,18 0 0 0 12,16H4Z")+`<path class="ic-l" d="M12,4V16M30,34H42"/>`;
+    case "BA": return P("M8,4H16A24,26 0 0 1 40,30V38H32V30A16,14 0 0 0 16,16H8Z")+`<path class="ic-l" d="M16,4V16M32,30H40"/>`;
+    case "WS": return P("M4,4H42V38H30V16H4Z")+`<path class="ic-l" d="M30,16L42,4"/>`;
+    case "WA": return P("M10,4H34V38H28V16H10Z")+`<path class="ic-l" d="M28,16L34,4"/>`;
+    case "US": return P("M6,6L42,13V27L6,34Z");
+    case "UA": return P("M6,6H42V20L6,34Z");
+    case "RS": return P("M5,6L36,14V26L5,34Z")+P("M36,15H43V25H36Z")+`<path class="ic-l" d="M5,6L36,20L5,34"/>`;
+    case "RA": return P("M5,6L36,6V18L5,34Z")+P("M36,6H43V18H36Z")+`<path class="ic-l" d="M5,6L36,12L5,34"/>`;
+    case "ES": return P("M6,14L42,4V26L6,36Z");
+    case "EA": return P("M6,10L42,4V22L6,34Z");
+    case "TG": return P("M4,6H44V18H31V34H17V18H4Z");
+    case "rohr": return P("M6,12H42V28H6Z");
+    case "deckel": return P("M20,6H28V34H20Z");
+  }
+  return P("M4,10H44V30H4Z");
+}
+function iconFront(t){
+  const R=(x,y,w,h,c="ic-o")=>`<rect class="${c}" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
+  switch(t){
+    case "BS": case "BA": case "WS": case "WA": return `<rect class="ic" x="12" y="4" width="24" height="32"/><path class="ic-l" d="M12,26H36M12,31H36"/>`;
+    case "US": return R(10,5,28,30)+R(16,11,16,18)+`<path class="ic-l" d="M10,5L16,11M38,5L32,11M38,35L32,29M10,35L16,29"/>`;
+    case "UA": return R(8,5,32,30)+R(8,5,18,18)+`<path class="ic-l" d="M26,5L40,5M26,23L40,35M8,23L8,35"/>`;
+    case "RS": return R(9,5,30,30)+`<circle class="ic-o" cx="24" cy="20" r="9"/><path class="ic-l" d="M9,5L17,14M39,5L31,14M39,35L31,26M9,35L17,26"/>`;
+    case "RA": return R(9,5,30,30)+`<circle class="ic-o" cx="18" cy="14" r="8"/><path class="ic-l" d="M9,5L12,8M39,5L25,10M39,35L23,20M9,35L12,20"/>`;
+    case "ES": return R(12,6,24,28)+`<path class="ic-l" d="M12,10H36"/>`;
+    case "EA": return R(12,4,24,32)+`<path class="ic-l" d="M12,18H36M12,22H36"/>`;
+    case "TG": return `<rect class="ic" x="10" y="6" width="28" height="28"/><path class="ic-l" d="M10,16H38M10,24H38"/>`;
+  }
+  return R(12,6,24,28);
+}
+const icons=t=>`<div class="icons" aria-hidden="true"><svg viewBox="0 0 48 40">${iconSide(t)}</svg><svg viewBox="0 0 48 40">${iconFront(t)}</svg></div>`;
+
+/* ================= DIN-Skizzen ================= */
+function arrowHead(x,y,ang){const s=7,w=2.6,c=Math.cos(ang),si=Math.sin(ang);return `<path class="sk-arrow" d="M${x},${y}L${x-s*c+w*si},${y-s*si-w*c}L${x-s*c-w*si},${y-s*si+w*c}Z"/>`;}
+function dim(x1,y1,x2,y2,label,off=16){
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L,sg=off<0?-1:1;
+  const ax=x1+nx*off,ay=y1+ny*off,bx=x2+nx*off,by=y2+ny*off,ang=Math.atan2(by-ay,bx-ax);
+  let a=ang*180/Math.PI; if(a>90||a<=-90) a+=180;
+  const mx=(ax+bx)/2+nx*7*sg,my=(ay+by)/2+ny*7*sg;
+  return `<path class="sk-dim" d="M${x1+nx*3*sg},${y1+ny*3*sg}L${ax+nx*4*sg},${ay+ny*4*sg}M${x2+nx*3*sg},${y2+ny*3*sg}L${bx+nx*4*sg},${by+ny*4*sg}M${ax},${ay}L${bx},${by}"/>${arrowHead(bx,by,ang)}${arrowHead(ax,ay,ang+Math.PI)}`+
+    (label?`<text class="sk-txt" x="${mx}" y="${my}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${a} ${mx} ${my})">${label}</text>`:"");
+}
+const LBL=(x,y,s)=>`<text class="sk-lbl" x="${x}" y="${y}">${s}</text>`;
+const TXT=(x,y,s,anc="start")=>`<text class="sk-txt" x="${x}" y="${y}" text-anchor="${anc}">${s}</text>`;
+const sect=(x,y,w,h)=>`<rect class="sk-open" x="${x}" y="${y}" width="${w}" height="${h}"/><path class="sk-thin" d="M${x},${y}L${x+w},${y+h}M${x+w},${y}L${x},${y+h}"/>`;
+const frV=(x,y1,y2,dir=-1)=>`<rect class="sk-frame" x="${dir<0?x-4:x}" y="${y1-5}" width="4" height="${y2-y1+10}"/>`;
+const frH=(y,x1,x2,dir=1)=>`<rect class="sk-frame" x="${x1-5}" y="${dir<0?y-4:y}" width="${x2-x1+10}" height="4"/>`;
+const PRINT_CSS=`.sk-body{fill:#c3cad0;stroke:#111;stroke-width:1.5}.sk-open{fill:none;stroke:#111;stroke-width:1.5}.sk-thin{fill:none;stroke:#111;stroke-width:.8}.sk-center{fill:none;stroke:#777;stroke-width:.7;stroke-dasharray:12 3 2 3}.sk-dim{stroke:#1f4e79;stroke-width:.8;fill:none}.sk-arrow{fill:#1f4e79}.sk-txt{fill:#1f4e79;font:600 12px "Courier New",monospace}.sk-lbl{fill:#666;font:700 10px Arial,sans-serif;letter-spacing:1px}.sk-frame{fill:#111}.sk-fr{fill:none;stroke:#111;stroke-width:4}.sk-end{fill:none;stroke:#e2700e;stroke-width:1.6;stroke-dasharray:5 3}.sk-endc{fill:none;stroke:#e2700e;stroke-width:1}.sk-endt{fill:#e2700e}.sk-note{fill:#777;font:italic 10px Arial,sans-serif}`;
+/* --- maßstäbliche Ansichten: Punkte (u nach rechts, v nach unten) in ein Feld einpassen --- */
+function fitView(pts,box,s){
+  let u0=1e9,u1=-1e9,v0=1e9,v1=-1e9;
+  for(const [u,v] of pts){ u0=Math.min(u0,u);u1=Math.max(u1,u);v0=Math.min(v0,v);v1=Math.max(v1,v); }
+  const sc=s??Math.min(box.w/((u1-u0)||1),box.h/((v1-v0)||1));
+  const ox=box.x+(box.w-(u1-u0)*sc)/2-u0*sc, oy=box.y+(box.h-(v1-v0)*sc)/2-v0*sc;
+  return {s:sc,T:([u,v])=>[+(ox+u*sc).toFixed(1),+(oy+v*sc).toFixed(1)]};
+}
+const skPoly=(P,cls="sk-body")=>`<path class="${cls}" d="M${P.map(p=>p.join(",")).join("L")}Z"/>`;
+const skLine=(P,cls="sk-thin")=>`<path class="${cls}" d="M${P.map(p=>p.join(",")).join("L")}"/>`;
+const skFrame=(p,q)=>`<path class="sk-fr" d="M${p[0]},${p[1]}L${q[0]},${q[1]}"/>`;
+const centroid=P=>[P.reduce((s,p)=>s+p[0],0)/P.length,P.reduce((s,p)=>s+p[1],0)/P.length];
+/* Maßkette, die immer von der Form weg zeigt */
+function dimOut(p,q,label,dist,C){
+  const dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy); if(L<4) return "";
+  const nx=-dy/L,ny=dx/L,mx=(p[0]+q[0])/2-C[0],my=(p[1]+q[1])/2-C[1];
+  return dim(p[0],p[1],q[0],q[1],label,(mx*nx+my*ny)>=0?dist:-dist);
+}
+/* kurzer Abstand zwischen zwei Achsen (e/f-Versatz) */
+function offsetDim(x,y0,y1,label){
+  if(Math.abs(y1-y0)<16) return TXT(x+6,Math.min(y0,y1)-5,label);
+  return `<path class="sk-dim" d="M${x},${y0}L${x},${y1}"/>`+arrowHead(x,y1,y1>y0?Math.PI/2:-Math.PI/2)+arrowHead(x,y0,y1>y0?-Math.PI/2:Math.PI/2)+TXT(x+6,(y0+y1)/2+4,label);
+}
+
+/* Übergänge, Rohrübergänge und Etagen – Draufsicht, Seitenansicht und Ansicht V2, alles maßstäblich */
+function transSketch(v,o){
+  const L=k=>`${k} = ${v[k]}`, a=v.a, b=v.b, l=v.l, g=v.g;
+  const c=o.same?a:(o.round?v.d:v.c), d=o.same?b:v.d, e=o.e||0, f=o.f||0;
+  const wMin=Math.min(-a/2,e-c/2), wMax=Math.max(a/2,e+c/2), hMin=Math.min(-b/2,f-d/2), hMax=Math.max(b/2,f+d/2);
+  const sx=Math.min(64/(wMax-wMin),68/(hMax-hMin));
+  const Lpx=Math.min(176,Math.max(100,l*sx)), k=Lpx/(l*sx), z=t=>t*k;
+  // Draufsicht: Länge nach rechts, Breite (+x) nach oben – wie in der 3D-Ansicht "Oben"
+  const topM=[[0,-a/2],[z(g),-a/2],[z(l-g),-(e+c/2)],[z(l),-(e+c/2)],[z(l),-(e-c/2)],[z(l-g),-(e-c/2)],[z(g),a/2],[0,a/2]];
+  const sideM=[[0,-b/2],[z(g),-b/2],[z(l-g),-(f+d/2)],[z(l),-(f+d/2)],[z(l),-(f-d/2)],[z(l-g),-(f-d/2)],[z(g),b/2],[0,b/2]];
+  const FT=fitView(topM,{x:46,y:44,w:176,h:66},sx), FS=fitView(sideM,{x:46,y:184,w:176,h:72},sx);
+  const view=(F,M,lab,ly,w0,w1,off,keyA,keyB,showB,showL)=>{
+    const P=M.map(F.T), C=centroid(P), y0=F.T([0,0])[1], yo=F.T([0,-off])[1], xm=(P[1][0]+P[2][0])/2;
+    const yTop=Math.min(...P.map(p=>p[1])), yBot=Math.max(...P.map(p=>p[1]));
+    let s=LBL(16,ly,lab)+skPoly(P)+skLine([P[1],P[6]])+skLine([P[2],P[5]])
+      +frV(P[0][0],P[0][1],P[7][1])+(o.round?"":frV(P[3][0],P[3][1],P[4][1],1))
+      +`<path class="sk-center" d="M${P[0][0]-10},${y0}H${(xm+12).toFixed(1)}M${(xm-12).toFixed(1)},${yo}H${P[3][0]+10}"/>`
+      +dim(P[0][0],P[0][1],P[0][0],P[7][1],L(keyA),16)
+      +(showB?dim(P[3][0],P[4][1],P[3][0],P[3][1],showB,16):"");
+    if(showL) s+=dim(P[0][0],yBot,P[3][0],yBot,L("l"),22)+dim(P[0][0],yTop,P[1][0],yTop,"",-10)+TXT((P[0][0]+P[1][0])/2,yTop-16,"g = "+g,"middle");
+    if(off) s+=offsetDim(xm,y0,yo,L(keyB));
+    return s;
+  };
+  let s=view(FT,topM,"Draufsicht",14,a,c,e,"a","e",o.same?"":(o.round?"Ø = "+v.d:L("c")),true)
+       +view(FS,sideM,"Seitenansicht",162,b,d,f,"b","f",(o.round||o.same)?"":L("d"),false);
+  // Ansicht von V2: Anfang (grau) und Ende (gestrichelt) übereinander
+  const st=[[-a/2,-b/2],[a/2,-b/2],[a/2,b/2],[-a/2,b/2]];
+  const en=o.round?[[e-d/2,-(f+d/2)],[e+d/2,-(f-d/2)]]:[[e-c/2,-(f+d/2)],[e+c/2,-(f+d/2)],[e+c/2,-(f-d/2)],[e-c/2,-(f-d/2)]];
+  const FF=fitView([...st,...en],{x:272,y:120,w:70,h:70},sx), S=st.map(FF.T), cen=FF.T([e,-f]), c0=FF.T([0,0]);
+  s+=LBL(270,108,"Ansicht V2")+skPoly(S);
+  s+=o.round?`<circle class="sk-end" cx="${cen[0]}" cy="${cen[1]}" r="${(d/2*sx).toFixed(1)}"/>`:skPoly(en.map(FF.T),"sk-end");
+  s+=`<path class="sk-thin" d="M${c0[0]-4},${c0[1]}h8M${c0[0]},${c0[1]-4}v8"/><path class="sk-endc" d="M${cen[0]-5},${cen[1]}h10M${cen[0]},${cen[1]-5}v10"/>`;
+  s+=TXT(272,212,`V1 ${a}×${b}`)+`<text class="sk-txt sk-endt" x="272" y="227">${o.round?`V2 Ø${v.d}`:`V2 ${c}×${d}`}</text>`;
+  if(Math.abs(k-1)>0.15) s+=`<text class="sk-note" x="46" y="292">Länge ${k<1?"verkürzt":"gestreckt"} gezeichnet, Querschnitte maßstäblich</text>`;
+  return s;
+}
+
+/* Bogen symmetrisch / asymmetrisch – Draufsicht mit echtem Winkel und Radius */
+function bendSketch(type,v){
+  const L=k=>`${k} = ${v[k]}`, al=v.w*deg, c=type==="BA"?v.c:v.a, r=v.r, cx=r+v.a/2;
+  const wid=th=>v.a+(c-v.a)*th/al, P=(th,rr)=>[cx-rr*Math.cos(th),rr*Math.sin(th)], T=[Math.sin(al),Math.cos(al)];
+  const N=Math.max(8,Math.ceil(v.w/4)), outer=[], inner=[];
+  for(let i=0;i<=N;i++){ const th=al*i/N; outer.push(P(th,r+wid(th))); inner.push(P(th,r)); }
+  const oEnd=[outer[N][0]+T[0]*v.f,outer[N][1]+T[1]*v.f], iEnd=[inner[N][0]+T[0]*v.f,inner[N][1]+T[1]*v.f];
+  const s0=[-v.a/2,-v.e], i0=[v.a/2,-v.e];
+  const XZ=[s0,...outer,oEnd,iEnd,...inner.slice().reverse(),i0], UV=p=>[p[1],-p[0]];
+  const F=fitView([...XZ.map(UV),UV([cx,0])],{x:50,y:56,w:190,h:196}), S=p=>F.T(UV(p));
+  const SP=XZ.map(S), C=centroid(SP), ctr=S([cx,0]);
+  let s=LBL(16,22,"Draufsicht")+skPoly(SP)+skLine([S(outer[0]),S(inner[0])])+skLine([S(outer[N]),S(inner[N])])
+    +skFrame(S(s0),S(i0))+skFrame(S(oEnd),S(iEnd))
+    +dimOut(S(s0),S(i0),L("a"),14,C)
+    +(v.e>0?dimOut(S(i0),S(inner[0]),L("e"),14,C):"")
+    +(v.f>0?dimOut(S(inner[N]),S(iEnd),L("f"),14,C):"")
+    +(type==="BA"?dimOut(S(iEnd),S(oEnd),L("c"),14,C):"");
+  const mid=S(inner[Math.round(N/2)]);
+  s+=`<circle class="sk-arrow" cx="${ctr[0]}" cy="${ctr[1]}" r="2"/>`;
+  if(r>0){ const ang=Math.atan2(mid[1]-ctr[1],mid[0]-ctr[0]); s+=`<path class="sk-dim" d="M${ctr[0]},${ctr[1]}L${mid[0]},${mid[1]}"/>`+arrowHead(mid[0],mid[1],ang); }
+  const away=[ctr[0]-C[0],ctr[1]-C[1]], al2=Math.hypot(...away)||1, tx=ctr[0]+away[0]/al2*16, ty=ctr[1]+away[1]/al2*16;
+  s+=TXT(tx,ty,L("r"),away[0]<0?"end":"start")+TXT(tx,ty+14,"α = "+v.w+"°",away[0]<0?"end":"start");
+  s+=LBL(272,22,"Schnitt")+sect(266,60,70,50)+dim(336,110,336,60,L("b"),14);
+  return s;
+}
+
+/* Winkel symmetrisch / asymmetrisch – Draufsicht mit echtem Winkel */
+function elbowSketch(type,v){
+  const L=k=>`${k} = ${v[k]}`, al=v.w*deg, c=type==="WA"?v.c:v.a, A2=v.a/2;
+  const T=[Math.sin(al),Math.cos(al)], U=[-Math.cos(al),Math.sin(al)], s0=(c*Math.cos(al)-v.a)/Math.sin(al);
+  const I0=[A2,0], Oc=[A2-c*Math.cos(al)+s0*Math.sin(al),c*Math.sin(al)+s0*Math.cos(al)];
+  const Iend=[I0[0]+T[0]*v.f,I0[1]+T[1]*v.f], Oend=[I0[0]+U[0]*c+T[0]*v.f,I0[1]+U[1]*c+T[1]*v.f];
+  const st0=[A2,-v.e], st1=[-A2,-v.e], XZ=[st0,I0,Iend,Oend,Oc,st1], UV=p=>[p[1],-p[0]];
+  const F=fitView(XZ.map(UV),{x:50,y:56,w:190,h:196}), S=p=>F.T(UV(p)), SP=XZ.map(S), C=centroid(SP);
+  let s=LBL(16,22,"Draufsicht")+skPoly(SP)+skLine([S(I0),S(Oc)])+skFrame(S(st0),S(st1))+skFrame(S(Iend),S(Oend))
+    +dimOut(S(st1),S(st0),L("a"),14,C)
+    +(v.e>0?dimOut(S(st0),S(I0),L("e"),14,C):"")
+    +(v.f>0?dimOut(S(I0),S(Iend),L("f"),14,C):"")
+    +(type==="WA"?dimOut(S(Iend),S(Oend),L("c"),14,C):"");
+  const p=S(I0), q=S(Oc), m=[p[0]+(q[0]-p[0])*0.55,p[1]+(q[1]-p[1])*0.55];
+  s+=`<text class="sk-txt" x="${m[0]+8}" y="${m[1]+4}">α = ${v.w}°</text>`;
+  s+=LBL(272,22,"Schnitt")+sect(266,60,70,50)+dim(336,110,336,60,L("b"),14);
+  return s;
+}
+
+function sketch(type,v,print){
+  const L=k=>`${k} = ${v[k]}`; let body="",vb=[360,240];
+  switch(type){
+    case "KT":
+      body=LBL(20,24,"Ansicht")+`<rect class="sk-body" x="20" y="70" width="200" height="80"/><path class="sk-center" d="M8,110H232"/>`
+        +frV(20,70,150)+frV(220,70,150,1)+dim(20,150,220,150,L("l"),24)+dim(220,150,220,70,L("b"),18)
+        +LBL(270,24,"Schnitt")+sect(262,80,80,52)+dim(262,80,342,80,L("a"),-16);
+      break;
+    case "BS": case "BA": vb=[360,280]; body=bendSketch(type,v); break;
+    case "WS": case "WA": vb=[360,280]; body=elbowSketch(type,v); break;
+    case "US": vb=[360,300]; body=transSketch(v,{}); break;
+    case "UA": vb=[360,300]; body=transSketch(v,{e:v.e,f:v.f}); break;
+    case "RS": vb=[360,300]; body=transSketch(v,{round:true}); break;
+    case "RA": vb=[360,300]; body=transSketch(v,{round:true,e:v.e,f:v.f}); break;
+    case "ES": vb=[360,300]; body=transSketch(v,{same:true,e:v.e}); break;
+    case "EA": vb=[360,300]; body=transSketch(v,{same:true,e:v.e,f:v.f}); break;
+    case "TG":
+      body=LBL(16,22,"Draufsicht")+`<path class="sk-body" d="M20,110H120V60H200V110H260V180H20Z"/><path class="sk-center" d="M10,145H270M160,46V192"/>`
+        +frV(20,110,180)+frV(260,110,180,1)+frH(60,120,200,-1)
+        +dim(20,180,260,180,L("l"),24)+dim(260,180,260,110,L("a"),18)+dim(120,60,200,60,L("c"),-16)
+        +dim(200,110,200,60,L("h"),18)+dim(20,110,160,110,L("x"),-40)
+        +LBL(296,22,"Schnitt")+sect(292,70,52,40)+TXT(292,128,"b = "+v.b)+TXT(292,144,"d = "+v.d);
+      break;
+  }
+  const size=print?` width="${vb[0]*2}" height="${vb[1]*2}"`:"";
+  return `<svg viewBox="0 0 ${vb[0]} ${vb[1]}"${size} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skizze ${esc(typeName(type))}">${print?`<rect width="100%" height="100%" fill="#fff"/><style>${PRINT_CSS}</style>`:""}${body}</svg>`;
+}
+
+/* ================= Firmenlogo (D+W Krüger) ================= */
+const BRAND={name:"D+W Krüger Klimatechnik GmbH",addr:"Hopfenbruchweg 1 · 19059 Schwerin",tel:"0385 731940",web:"www.krueger-klimatechnik.de",mail:"info@krueger-klimatechnik.de"};
+const BC={navy:[36,71,127],orange:[232,116,59],blue:[63,155,219],teal:[77,176,200],dblue:[31,78,140],ink:[28,39,54],grey:[98,112,137],line:[217,224,234],soft:[244,246,250],tint:[253,238,229]};
+const LOGO_SVG=(()=>{
+  const R=48,ri=19,rm=(R+ri)/2,g=7,d=13,P=(r,a)=>[r*Math.cos(a*deg),-r*Math.sin(a*deg)];
+  let svg="";
+  for(const [s,e,col] of [[190,100,"#3f9bdb"],[100,-10,"#4db0c8"],[-10,-100,"#e8743b"],[-100,-190,"#1f4e8c"]]){
+    const s2=s-g/2,e2=e+g/2,pts=[];
+    for(let i=0;i<=24;i++) pts.push(P(R,s2+(e2-s2)*i/24));
+    pts.push(P(rm,e2-d));
+    for(let i=0;i<=24;i++) pts.push(P(ri,e2+(s2-e2)*i/24));
+    pts.push(P(rm,s2-d));
+    svg+=`<path fill="${col}" d="M${pts.map(p=>p.map(n=>n.toFixed(2)).join(" ")).join("L")}Z"/>`;
+  }
+  // Sonne/Schneeflocke oben links, Strömungspfeile, MSR
+  const [sx,sy]=P(rm,147); let sun=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="4" fill="none" stroke="#fff" stroke-width="1.3"/>`;
+  for(let k=0;k<12;k++){ const a=90+k*30,[x1,y1]=P(5.6,a),[x2,y2]=P(k%2?7.8:9.4,a); sun+=`<path d="M${(sx+x1).toFixed(1)} ${(sy+y1).toFixed(1)}L${(sx+x2).toFixed(1)} ${(sy+y2).toFixed(1)}" stroke="#fff" stroke-width="1.3"/>`; }
+  const arc=(r,a0,a1)=>{ const pts=[]; for(let i=0;i<=16;i++) pts.push(P(r,a0+(a1-a0)*i/16)); const [hx,hy]=P(r,a1-4),t=a1*deg,tx=Math.sin(t),ty=Math.cos(t),nx=Math.cos(t),ny=-Math.sin(t);
+    return `<path d="M${pts.map(p=>p.map(n=>n.toFixed(1)).join(" ")).join("L")}" fill="none" stroke="#fff" stroke-width="1.7"/><path d="M${(hx+tx*3.8).toFixed(1)} ${(hy+ty*3.8).toFixed(1)}L${(hx-tx*2.4+nx*3.3).toFixed(1)} ${(hy-ty*2.4+ny*3.3).toFixed(1)}L${(hx-tx*2.4-nx*3.3).toFixed(1)} ${(hy-ty*2.4-ny*3.3).toFixed(1)}Z" fill="#fff"/>`; };
+  let arrows=""; for(const r of [rm-3.8,rm+4.8]) arrows+=arc(r,82,18)+arc(r,-112,-168);
+  const [mx,my]=P(rm,-55);
+  return svg+sun+arrows+`<text x="${mx.toFixed(1)}" y="${(my+3.4).toFixed(1)}" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="10" text-anchor="middle">MSR</text>`;
+})();
+let LOGO_PNG=null;
+function loadLogo(){ if(LOGO_PNG) return Promise.resolve(LOGO_PNG);
+  return new Promise(res=>{ const img=new Image(); img.onload=()=>{ const c=document.createElement("canvas"); c.width=c.height=360; c.getContext("2d").drawImage(img,0,0,360,360); try{LOGO_PNG=c.toDataURL("image/png");}catch(e){} res(LOGO_PNG); }; img.onerror=()=>res(null);
+    img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100" width="360" height="360">${LOGO_SVG}</svg>`); }); }
+loadLogo();
+
+/* ================= PDF-Grundlagen ================= */
+const pdfSafe=s=>String(s??"").replace(/→/g,"->").replace(/α/g,"Winkel").replace(/[–—]/g,"-").replace(/…/g,"...").replace(/[„“”]/g,'"').replace(/[^\x00-\xFF]/g,"").replace(/\s{2,}/g," ").trim();
+function svgToPng(svg){ return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0);res({url:c.toDataURL("image/png"),w:c.width,h:c.height});}; img.onerror=rej; img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg); }); }
+function loadPhoto(src,max=1400,crop){ return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{
+  let sx=0,sy=0,sw=img.width,sh=img.height;
+  if(crop){ const r=crop; if(sw/sh>r){ const w=sh*r; sx=(sw-w)/2; sw=w; } else { const h=sw/r; sy=(sh-h)/2; sh=h; } }
+  const s=Math.min(1,max/Math.max(sw,sh));const c=document.createElement("canvas");c.width=Math.round(sw*s);c.height=Math.round(sh*s);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);res({url:c.toDataURL("image/jpeg",0.84),w:c.width,h:c.height});}; img.onerror=rej; img.src=src; }); }
+/* Briefkopf mit Logo und Firmenname – für jede PDF der App gleich */
+function pdfDoc(title,sub,orientation="p"){
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:"mm",format:"a4",orientation});
+  const W=doc.internal.pageSize.getWidth(), M=12;
+  doc._W=W; doc._H=doc.internal.pageSize.getHeight();
+  doc._kbHead=(cont)=>{
+    if(LOGO_PNG) doc.addImage(LOGO_PNG,"PNG",M,5,19,19);
+    const tx=M+(LOGO_PNG?22.5:0);
+    doc.setTextColor(...BC.orange); doc.setFont("helvetica","normal"); doc.setFontSize(15); doc.text("D+W",tx,12);
+    doc.setFont("helvetica","bold"); doc.text("KRÜGER",tx+doc.getTextWidth("D+W "),12);
+    doc.setFont("helvetica","normal"); doc.setFontSize(9.2); doc.text("KLIMATECHNIK GmbH",tx,17.2);
+    doc.setTextColor(...BC.navy); doc.setFontSize(7.8); doc.text("Klima. Lüftung. MSR",tx,21.6);
+    doc.setFont("helvetica","bold"); doc.setFontSize(15); doc.setTextColor(...BC.navy);
+    doc.text(pdfSafe(title).toUpperCase()+(cont?"  (Forts.)":""),W-M,12,{align:"right",maxWidth:W-110});
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.6); doc.setTextColor(...BC.grey);
+    if(sub) doc.text(doc.splitTextToSize(pdfSafe(sub),W-120)[0],W-M,17.5,{align:"right"});
+    const f=pdfSafe(settings().firma); doc.text([f,"Stand "+new Date().toLocaleDateString("de-DE")].filter(Boolean).join("  ·  "),W-M,22,{align:"right"});
+    const seg=(W-2*M)/4; [BC.blue,BC.teal,BC.orange,BC.dblue].forEach((c,i)=>{ doc.setFillColor(...c); doc.rect(M+i*seg,26.6,seg,1.1,"F"); });
+    doc.setTextColor(20); doc.setFont("helvetica","normal");
+  };
+  doc._kbHead(); return doc;
+}
+function pdfFinish(doc){
+  const n=doc.getNumberOfPages();
+  for(let i=1;i<=n;i++){ doc.setPage(i); const W=doc._W,H=doc._H;
+    doc.setDrawColor(...BC.line); doc.setLineWidth(0.25); doc.line(12,H-11,W-12,H-11);
+    doc.setFont("helvetica","normal"); doc.setFontSize(7.3); doc.setTextColor(...BC.grey);
+    doc.text(pdfSafe(`${BRAND.name} · ${BRAND.addr} · ${BRAND.tel} · ${BRAND.web}`),12,H-7);
+    doc.setTextColor(...BC.orange); doc.setFont("helvetica","bold"); doc.text(`Seite ${i} / ${n}`,W-12,H-7,{align:"right"}); }
+  return doc.output("blob");
+}
+let pdfBusy=false;
+function needPdf(){ if(!window.jspdf){ toast("PDF-Modul nicht geladen – einmal mit Internet öffnen"); return false; } if(pdfBusy) return false; return true; }
+
+/* ================= Abgeleitete Aufmaß-Daten ================= */
+const positions=()=>state.aufmass.map(normPos);
+const bKey=p=>p.bereichId||("legacy-"+fileSafe(p.projekt));
+function bereiche(){
+  const map=new Map(state.bereiche.map(b=>[b.id,{...b}]));
+  for(const p of positions()){ const k=bKey(p); if(!map.has(k)) map.set(k,{id:k,projekt:p.projekt||"Ohne Projekt",name:"Allgemein",druck:"",liefer:"",status:"offen",virtual:true}); }
+  return [...map.values()];
+}
+const bereich=id=>bereiche().find(b=>b.id===id);
+const posIn=id=>positions().filter(p=>bKey(p)===id).sort((a,b)=>a.pos-b.pos);
+const projectNames=()=>[...new Set(bereiche().map(b=>b.projekt))].sort((a,b)=>a.localeCompare(b,"de"));
+const sumA=list=>list.reduce((s,p)=>s+(p.flaeche||0)*(p.qty||1),0);
+
+/* ================= Navigation & Kopfzeile ================= */
+let tab="aufmass";
+let nav={screen:"projects"}; const navStack=[];
+function go(next){ navStack.push(nav); nav=next; renderAufmass(); window.scrollTo(0,0); }
+function back(){ if(nav.screen==="editor") closeViz(); nav=navStack.pop()||{screen:"projects"}; renderAufmass(); window.scrollTo(0,0); }
+$("#hBack").addEventListener("click",back);
+function setHeader(title,sub,{back:showBack=false,action=null}={}){
+  $("#hTitle").textContent=title; $("#hSub").textContent=sub||""; $("#hSub").hidden=!sub;
+  $("#hBack").hidden=!showBack;
+  const a=$("#hAction"); a.hidden=!action; if(action){ a.textContent=action.label; a.onclick=action.fn; a.disabled=!!action.disabled; }
+}
+function updateHeader(){
+  if(tab==="aufmass") return renderAufmassHeader();
+  const t={bestellung:["Materialbestellung","Ansagen · Liste · PDF teilen"],zeit:["Zeiterfassung",settings().name||""],tagebuch:["Bautagebuch",""],tools:["Mehr","Rechner · Einstellungen · Sicherung"]}[tab];
+  setHeader(t[0],t[1]);
+}
+
+/* ================= Aufmaß-Screens ================= */
+let ui={sub:"teile",menu:null,newForm:false,editB:false,pendingDel:null};
+const V=$("#view-aufmass");
+function renderAufmassHeader(){
+  const s=nav.screen;
+  if(s==="projects") setHeader("Aufmaß","Projekte");
+  else if(s==="project") setHeader(nav.projekt,"Bereiche",{back:true});
+  else if(s==="bereich"){ const b=bereich(nav.bereichId)||{}; setHeader(b.name||"Bereich",b.projekt,{back:true,action:{label:b.status==="abgeschlossen"?"Öffnen":"Abschließen",fn:toggleStatus}}); }
+  else if(s==="catalog"){ const b=bereich(nav.bereichId)||{}; setHeader("Kanalteil hinzufügen",b.name,{back:true}); }
+  else if(s==="editor"&&ed){ const b=bereich(nav.bereichId)||{}; setHeader(`${ed.type} (${TYPES[ed.type].name})`,`${b.name||""}${b.druck?` (${b.druck})`:""}`,{back:true,action:{label:"Speichern",fn:savePos,disabled:!!validate(ed.type,ed.v).length}}); }
+}
+function renderAufmass(){
+  if(tab!=="aufmass") return;
+  const s=nav.screen; $("#fab")?.remove();
+  if(s==="projects") V.innerHTML=projectsHTML();
+  else if(s==="project") V.innerHTML=projectHTML();
+  else if(s==="bereich") V.innerHTML=bereichHTML();
+  else if(s==="catalog") V.innerHTML=catalogHTML();
+  else if(s==="editor") renderEditor();
+  if(s==="project"||(s==="bereich"&&ui.sub==="teile")) document.body.insertAdjacentHTML("beforeend",`<button class="fab" id="fab" data-act="${s==="project"?"newBereich":"addPart"}" aria-label="${s==="project"?"Neuer Bereich":"Kanalteil hinzufügen"}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`);
+  if(s!=="editor") $("#footbar")?.remove();
+  renderAufmassHeader();
+}
+const newBereichForm=projekt=>`<section class="panel" id="newB">
+  <h3>${projekt?"Neuer Bereich":"Neues Projekt"}</h3>
+  ${projekt?"":`<label class="f">Projekt / Baustelle<input id="nbProj" placeholder="z. B. Maximilian-Karree"></label>`}
+  <label class="f">Bereich<input id="nbName" placeholder="z. B. Technikzentrale" value="${projekt?"":"Allgemein"}"></label>
+  <div class="grid"><label class="f">Lieferung am<input type="date" id="nbLiefer"></label>
+  <label class="f">Druckstufe<select id="nbDruck"><option value="">–</option>${DRUCK.map(d=>`<option>${d}</option>`).join("")}</select></label></div>
+  <div class="row"><button class="btn primary" data-act="createBereich" data-proj="${esc(projekt||"")}">Anlegen</button><button class="btn" data-act="cancelNew">Abbrechen</button></div></section>`;
+function projectsHTML(){
+  const ps=projectNames();
+  let h=`<div class="pad" style="display:flex;flex-direction:column;gap:12px">`;
+  if(ui.newForm) h+=newBereichForm("");
+  if(!ps.length&&!ui.newForm) h+=`<div class="big-empty"><svg viewBox="0 0 24 24"><path d="M3 8h13l5 5v3H3z"/><path d="M3 8l4-4h13v9"/></svg><div><b>Noch kein Projekt</b><div class="note">Lege ein Projekt mit dem ersten Bereich an, dann kannst du Kanalteile aufmessen.</div></div><button class="btn primary" data-act="newProject">Neues Projekt</button></div>`;
+  for(const p of ps){
+    const bs=bereiche().filter(b=>b.projekt===p),pos=positions().filter(x=>bs.some(b=>b.id===bKey(x)));
+    h+=`<button class="card" data-act="openProject" data-proj="${esc(p)}"><div class="tx"><div class="t">${esc(p)}</div><div class="s">${bs.length} Bereich${bs.length===1?"":"e"} · ${pos.length} Kanalteil${pos.length===1?"":"e"} · ${fmt(sumA(pos),1)} m²</div></div><span style="color:var(--muted);font-size:22px">›</span></button>`;
+  }
+  if(ps.length&&!ui.newForm) h+=`<button class="btn" data-act="newProject">+ Neues Projekt</button>`;
+  return h+`</div>`;
+}
+function projectHTML(){
+  const bs=bereiche().filter(b=>b.projekt===nav.projekt).sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"));
+  let h=`<div class="pad" style="display:flex;flex-direction:column;gap:12px">`;
+  if(ui.newForm) h+=newBereichForm(nav.projekt);
+  for(const b of bs){ const ps=posIn(b.id);
+    h+=`<button class="card" data-act="openBereich" data-id="${esc(b.id)}"><div class="tx"><div class="t">${esc(b.name)}</div><div class="s">${b.liefer?`Lieferung am ${new Date(b.liefer).toLocaleDateString("de-DE")} · `:""}${b.druck||""}</div><div class="s">${ps.length} Kanalteil(e) · ${fmt(sumA(ps),1)} m²</div><div class="status ${b.status==="abgeschlossen"?"done":"open"}">${b.status==="abgeschlossen"?"Abgeschlossen":"Offen"}</div></div><span style="color:var(--muted);font-size:22px">›</span></button>`; }
+  if(!bs.length&&!ui.newForm) h+=`<div class="empty">Noch keine Bereiche. Tippe auf ＋.</div>`;
+  return h+`</div>`;
+}
+function bereichHTML(){
+  const b=bereich(nav.bereichId); if(!b){ nav={screen:"projects"}; return projectsHTML(); }
+  const ps=posIn(b.id),zubCount=Object.values(b.zub||{}).filter(n=>n>0).length;
+  let h=`<div class="subtabs" role="tablist"><button data-act="sub" data-sub="teile" aria-selected="${ui.sub==="teile"}">Kanalteile (${ps.length})</button><button data-act="sub" data-sub="zub" aria-selected="${ui.sub==="zub"}">Zubehör (${zubCount})</button></div>`;
+  if(ui.editB){
+    h+=`<section class="panel" style="margin:12px 16px 0"><h3>Bereich bearbeiten</h3>
+      <label class="f">Bereich<input id="ebName" value="${esc(b.name)}"></label>
+      <div class="grid"><label class="f">Lieferung am<input type="date" id="ebLiefer" value="${esc(b.liefer||"")}"></label>
+      <label class="f">Druckstufe<select id="ebDruck"><option value="">–</option>${DRUCK.map(d=>`<option ${d===b.druck?"selected":""}>${d}</option>`).join("")}</select></label></div>
+      <div class="row"><button class="btn primary" data-act="saveBereich">Speichern</button><button class="btn" data-act="cancelEditB">Abbrechen</button>${ui.pendingDel==="B"?`<span class="confirm">Bereich mit allen Teilen löschen?<button class="btn small danger" data-act="delBereichOk">Löschen</button><button class="btn small" data-act="delNo">Nein</button></span>`:`<button class="btn danger" data-act="delBereich">Löschen</button>`}</div></section>`;
+  } else {
+    h+=`<div class="summary"><div class="tx"><div style="font-weight:600;font-size:17px">${esc(b.name)}</div><div class="note" style="font-size:14px">${b.liefer?`Lieferung am ${new Date(b.liefer).toLocaleDateString("de-DE")}`:"Kein Liefertermin"}${b.druck?` · ${b.druck}`:""}</div><div class="note" style="font-size:14px">${ps.length} Kanalteil(e) - ${fmt(sumA(ps),1)} m²</div><div class="status ${b.status==="abgeschlossen"?"done":"open"}">${b.status==="abgeschlossen"?"Abgeschlossen":"Offen"}</div></div>
+      <button class="iconbtn" data-act="editBereich" aria-label="Bereich bearbeiten"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button></div>
+      <div class="row pad" style="padding-top:10px"><button class="btn small primary" data-act="pdfBereich">PDF teilen</button><button class="btn small" data-act="csvBereich">CSV</button><button class="btn small" data-act="copyBereich">Text kopieren</button></div>`;
+  }
+  if(ui.sub==="teile"){
+    if(!ps.length) h+=`<div class="pad" style="padding-top:14px"><div class="empty">Noch keine Kanalteile. Tippe auf ＋ und wähle ein Formteil aus dem Katalog.</div></div>`;
+    else {
+      h+=`<div class="list" style="margin-top:12px">`;
+      ps.forEach((p,i)=>{
+        h+=`<div class="li" data-act="editPos" data-id="${p.id}" role="button" tabindex="0"><span class="num">#${i+1}</span><div class="tx"><div style="font-weight:500;font-size:17px">${esc(p.bez||("Pos. "+p.pos))} <span style="color:var(--muted)">(${esc(TYPES[p.type]?p.type:typeName(p.type))})</span></div>
+          <div class="nm">${p.luft?`<span class="dot" style="background:${LUFT_COLOR[p.luft]}"></span>`:""}${p.qty}×&nbsp;&nbsp; A = ${fmt(p.flaeche,2)} m²</div></div>${icons(p.type)}<button class="more" data-act="menu" data-id="${p.id}" aria-label="Mehr">⋮</button></div>`;
+        if(ui.menu===p.id) h+=`<div class="menu">${TYPES[p.type]?`<button class="btn small" data-act="editPos" data-id="${p.id}">Bearbeiten</button><button class="btn small" data-act="dupPos" data-id="${p.id}">Duplizieren</button>`:""}${ui.pendingDel===p.id?`<span class="confirm">${esc(p.bez)} löschen?<button class="btn small danger" data-act="delPosOk" data-id="${p.id}">Löschen</button><button class="btn small" data-act="delNo">Nein</button></span>`:`<button class="btn small danger" data-act="delPos" data-id="${p.id}">Löschen</button>`}</div>`;
+      });
+      h+=`</div>`;
+    }
+  } else h+=zubehoerHTML(b,ps);
+  return h;
+}
+/* ---------- Zubehör ---------- */
+const ZUB=[["folie","Rolle","Kanalfolie"],["kl30","Pack","Luftkanalklammer bis 30 mm, verzinkt"],["kl40","Pack","Luftkanalklammer bis 40 mm, verzinkt"],["db12","Rolle","Kanaldichtband 12×6 mm"],["db15","Rolle","Kanaldichtband 15×6 mm"],["m8s","Pack","Sechskantschrauben M8×25, verzinkt"],["m8u","Pack","Unterlegscheiben M8, verzinkt"],["m8m","Pack","Muttern M8, verzinkt"],["re20","Stück","Rahmenecken 20 mm, verzinkt"],["re30","Stück","Rahmenecken 30 mm, verzinkt"],["re40","Stück","Rahmenecken 40 mm, verzinkt"],["rp20","m","Rahmenprofil 20 mm, verzinkt"],["rp30","m","Rahmenprofil 30 mm, verzinkt"],["rp40","m","Rahmenprofil 40 mm, verzinkt"],["sl","m","Schiebeleiste"],["abh","Stück","Abhängung / Gewindestange"],["dm","Kartusche","Dichtmasse"]];
+function zubVorschlag(ps){
+  const r={},addN=(k,n)=>r[k]=(r[k]||0)+n; let frames=0,perim=0;
+  for(const p of ps){ if(!TYPES[p.type]) continue;
+    for(const f of frameInfo(p.type,p.v,p.conn)){
+      if(/^R(20|30|40)$/.test(f.conn)){ const s=f.conn.slice(1); addN("re"+s,4*p.qty); addN("rp"+s,f.per/1000*p.qty); frames+=p.qty; perim+=f.per/1000*p.qty; }
+      else if(f.conn==="SL") addN("sl",f.per/1000*p.qty);
+    }}
+  r._frames=frames; r._dicht=perim/2;
+  return r;
+}
+function zubehoerHTML(b,ps){
+  const vs=zubVorschlag(ps),z=b.zub||{};
+  let h=`<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Anzahl</th><th>Einheit</th><th>Bezeichnung</th></tr></thead><tbody>`;
+  for(const [k,unit,name] of ZUB){
+    let sug=vs[k]; if(unit==="m"&&sug) sug=Math.ceil(sug*10)/10;
+    h+=`<tr><td><div class="zcount"><input type="number" min="0" step="${unit==="m"?0.1:1}" inputmode="decimal" value="${z[k]??0}" data-zub="${k}" aria-label="Anzahl ${esc(name)}"></div></td><td>${unit}</td><td>${esc(name)}${sug?`<div><button class="sugg" data-act="zubSug" data-k="${k}" data-v="${sug}">Vorschlag ${fmt(sug,unit==="m"?1:0)} ${unit} übernehmen</button></div>`:""}</td></tr>`;
+  }
+  h+=`</tbody></table></div><div class="pad note" style="padding-top:10px">Vorschläge aus den Kanalteilen: 4 Rahmenecken je Rahmen, Rahmenprofil nach Umfang.${vs._frames?` Für etwa ${Math.ceil(vs._frames/2)} Verbindungen brauchst du ungefähr ${Math.ceil(vs._frames/2)*4} Schrauben M8 und ${fmt(vs._dicht,1)} m Dichtband.`:""}</div>`;
+  return h;
+}
+function catalogHTML(){
+  return `<div class="list">`+Object.entries(TYPES).map(([k,t])=>`<button class="li" data-act="pick" data-type="${k}"><div class="tx"><div class="code">${k}</div><div class="nm">${t.name}</div></div>${icons(k)}</button>`).join("")+`</div>`;
+}
+
+/* ================= Editor ================= */
+let ed=null,prevMode="2d",bannerClosed=false;
+function newEditor(type,bereichId,prev){
+  const ps=posIn(bereichId),n=ps.length?Math.max(...ps.map(p=>p.pos))+1:1;
+  ed={id:null,type,v:defaults(type),conn:{v1:"auto",v2:TYPES[type].round?"NP":"auto",v3:"auto"},qty:1,luft:prev?.luft||"",bez:"Pos. "+n,pos:n,blech:"",zuschlag:0,bemerkung:"",bereichId};
+  bannerClosed=false;
+}
+function renderEditor(){
+  const t=TYPES[ed.type];
+  const prev=!ed.id?posIn(ed.bereichId).slice(-1)[0]:null;
+  const prevEnd=prev&&TYPES[prev.type]?endSection(prev):null;
+  const prevConn=prev&&prevEnd?resolveConn(prev.conn?.v2||"auto",prevEnd):"";
+  const showBanner=prevEnd&&!prevEnd.round&&!bannerClosed;
+  const endsList=geometry(ed.type,{...defaults(ed.type),...ed.v}).ends;
+  const fieldHTML=Object.keys(t.f).map(k=>`<label class="f"><span>${FIELD_LABEL[k]}${FIELD_HINT[ed.type]?.[k]?` <span class="note">· ${FIELD_HINT[ed.type][k]}</span>`:""}</span><div class="unit" data-unit="${k==="w"?"°":"mm"}"><input type="number" inputmode="decimal" id="fld_${k}" data-k="${k}" value="${Number.isFinite(ed.v[k])?ed.v[k]:""}" step="${k==="w"?1:5}" placeholder="${FIELD_LABEL[k]}"></div></label>`).join("");
+  const connSel=(key,round)=>`<label class="f"><span>Verbindung ${key.toUpperCase()}${key==="v3"?" (Abzweig)":key==="v1"?" (Anfang)":" (Ende)"}</span><select data-conn="${key}">${(round?CONN_ROUND:CONN_RECT).map(([v,l])=>`<option value="${v}" ${ed.conn[key]===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
+  V.innerHTML=`
+  <div class="preview">
+    <div class="prevtools"><div class="seg" role="group" aria-label="Ansicht"><button data-act="pmode" data-m="2d" aria-pressed="${prevMode==="2d"}">2D</button><button data-act="pmode" data-m="3d" aria-pressed="${prevMode==="3d"}">3D</button></div>
+      <button class="iconbtn" data-act="fullscreen" aria-label="Vollbild-Visualisierung"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
+    <div class="sketch" id="sketch" ${prevMode==="3d"?"hidden":""} style="padding-top:52px"></div>
+    <div class="viewer" id="prevHost" ${prevMode==="2d"?"hidden":""}><div class="labels"></div><span class="hint">↶ Wischen zum Drehen ↷</span></div>
+  </div>
+  <div class="pad" style="display:flex;flex-direction:column;gap:14px;padding-top:14px">
+    ${showBanner?`<div class="banner"><div class="bh">Anschluss übernehmen?<button data-act="closeBanner" aria-label="Schließen">×</button></div><div class="note" style="font-size:14px">Verbindungsmaße (<b>${esc(CONN_NAME[prevConn]||prevConn)}, ${prevEnd.w}×${prevEnd.h} mm</b>) vom vorherigen Kanalteil <b>${esc(prev.bez)}</b> übernehmen?</div><button class="ba" data-act="takeConn" data-w="${prevEnd.w}" data-h="${prevEnd.h}" data-c="${prevConn}">Übernehmen</button></div>`:""}
+    <label class="f">Positionsbezeichnung<input id="edBez" value="${esc(ed.bez)}"></label>
+    <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;font-weight:600">Stückzahl</span><div class="stepper"><input type="number" id="edQty" min="1" step="1" inputmode="numeric" value="${ed.qty}" aria-label="Stückzahl"><button data-act="qty" data-d="-1" aria-label="Weniger">−</button><button data-act="qty" data-d="1" aria-label="Mehr">+</button></div></div>
+    <label class="f">Luftart<select id="edLuft">${LUFT.map(([v,l])=>`<option value="${v}" ${ed.luft===v?"selected":""}>${l}</option>`).join("")}</select></label>
+    <h3 style="margin-top:4px">Maße</h3>
+    <div class="grid">${fieldHTML}</div>
+    <div class="errs" id="errs"></div>
+    <h3 style="margin-top:4px">Verbindungen</h3>
+    <div class="grid">${endsList.map(e=>connSel(e.key,!!e.round)).join("")}</div>
+    <div class="grid">
+      <label class="f">Blechdicke<div class="unit" data-unit="mm"><input type="number" id="edBlech" min="0.4" step="0.1" inputmode="decimal" value="${ed.blech}"></div></label>
+      <label class="f">Zuschlag Falz/Verschnitt<div class="unit" data-unit="%"><input type="number" id="edZ" min="0" step="1" inputmode="decimal" value="${ed.zuschlag}"></div></label>
+    </div>
+    <label class="f">Bemerkung<input id="edBem" value="${esc(ed.bemerkung)}" placeholder="z. B. Achse 3, mit Isolierung"></label>
+    <div style="height:80px"></div>
+  </div>`;
+  if(!$("#footbar")) document.body.insertAdjacentHTML("beforeend",`<div class="footbar" id="footbar"><div style="min-width:0"><div class="a" id="fbA">–</div><div class="s" id="fbS"></div></div><button class="btn primary" data-act="savePos">Speichern</button></div>`);
+  attachViewer(prevMode==="3d"?$("#prevHost"):null);
+  updateEditor();
+}
+function edCalc(){
+  const errs=validate(ed.type,ed.v); if(errs.length) return {errs};
+  const A=area(ed.type,ed.v),z=Math.max(0,parseFloat(ed.zuschlag)||0),ms=Math.max(ed.v.a||0,ed.v.b||0,ed.v.c||0,(TYPES[ed.type].round?0:ed.v.d||0));
+  const s=parseFloat(ed.blech)||blechRichtwert(ms);
+  return {errs,A,Az:A*(1+z/100),s,rich:blechRichtwert(ms),fr:frameInfo(ed.type,ed.v,ed.conn)};
+}
+function updateEditor(){
+  const c=edCalc(),qty=Math.max(1,parseInt(ed.qty)||1);
+  $("#sketch").innerHTML=sketch(ed.type,ed.v);
+  $("#errs").textContent=c.errs.join(" · ");
+  const bl=$("#edBlech"); if(bl&&c.rich) bl.placeholder="Richtwert "+fmt(c.rich,1);
+  if(c.errs.length){ $("#fbA").textContent="A = –"; $("#fbS").textContent="Maße prüfen"; }
+  else { $("#fbA").textContent=`A = ${fmt(c.Az,2)} m²`;
+    $("#fbS").textContent=`${qty} Stk · ${fmt(c.Az*qty,2)} m² · ca. ${fmt(c.Az*c.s*7.85*qty,1)} kg · `+c.fr.map(f=>`${f.key.toUpperCase()} ${CONN_NAME[f.conn]||f.conn}`).join(", "); }
+  document.querySelectorAll('#footbar [data-act="savePos"]').forEach(b=>b.disabled=!!c.errs.length);
+  renderAufmassHeader();
+  build3D(ed.type,ed.v,!c.errs.length,ed.conn);
+  if(!$("#viz").hidden) renderLegend();
+}
+V.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset.k){ const n=parseFloat(t.value); ed.v[t.dataset.k]=Number.isFinite(n)?n:NaN; updateEditor(); }
+  else if(t.dataset.zub){ const b=bereich(nav.bereichId); const z={...(b.zub||{})}; z[t.dataset.zub]=parseFloat(t.value)||0; saveBereichDoc({...b,zub:z},true,true); }
+  else if(ed&&nav.screen==="editor"){
+    if(t.id==="edBez") ed.bez=t.value; else if(t.id==="edQty") ed.qty=t.value; else if(t.id==="edBlech") ed.blech=t.value; else if(t.id==="edZ") ed.zuschlag=t.value; else if(t.id==="edBem") ed.bemerkung=t.value;
+    else return; updateEditor();
+  }
+});
+V.addEventListener("change",e=>{ const t=e.target; if(t.dataset.conn){ ed.conn[t.dataset.conn]=t.value; updateEditor(); } else if(t.id==="edLuft") ed.luft=t.value; });
+async function savePos(){
+  const c=edCalc(); if(c.errs.length) return;
+  const old=ed.id&&state.aufmass.find(p=>p.id===ed.id), b=bereich(ed.bereichId);
+  const qty=Math.max(1,parseInt(ed.qty)||1);
+  const obj={id:old?old.id:uid(),pos:ed.pos,bez:ed.bez.trim()||("Pos. "+ed.pos),projekt:b.projekt,bereichId:ed.bereichId,type:ed.type,v:{...ed.v},conn:{...ed.conn},
+    qty,luft:ed.luft,blech:c.s,zuschlag:Math.max(0,parseFloat(ed.zuschlag)||0),flaeche:+c.Az.toFixed(4),bemerkung:ed.bemerkung.trim(),t:old?.t||Date.now()};
+  if(b.virtual) await saveBereichDoc({...b},true);
+  closeViz(); nav=navStack.pop()||{screen:"bereich",bereichId:ed.bereichId};
+  if(nav.screen==="catalog") nav=navStack.pop()||{screen:"bereich",bereichId:ed.bereichId};
+  ui.sub="teile"; ed=null;
+  await store.save("aufmass",obj);
+  toast(`${obj.bez} gespeichert`);
+  renderAufmass(); window.scrollTo(0,0);
+}
+let zubTimer=null;
+async function saveBereichDoc(b,quiet,debounce){
+  const o={...b}; delete o.virtual;
+  if(debounce){ const i=state.bereiche.findIndex(x=>x.id===o.id); if(i>=0) state.bereiche[i]=o; else state.bereiche.push(o);
+    clearTimeout(zubTimer); zubTimer=setTimeout(()=>store.save("bereiche",o),500); return; }
+  await store.save("bereiche",o); if(!quiet) toast("Gespeichert");
+}
+function toggleStatus(){ const b=bereich(nav.bereichId); saveBereichDoc({...b,status:b.status==="abgeschlossen"?"offen":"abgeschlossen"}); }
+
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  const a=t.dataset.act,d=t.dataset;
+  switch(a){
+    case "newProject": ui.newForm=true; renderAufmass(); break;
+    case "newBereich": ui.newForm=true; renderAufmass(); window.scrollTo(0,0); break;
+    case "cancelNew": ui.newForm=false; renderAufmass(); break;
+    case "createBereich": {
+      const proj=(d.proj||$("#nbProj")?.value||"").trim(),name=$("#nbName").value.trim()||"Allgemein";
+      if(!proj){ toast("Bitte einen Projektnamen eingeben"); return; }
+      const b={id:uid(),projekt:proj,name,liefer:$("#nbLiefer").value,druck:$("#nbDruck").value,status:"offen",zub:{}};
+      ui.newForm=false; await store.save("bereiche",b);
+      if(nav.screen==="projects"){ navStack.push(nav); nav={screen:"project",projekt:proj}; }
+      ui.sub="teile"; go({screen:"bereich",bereichId:b.id}); break; }
+    case "openProject": ui.newForm=false; go({screen:"project",projekt:d.proj}); break;
+    case "openBereich": ui.newForm=false; ui.sub="teile"; ui.menu=null; ui.editB=false; go({screen:"bereich",bereichId:d.id}); break;
+    case "sub": ui.sub=d.sub; renderAufmass(); break;
+    case "editBereich": ui.editB=true; renderAufmass(); break;
+    case "cancelEditB": ui.editB=false; ui.pendingDel=null; renderAufmass(); break;
+    case "saveBereich": { const b=bereich(nav.bereichId); ui.editB=false; await saveBereichDoc({...b,name:$("#ebName").value.trim()||b.name,liefer:$("#ebLiefer").value,druck:$("#ebDruck").value}); break; }
+    case "delBereich": ui.pendingDel="B"; renderAufmass(); break;
+    case "delBereichOk": { const id=nav.bereichId; for(const p of posIn(id)) await store.del("aufmass",p.id); if(state.bereiche.some(b=>b.id===id)) await store.del("bereiche",id); ui.pendingDel=null; ui.editB=false; back(); break; }
+    case "delNo": ui.pendingDel=null; renderAufmass(); break;
+    case "addPart": go({screen:"catalog",bereichId:nav.bereichId}); break;
+    case "pick": { const prev=posIn(nav.bereichId).slice(-1)[0]; newEditor(d.type,nav.bereichId,prev); prevMode="2d"; go({screen:"editor",bereichId:nav.bereichId}); break; }
+    case "menu": e.stopPropagation(); ui.menu=ui.menu===d.id?null:d.id; ui.pendingDel=null; renderAufmass(); break;
+    case "editPos": { if(e.target.closest('[data-act="menu"]')) return; const p=positions().find(x=>x.id===d.id); if(!p||!TYPES[p.type]) return;
+      ed={id:p.id,type:p.type,v:{...defaults(p.type),...p.v},conn:{v1:"auto",v2:"auto",v3:"auto",...p.conn},qty:p.qty,luft:p.luft||"",bez:p.bez,pos:p.pos,blech:p.blech||"",zuschlag:p.zuschlag||0,bemerkung:p.bemerkung||"",bereichId:bKey(p)};
+      ui.menu=null; prevMode="2d"; go({screen:"editor",bereichId:bKey(p)}); break; }
+    case "dupPos": { const p=positions().find(x=>x.id===d.id),ps=posIn(bKey(p)),n=Math.max(...ps.map(x=>x.pos))+1;
+      ui.menu=null; await store.save("aufmass",{...p,id:uid(),pos:n,bez:"Pos. "+n,bereichId:bKey(p),t:Date.now()}); toast("Dupliziert als Pos. "+n); break; }
+    case "delPos": ui.pendingDel=d.id; renderAufmass(); break;
+    case "delPosOk": ui.pendingDel=null; ui.menu=null; await store.del("aufmass",d.id); break;
+    case "zubSug": { const b=bereich(nav.bereichId),z={...(b.zub||{})}; z[d.k]=parseFloat(d.v); await saveBereichDoc({...b,zub:z},true); break; }
+    case "pmode": prevMode=d.m; renderEditor(); break;
+    case "fullscreen": openViz(); break;
+    case "closeBanner": bannerClosed=true; renderEditor(); break;
+    case "takeConn": ed.v.a=+d.w; ed.v.b=+d.h; ed.conn.v1=d.c; bannerClosed=true; renderEditor(); toast("Anschluss übernommen"); break;
+    case "qty": ed.qty=Math.max(1,(parseInt(ed.qty)||1)+parseInt(d.d)); $("#edQty").value=ed.qty; updateEditor(); break;
+    case "savePos": savePos(); break;
+    case "pdfBereich": pdfBereich(); break;
+    case "csvBereich": csvBereich(); break;
+    case "copyBereich": copyBereich(); break;
+  }
+});
+
+/* ================= 3D ================= */
+let R=null;
+const VIEWS={iso:{rx:-0.42,ry:0.8},links:{rx:-0.3,ry:-0.95},vorne:{rx:-0.25,ry:0},rechts:{rx:-0.3,ry:0.95},oben:{rx:-1.45,ry:0}};
+const COLKEY={ab:"--c-ab",ef:"--c-ef",r:"--c-r",l:"--c-l",v:"--c-v"};
+const PRINTCOL={ab:"#3949ab",ef:"#0f8a78",r:"#e2700e",l:"#8f45c4",v:"#64748b"};
+function init3D(){
+  if(!window.THREE) return;
+  let renderer; try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true}); }catch(e){ return; }
+  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(32,1,1,200000);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x5a6672,0.95));
+  const dl=new THREE.DirectionalLight(0xffffff,0.7); dl.position.set(1,2,1.5); scene.add(dl);
+  const dl2=new THREE.DirectionalLight(0xffffff,0.3); dl2.position.set(-1.5,-0.5,-1); scene.add(dl2);
+  const group=new THREE.Group(),dimGroup=new THREE.Group(); scene.add(group); scene.add(dimGroup);
+  R={renderer,scene,cam,group,dimGroup,...VIEWS.iso,zoom:1,size:1000,center:new THREE.Vector3(),host:null,labels:[]};
+  const el=renderer.domElement,pts=new Map(); let lastDist=0;
+  el.addEventListener("pointerdown",e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+  el.addEventListener("pointermove",e=>{ if(!pts.has(e.pointerId))return; const p=pts.get(e.pointerId);
+    if(pts.size===1){ R.ry+=(e.clientX-p.x)*0.01; R.rx=Math.max(-1.55,Math.min(1.55,R.rx+(e.clientY-p.y)*0.01)); }
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2){ const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y); if(lastDist) R.zoom=Math.max(0.4,Math.min(4,R.zoom*d/lastDist)); lastDist=d; }
+    draw(); });
+  const up=e=>{pts.delete(e.pointerId); if(pts.size<2) lastDist=0;};
+  el.addEventListener("pointerup",up); el.addEventListener("pointercancel",up);
+  el.addEventListener("wheel",e=>{e.preventDefault();R.zoom=Math.max(0.4,Math.min(4,R.zoom*(e.deltaY<0?1.1:0.9)));draw();},{passive:false});
+  new ResizeObserver(()=>resize3D()).observe(document.body);
+}
+function attachViewer(host){
+  if(!R){ if(host&&!host.querySelector(".nogl")) host.insertAdjacentHTML("beforeend",`<div class="nogl">3D wird auf diesem Gerät nicht unterstützt.</div>`); return; }
+  if(!host){ R.host=null; return; }
+  R.host=host; host.prepend(R.renderer.domElement); resize3D();
+}
+function resize3D(){ if(!R?.host) return; const w=R.host.clientWidth,h=R.host.clientHeight; if(!w||!h) return; R.renderer.setSize(w,h,false); R.cam.aspect=w/h; R.cam.updateProjectionMatrix(); draw(); }
+function draw(){
+  if(!R) return;
+  const d=R.size*2.9/R.zoom,c=R.center;
+  R.cam.position.set(c.x+Math.sin(R.ry)*Math.cos(R.rx)*d,c.y-Math.sin(R.rx)*d,c.z+Math.cos(R.ry)*Math.cos(R.rx)*d);
+  R.cam.lookAt(c); R.renderer.render(R.scene,R.cam);
+  if(R.host){ const lab=R.host.querySelector(".labels"); if(lab){ const w=R.host.clientWidth,h=R.host.clientHeight;
+    lab.innerHTML=R.labels.map(l=>{const p=new THREE.Vector3(...l.pos).project(R.cam); if(p.z>1) return ""; return `<span class="${l.cls||""}" style="left:${(p.x+1)/2*w}px;top:${(1-p.y)/2*h}px;color:var(${COLKEY[l.col]})">${l.text}</span>`;}).join(""); } }
+}
+function polysToGeo(polys){
+  const pos=[]; for(const p of polys) for(let i=1;i<p.length-1;i++) pos.push(...p[0],...p[i],...p[i+1]);
+  const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3)); g.computeVertexNormals(); return g;
+}
+function framePolys(f,p,depth){
+  const P=(s,t,k)=>add(add(add(f.o,mul(f.u,s)),mul(f.v,t)),mul(f.n,-k));
+  const wi=f.w/2,hi=f.h/2,wo=wi+p,ho=hi+p,out=[];
+  const inner=k=>[P(-wi,-hi,k),P(wi,-hi,k),P(wi,hi,k),P(-wi,hi,k)],outer=k=>[P(-wo,-ho,k),P(wo,-ho,k),P(wo,ho,k),P(-wo,ho,k)];
+  for(const k of [0,depth]){ const I=inner(k),O=outer(k); for(let i=0;i<4;i++){const j=(i+1)%4; out.push([I[i],I[j],O[j],O[i]]);} }
+  out.push(...loft(outer(0),outer(depth)));
+  return out;
+}
+function roundCollar(f,len){
+  const dir=f.n,perp=Math.abs(dir[1])<0.9?[0,1,0]:[1,0,0];
+  const c1=[dir[1]*perp[2]-dir[2]*perp[1],dir[2]*perp[0]-dir[0]*perp[2],dir[0]*perp[1]-dir[1]*perp[0]],u=mul(c1,1/Math.hypot(...c1));
+  const w=[dir[1]*u[2]-dir[2]*u[1],dir[2]*u[0]-dir[0]*u[2],dir[0]*u[1]-dir[1]*u[0]];
+  const ring=(r,k)=>Array.from({length:40},(_,i)=>{const t=2*Math.PI*i/40;return add(add(add(f.o,mul(u,r*Math.cos(t))),mul(w,r*Math.sin(t))),mul(dir,k));});
+  return loft(ring(f.d/2+4,-len),ring(f.d/2+4,6));
+}
+function build3D(type,v,ok,conn){
+  if(!R) return;
+  for(const g of [R.group,R.dimGroup]) while(g.children.length){const c=g.children.pop();c.geometry?.dispose();c.material?.dispose?.();}
+  R.labels=[];
+  if(!ok){draw();return;}
+  const G=geometry(type,v),geo=polysToGeo(G.polys);
+  R.group.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0xb7c0c8,metalness:0.35,roughness:0.5,side:THREE.DoubleSide,transparent:true,opacity:0.78,depthWrite:false,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1})));
+  R.group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,25),new THREE.LineBasicMaterial({color:new THREE.Color(cssVar("--part-edge")||"#2a3138")})));
+  const frameMat=new THREE.MeshStandardMaterial({color:0x8d98a2,metalness:0.6,roughness:0.4,side:THREE.DoubleSide});
+  let maxP=0;
+  for(const f of G.ends){
+    const c=resolveConn(conn?.[f.key]||"auto",f);
+    if(f.round){ if(c!=="0"){ const g=polysToGeo(roundCollar(f,c==="MU"?60:40)); R.group.add(new THREE.Mesh(g,frameMat)); R.group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,40),new THREE.LineBasicMaterial({color:0x2a3138}))); } }
+    else if(c!=="0"){ const p=c==="SL"?10:parseInt(c.slice(1)); maxP=Math.max(maxP,p); const g=polysToGeo(framePolys(f,p,c==="SL"?12:Math.max(18,p*0.8))); R.group.add(new THREE.Mesh(g,frameMat)); R.group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x2a3138}))); }
+    const lp=f.round?add(f.o,mul(f.n,f.d*0.15)):add(add(f.o,mul(f.n,-30)),mul(f.u,-f.w*0.18));
+    R.labels.push({pos:lp,text:f.key.toUpperCase(),col:"v",cls:"v"});
+  }
+  for(const dm of G.dims){
+    if(dm.p1.some((x,i)=>x!==dm.p2[i])){
+      const lg=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...dm.p1),new THREE.Vector3(...dm.p2)]);
+      const ln=new THREE.Line(lg,new THREE.LineBasicMaterial({color:new THREE.Color(cssVar(COLKEY[dm.col])),depthTest:false})); ln.renderOrder=10; R.dimGroup.add(ln);
+    }
+    R.labels.push({pos:mul(add(dm.p1,dm.p2),0.5),text:dm.k,col:dm.col});
+  }
+  geo.computeBoundingBox(); geo.computeBoundingSphere();
+  geo.boundingBox.getCenter(R.center); R.size=(geo.boundingSphere.radius||500)+maxP;
+  draw();
+}
+function openViz(){ $("#viz").hidden=false; attachViewer($("#vizHost")); renderLegend(); }
+function closeViz(){ if($("#viz").hidden) return; $("#viz").hidden=true; attachViewer(prevMode==="3d"&&nav.screen==="editor"?$("#prevHost"):null); }
+$("#vizClose").addEventListener("click",closeViz);
+$("#viz").addEventListener("click",e=>{ if(e.target.id==="viz") closeViz(); const b=e.target.closest("[data-view]"); if(b&&R){ Object.assign(R,VIEWS[b.dataset.view]); R.zoom=1; draw(); }});
+function renderLegend(){
+  if(!ed) return; const c=edCalc();
+  const col=k=>({a:"--c-ab",b:"--c-ab",c:"--c-ab",d:"--c-ab",e:"--c-ef",f:"--c-ef",g:"--c-ef",r:"--c-r",w:"--c-r",l:"--c-l",h:"--c-l",x:"--c-l"})[k];
+  $("#vizLegend").innerHTML=(c.errs.length?`<span class="errs">${esc(c.errs.join(" · "))}</span>`:`<span>A = ${fmt(c.Az,2)} m²</span>`)
+    +Object.keys(TYPES[ed.type].f).map(k=>`<span style="color:var(${col(k)})">${k==="w"?"α":k} = ${ed.v[k]}${k==="w"?"°":"mm"}</span>`).join("")
+    +(c.fr||[]).map(f=>`<span style="color:var(--c-v)">${f.key.toUpperCase()} = ${esc(CONN_NAME[f.conn]||f.conn)}</span>`).join("");
+}
+function snapshot3D(type,v,conn){
+  if(!R) return null;
+  const keep={rx:R.rx,ry:R.ry,zoom:R.zoom,host:R.host};
+  const tmp=document.createElement("div"); tmp.style.cssText="position:fixed;left:-9999px;top:0;width:640px;height:520px"; document.body.append(tmp);
+  R.host=tmp; tmp.append(R.renderer.domElement); R.renderer.setPixelRatio(1); R.renderer.setSize(640,520,false); R.cam.aspect=640/520; R.cam.updateProjectionMatrix();
+  Object.assign(R,VIEWS.iso); R.zoom=1.05; build3D(type,v,true,conn);
+  const src=R.renderer.domElement,cv=document.createElement("canvas"); cv.width=src.width; cv.height=src.height;
+  const x=cv.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,cv.width,cv.height); x.drawImage(src,0,0);
+  x.textAlign="center"; x.textBaseline="middle";
+  for(const l of R.labels){ const p=new THREE.Vector3(...l.pos).project(R.cam),px=(p.x+1)/2*cv.width,py=(1-p.y)/2*cv.height;
+    x.font=`${l.cls==="v"?500:700} ${l.cls==="v"?26:24}px Arial`; x.lineWidth=5; x.strokeStyle="#fff"; x.strokeText(l.text,px,py);
+    x.fillStyle=PRINTCOL[l.col]||"#333"; x.fillText(l.text,px,py); }
+  const out={url:cv.toDataURL("image/png"),w:cv.width,h:cv.height};
+  tmp.remove(); R.renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1)); Object.assign(R,keep); R.host=null;
+  if(keep.host&&document.body.contains(keep.host)) attachViewer(keep.host);
+  return out;
+}
+
+/* ================= Aufmaß-Export ================= */
+async function pdfBereich(){
+  const b=bereich(nav.bereichId),rows=posIn(b.id);
+  if(!rows.length){ toast("Noch keine Kanalteile"); return; }
+  if(!needPdf()) return; pdfBusy=true; toast("PDF wird erstellt …");
+  try{
+    const sub=[`Projekt: ${b.projekt}`,b.liefer?`Lieferung: ${new Date(b.liefer).toLocaleDateString("de-DE")}`:"",b.druck].filter(Boolean).join("  ·  ");
+    const doc=pdfDoc(`Aufmaß ${b.name}`,sub); let y=34;
+    for(const p of rows){
+      if(!TYPES[p.type]) continue;
+      const v={...defaults(p.type),...p.v},fr=frameInfo(p.type,v,p.conn);
+      const sk=await svgToPng(sketch(p.type,v,true)),skW=78,skH=skW*sk.h/sk.w;
+      const s3=snapshot3D(p.type,v,p.conn);
+      const params=Object.keys(TYPES[p.type].f).map(k=>`${k==="w"?"Winkel":k} = ${v[k]}${k==="w"?"°":""}`);
+      const info=[`Stück: ${p.qty}`,p.luft?`Luftart: ${LUFT.find(l=>l[0]===p.luft)?.[1]}`:"",`A je Stk: ${fmt(p.flaeche,3)} m²`,`A gesamt: ${fmt(p.flaeche*p.qty,2)} m²`,`Blech: ${fmt(p.blech,1)} mm`,...fr.map(f=>`${f.key.toUpperCase()}: ${CONN_NAME[f.conn]||f.conn}`)].filter(Boolean);
+      const textH=(Math.ceil(params.length/2)+info.length)*4.3+4,bh=Math.max(skH,44,textH)+10;
+      if(y+bh>282){ doc.addPage(); doc._kbHead(); y=34; }
+      doc.setFillColor(...BC.orange);doc.roundedRect(12,y-4,22,6.2,1,1,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(pdfSafe(p.type),23,y+0.4,{align:"center"});
+      doc.setTextColor(20);doc.setFontSize(11.5);doc.text(pdfSafe(`${p.bez} · ${typeName(p.type)}`),37,y+0.6);
+      if(p.bemerkung){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(90);doc.text(pdfSafe(p.bemerkung).slice(0,60),198,y+0.6,{align:"right"});}
+      doc.addImage(sk.url,"PNG",12,y+4,skW,skH);
+      if(s3){ const bw=50,bhh=42,sc=Math.min(bw/s3.w,bhh/s3.h); doc.addImage(s3.url,"PNG",92+(bw-s3.w*sc)/2,y+4+(bhh-s3.h*sc)/2,s3.w*sc,s3.h*sc); }
+      doc.setFont("courier","bold");doc.setFontSize(9);doc.setTextColor(31,78,121);
+      params.forEach((t,i)=>doc.text(pdfSafe(t),146+(i%2)*26,y+8+Math.floor(i/2)*4.3));
+      const ty=y+8+Math.ceil(params.length/2)*4.3+1.5; doc.setFont("helvetica","normal");doc.setTextColor(20);
+      info.forEach((t,i)=>{ if(t.startsWith("A gesamt")) doc.setFont("helvetica","bold"); doc.text(pdfSafe(t),146,ty+i*4.3); doc.setFont("helvetica","normal"); });
+      y+=bh; doc.setDrawColor(205);doc.setLineWidth(0.2);doc.line(12,y-3,198,y-3); y+=3;
+    }
+    if(y>210){ doc.addPage(); doc._kbHead(); y=34; }
+    doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text("Zusammenfassung",12,y+2); y+=8;
+    const head=()=>{doc.setFontSize(8.5);doc.setTextColor(90);doc.text("#",12,y);doc.text("POSITION",19,y);doc.text("TEIL",48,y);doc.text("MASSE",62,y);doc.text("STK",170,y,{align:"right"});doc.text("M²",198,y,{align:"right"});doc.setTextColor(20);y+=2;doc.setDrawColor(150);doc.line(12,y,198,y);y+=4.5;};
+    head(); let sum=0,kg=0; doc.setFont("helvetica","normal");doc.setFontSize(9);
+    rows.forEach((p,i)=>{
+      const m=doc.splitTextToSize(pdfSafe(maszText(p.type,p.v)),98);
+      if(y+m.length*4>280){doc.addPage();doc._kbHead();y=36;head();doc.setFont("helvetica","normal");doc.setFontSize(9);}
+      const tot=p.flaeche*p.qty; sum+=tot; kg+=tot*p.blech*7.85;
+      doc.text(String(i+1),12,y);doc.text(pdfSafe(p.bez).slice(0,16),19,y);doc.text(pdfSafe(p.type),48,y);doc.text(m,62,y);doc.text(String(p.qty),170,y,{align:"right"});doc.text(fmt(tot,2),198,y,{align:"right"});
+      y+=Math.max(1,m.length)*4+1.5;
+    });
+    doc.setDrawColor(150);doc.line(12,y-2,198,y-2); y+=3;
+    doc.setFont("helvetica","bold");doc.text("Blechfläche gesamt",62,y);doc.text(fmt(sum,2)+" m²",198,y,{align:"right"});y+=5;
+    doc.setFont("helvetica","normal");doc.text("Gewicht ca. (verzinkt)",62,y);doc.text(fmt(kg,0)+" kg",198,y,{align:"right"});y+=9;
+    const z=b.zub||{},zl=ZUB.filter(([k])=>z[k]>0);
+    if(zl.length){
+      if(y+12+zl.length*5>282){doc.addPage();doc._kbHead();y=34;}
+      doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text("Zubehör",12,y); y+=6; doc.setFontSize(9.5);
+      for(const [k,u,n] of zl){ doc.setFont("helvetica","bold");doc.text(fmt(z[k],u==="m"?1:0),22,y,{align:"right"});doc.setFont("helvetica","normal");doc.text(u,26,y);doc.text(pdfSafe(n),48,y); y+=5; }
+    }
+    pdfBusy=false; renderAufmass();
+    await saveFile(pdfFinish(doc),`Aufmass_${fileSafe(b.projekt)}_${fileSafe(b.name)}.pdf`,"PDF gespeichert");
+  }catch(e){ console.error(e); toast("PDF konnte nicht erstellt werden"); renderAufmass(); }
+  pdfBusy=false;
+}
+function csvBereich(){
+  const b=bereich(nav.bereichId),r=posIn(b.id); if(!r.length) return;
+  const csv="﻿Nr;Position;Teil;Bezeichnung;Maße;Stück;Luftart;A je Stk m²;A gesamt m²;Blech mm;Verbindungen;Bemerkung\n"+r.map((p,i)=>[i+1,p.bez,p.type,typeName(p.type),maszText(p.type,p.v),p.qty,LUFT.find(l=>l[0]===p.luft)?.[1]||"",fmt(p.flaeche,3),fmt(p.flaeche*p.qty,3),fmt(p.blech,1),TYPES[p.type]?frameInfo(p.type,p.v,p.conn).map(f=>f.key.toUpperCase()+" "+(CONN_NAME[f.conn]||f.conn)).join(", "):"",p.bemerkung||""].map(x=>`"${String(x).replace(/"/g,'""')}"`).join(";")).join("\n");
+  saveFile(new Blob([csv],{type:"text/csv"}),`Aufmass_${fileSafe(b.projekt)}_${fileSafe(b.name)}.csv`,"CSV gespeichert");
+}
+function copyBereich(){ const b=bereich(nav.bereichId),r=posIn(b.id); if(!r.length) return;
+  copyText(`Aufmaß ${b.projekt} – ${b.name}\n`+r.map(p=>`${p.bez} (${p.type}) ${maszText(p.type,p.v)} · ${p.qty}× · ${fmt(p.flaeche*p.qty,2)} m²`).join("\n")+`\nSumme: ${fmt(sumA(r),2)} m²`); }
+
+/* ================= Materialbestellung (Sprachansage → Bestellliste → PDF) ================= */
+/* --- Spracherkennung der Ansage --- */
+const BO_NUMW={"ein":1,"eine":1,"einen":1,"einer":1,"eins":1,"zwei":2,"drei":3,"vier":4,"fünf":5,"sechs":6,"sieben":7,"acht":8,"neun":9,"zehn":10,"elf":11,"zwölf":12,"dreizehn":13,"vierzehn":14,"fünfzehn":15,"sechzehn":16,"siebzehn":17,"achtzehn":18,"neunzehn":19,"zwanzig":20,"fünfundzwanzig":25,"dreißig":30,"vierzig":40,"fünfzig":50,"sechzig":60,"siebzig":70,"achtzig":80,"neunzig":90,"hundert":100,"einhundert":100,"zweihundert":200,"halbe":0.5,"halben":0.5,"anderthalb":1.5,"eineinhalb":1.5,"paar":2};
+const BO_UNITS=[
+  [/^(meter|metern|m|mtr|lfm|laufmeter)$/i,"m"],[/^(stück|stk|st|teile?)$/i,"Stk"],[/^(rollen?)$/i,"Rolle"],
+  [/^(kartons?|kisten?)$/i,"Karton"],[/^(pakete?|packungen?|pack|pck|päckchen)$/i,"Pkg"],[/^(sack|säcke|beutel)$/i,"Sack"],
+  [/^(eimer)$/i,"Eimer"],[/^(dosen?)$/i,"Dose"],[/^(kartuschen?|tuben?)$/i,"Kartusche"],[/^(paar)$/i,"Paar"],
+  [/^(satz|sätze)$/i,"Satz"],[/^(liter|l)$/i,"l"],[/^(kilo|kg|kilogramm)$/i,"kg"],[/^(quadratmeter|qm|m²|m2)$/i,"m²"],
+  [/^(platten?|tafeln?)$/i,"Platte"],[/^(bund|bündel)$/i,"Bund"],[/^(stangen?)$/i,"Stange"]
+];
+const BO_UNIT_LIST=["Stk","m","m²","Rolle","Karton","Pkg","Sack","Eimer","Dose","Kartusche","Paar","Satz","Platte","Stange","Bund","l","kg"];
+const BO_NUM_ALT="\\d+(?:[.,]\\d+)?|"+Object.keys(BO_NUMW).sort((a,b)=>b.length-a.length).join("|");
+const BO_NO_BEFORE=/^(dn|nw|m|x|mal|auf|ø|durchmesser|länge|lang|breite|ca\.?|circa|etwa|von|bis|à|je|zu|und|oder|dann|plus|noch|außerdem|,)$/i;
+const BO_NO_AFTER=/^(er|grad|°|mm|cm|zoll|x|mal|auf|bar|pa|kw|w|v|prozent|%|uhr|und|oder|dann|plus|noch|außerdem)$/i;
+function boUnitOf(w){ for(const [re,u] of BO_UNITS) if(re.test(w)) return u; return null; }
+function boToNum(w){ if(w==null) return NaN; w=w.toLowerCase(); if(w in BO_NUMW) return BO_NUMW[w]; return parseFloat(w.replace(",",".")); }
+function boBreaks(text){
+  const tok=text.replace(/\r/g,"").split(/(\s+)/), words=[]; for(let i=0;i<tok.length;i+=2) words.push(tok[i]);
+  const numWord=w=>/^\d+(?:[.,]\d+)?$/.test(w)||(w.toLowerCase() in BO_NUMW&&!/^(ein|eine|einen|einer|eins|paar|halbe|halben)$/i.test(w));
+  const isNum=w=>/^\d+(?:[.,]\d+)?$/.test(w), isUnit=w=>!!(w&&boUnitOf(w.replace(/[.,]$/,"")));
+  const first=words.find(w=>w&&w.trim()), trailing=first&&!numWord(first)&&!/^(ein|eine|einen)$/i.test(first), out=[];
+  for(let i=0;i<words.length;i++){
+    const w=words[i],prev=words[i-1],next=words[i+1];
+    if(trailing){ out.push(w); if(i>0&&isUnit(w)&&numWord(prev)&&words[i+1]&&/^[a-zäöüß]/i.test(words[i+1])) out.push(","); continue; }
+    const softPrev=prev&&!BO_NO_BEFORE.test(prev.replace(/[.,]$/,""));
+    if(i>0&&numWord(w)&&next&&softPrev&&(isUnit(next)||(/[a-zäöüß0-9°]$/i.test(prev)&&!isNum(prev)&&/^[a-zäöüß]/i.test(next)&&!BO_NO_AFTER.test(next)))) out.push(",");
+    out.push(w);
+  }
+  return out.join(" ").replace(/ ,/g,",");
+}
+function boClean(s){
+  s=s.replace(/\b(bitte|brauche|brauchen|wir|ich|noch|so|ungefähr|circa|ca\.?|etwa|von|vom|der|die|das|den|dem|des)\b/gi," ");
+  s=s.replace(/\bkomma\b/gi,",").replace(/(\d+)\s*(?:mal|x)\s*(\d+)/gi,"$1x$2").replace(/\b(?:dn\s*)?(\d{2,4})\s*er\b/gi,"DN $1").replace(/\b(\d{2,3})\s*grad\b/gi,"$1°");
+  s=s.replace(/\bm\s*(\d{1,2})\b/gi,"M$1").replace(/\bdn\s*(\d{2,4})\b/gi,"DN $1");
+  s=s.replace(/\balu\s*klebeband\b/gi,"Alu-Klebeband").replace(/\bt\s*stück(e)?\b/gi,"T-Stück").replace(/\bbögen\b/gi,"Bogen");
+  s=s.replace(/\b(und|oder|dann|plus)\s*$/i,"").replace(/^(und|oder)\s+/i,"");
+  s=s.replace(/\s{2,}/g," ").trim().replace(/^[-–:,.]+|[-–:,.]+$/g,"").trim();
+  if(!/[a-zäöüß]{2,}/i.test(s)) return "";
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
+function boParse(text){
+  const parts=(" "+boBreaks(text)+" ").split(new RegExp("\\s*(?:[,;\\n]|\\.\\s|\\bdann\\b|\\baußerdem\\b|\\bnoch\\b(?=\\s+(?:"+BO_NUM_ALT+")\\b)|\\bplus\\b|\\bund\\b)\\s*","i")).map(s=>s.trim()).filter(s=>s&&/[a-zäöüß]/i.test(s));
+  const out=[];
+  for(const seg of parts){
+    let s=seg,qty=NaN,unit=null;
+    const m=s.match(new RegExp("^(?:ca\\.?\\s+|circa\\s+|etwa\\s+)?("+BO_NUM_ALT+")\\b\\s*","i")); if(m){ qty=boToNum(m[1]); s=s.slice(m[0].length); }
+    const u=s.match(/^([A-Za-zäöüÄÖÜß²2]+)\.?(?:\s+|$)/); if(u){ const un=boUnitOf(u[1]); if(un){ unit=un; s=s.slice(u[0].length); } }
+    if(isNaN(qty)){ const t=s.match(new RegExp("\\s("+BO_NUM_ALT+")\\s*([A-Za-zäöüß²]+)?\\s*$","i")); if(t&&(!t[2]||boUnitOf(t[2]))){ qty=boToNum(t[1]); if(t[2]) unit=boUnitOf(t[2]); s=s.slice(0,t.index); } }
+    s=s.replace(/^(?:stück|meter)\s+/i,"");
+    const mat=boClean(s);
+    if(!mat){ const last=out[out.length-1]; if(last&&!isNaN(qty)&&last.qd){ last.qty=qty; if(unit) last.unit=unit; last.qd=false; } continue; }
+    out.push({qty:isNaN(qty)?1:qty,unit:unit||"Stk",mat,qd:isNaN(qty)});
+  }
+  return out.map(({qd,...x})=>x);
+}
+
+/* --- Zustand: Entwurf lokal, abgeschickte Bestellungen in der Datensicherung --- */
+const BV=$("#view-bestellung");
+const fmtQ=v=>Number(v).toLocaleString("de-DE",{maximumFractionDigits:2});
+const BO_QUICK=["Wickelfalzrohr DN ","Bogen 90° DN ","Bogen 45° DN ","T-Stück DN ","Reduzierung DN ","Nippel DN ","Muffe DN ","Rohrschelle DN ","Flexschlauch DN ","Gewindestange M8","Gewindestange M10","Schlagdübel M8","Alu-Klebeband","Dichtband","Kanaldichtmasse","Mineralwolle-Dämmung","Popnieten","Blechschrauben"];
+let bo=LS.get("kb_bestellung",null)||{items:[],site:"",by:"",date:"",ort:"an die Baustelle",note:"",said:""};
+let boSample=false, boFlash=[], boSampleFn=null, boHistPending=null;
+if(!bo.items.length&&!LS.get("kb_bestellung_seen",false)){ boSample=true; bo.items=[{id:uid(),qty:12,unit:"m",mat:"Wickelfalzrohr DN 160"},{id:uid(),qty:6,unit:"Stk",mat:"Bogen 90° DN 160"},{id:uid(),qty:2,unit:"Stk",mat:"T-Stück DN 160/125"},{id:uid(),qty:2,unit:"Rolle",mat:"Alu-Klebeband"}]; }
+const boSave=()=>LS.set("kb_bestellung",boSample?{...bo,items:[]}:bo);
+function boEnsureReal(){ if(boSample){ boSample=false; bo.items=[]; LS.set("kb_bestellung_seen",true); } }
+function boAdd(list){
+  boEnsureReal(); const ids=[];
+  for(const x of list){ const same=bo.items.find(i=>i.mat&&i.mat.toLowerCase()===x.mat.toLowerCase()&&i.unit===x.unit);
+    if(same){ same.qty=+(same.qty+x.qty).toFixed(2); ids.push(same.id); } else { const it={id:uid(),qty:x.qty,unit:x.unit,mat:x.mat}; bo.items.push(it); ids.push(it.id); } }
+  boFlash=ids; boSave(); renderBestellung(); return ids;
+}
+function renderBestellung(){
+  if(!BV) return;
+  const hist=[...(state.bestellungen||[])].sort((a,b)=>b.t-a.t).slice(0,15);
+  const its=bo.items;
+  BV.innerHTML=`
+  <section class="panel bo-head">
+    <div class="bo-brand"><svg viewBox="-50 -50 100 100" aria-hidden="true">${LOGO_SVG}</svg><div><div class="bo-co">D+W <b>KRÜGER</b> KLIMATECHNIK</div><div class="bo-sub">Bestellung an Lager &amp; Einkauf</div></div></div>
+    <label class="f">Baustelle / Projekt<input id="boSite" list="projektListe" value="${esc(bo.site)}" placeholder="z. B. 24-118 Max-Tau-Schule Kiel"></label>
+    <div class="grid">
+      <label class="f">Besteller<input id="boBy" value="${esc(bo.by||settings().name)}" placeholder="Name"></label>
+      <label class="f">Benötigt am<input type="date" id="boDate" value="${esc(bo.date)}"></label>
+      <label class="f">Lieferung<select id="boOrt">${["an die Baustelle","ins Lager","Abholung Großhandel"].map(o=>`<option${o===bo.ort?" selected":""}>${o}</option>`).join("")}</select></label>
+    </div>
+    <label class="f">Hinweis<input id="boNote" value="${esc(bo.note)}" placeholder="z. B. Anlieferung bis 9 Uhr, Ansprechpartner vor Ort"></label>
+  </section>
+  <section class="panel">
+    <div class="bo-mic"><button class="bo-micbtn" id="boMic" type="button" aria-label="Material ansagen"><svg viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg></button>
+      <div><b id="boMicT">Material ansagen</b><div class="note" id="boMicS">z. B. „12 Meter Wickelfalzrohr 160er, 6 Bögen 90 Grad 160er und 2 Rollen Alu-Klebeband“</div></div></div>
+    <div class="warnbox" id="boKb" hidden>Tippe ins Feld und dann in der Tastatur auf das Mikrofon. Einfach durchsprechen.</div>
+    <textarea id="boSaid" placeholder="Hier landet die Ansage – du kannst auch tippen.">${esc(bo.said||"")}</textarea>
+    <div class="row"><button class="btn primary" id="boParse" type="button">In Liste übernehmen</button><button class="btn small" id="boClearSaid" type="button">Leeren</button></div>
+    <div class="note" id="boMsg" aria-live="polite"></div>
+  </section>
+  <section class="panel">
+    <div class="row" style="justify-content:space-between"><h3>Bestellliste · ${its.length} Pos.</h3><div class="row"><button class="btn small" id="boAddRow" type="button">＋ Zeile</button>${its.length?`<button class="btn small danger" id="boClearAll" type="button">${boHistPending==="clear"?"Wirklich löschen?":"Alles löschen"}</button>`:""}</div></div>
+    ${boSample?`<div class="warnbox" style="display:flex;gap:8px;align-items:center;justify-content:space-between">Beispiel – so sieht eine Liste aus.<button class="btn small" id="boDropSample" type="button">Entfernen</button></div>`:""}
+    <div class="bo-items">${its.length?its.map(it=>`<div class="bo-item${boFlash.includes(it.id)?" new":""}" data-id="${it.id}">
+      <div class="bo-step"><button type="button" data-bo="minus" aria-label="weniger">−</button><input inputmode="decimal" value="${fmtQ(it.qty)}" data-k="qty" aria-label="Menge"><button type="button" data-bo="plus" aria-label="mehr">+</button></div>
+      <select data-k="unit" aria-label="Einheit">${BO_UNIT_LIST.map(u=>`<option${u===it.unit?" selected":""}>${u}</option>`).join("")}</select>
+      <input class="bo-mat" data-k="mat" value="${esc(it.mat)}" placeholder="Material" aria-label="Material">
+      <button type="button" class="bo-del" data-bo="del" aria-label="Position löschen">×</button></div>`).join(""):`<div class="empty">Noch nichts auf der Liste. Material ansagen oder aus der Schnellwahl tippen.</div>`}</div>
+    <span class="note">Schnellwahl</span>
+    <div class="chips bo-chips">${BO_QUICK.map(q=>`<button type="button" data-q="${esc(q)}">${esc(q.replace(/ DN $/,""))}</button>`).join("")}</div>
+  </section>
+  <div class="row"><button class="btn primary big" id="boPdf" type="button">PDF erstellen &amp; teilen</button><button class="btn big" id="boCopy" type="button">Als Text kopieren</button></div>
+  ${hist.length?`<section class="panel"><h3>Letzte Bestellungen</h3>${hist.map(h=>`<div class="bo-hist"><div class="tx"><b>${esc(h.nr)}</b> · ${esc(new Date(h.t).toLocaleDateString("de-DE"))}<div class="note">${esc(h.site||"ohne Baustelle")} · ${h.items.length} Pos.${h.date?" · benötigt "+esc(new Date(h.date+"T12:00").toLocaleDateString("de-DE")):""}</div></div>
+    <div class="row">${boHistPending===h.id?`<button class="btn small danger" data-hdelok="${h.id}">Löschen</button><button class="btn small" data-hdelno="1">Nein</button>`:`<button class="btn small" data-hpdf="${h.id}">PDF</button><button class="btn small" data-hload="${h.id}">Als Vorlage</button><button class="btn small danger" data-hdel="${h.id}" aria-label="Bestellung löschen">×</button>`}</div></div>`).join("")}</section>`:""}`;
+  boFlash=[];
+}
+/* Eingaben */
+BV.addEventListener("input",e=>{
+  const id=e.target.id, map={boSite:"site",boBy:"by",boDate:"date",boNote:"note",boSaid:"said"};
+  if(map[id]){ bo[map[id]]=e.target.value; boSave(); }
+});
+BV.addEventListener("change",e=>{
+  if(e.target.id==="boOrt"){ bo.ort=e.target.value; boSave(); return; }
+  const k=e.target.dataset.k; if(!k) return;
+  const it=bo.items.find(i=>i.id===e.target.closest(".bo-item")?.dataset.id); if(!it) return;
+  if(boSample){ boSample=false; LS.set("kb_bestellung_seen",true); }
+  if(k==="qty"){ const v=parseFloat(e.target.value.replace(/\./g,"").replace(",",".")); it.qty=isNaN(v)||v<=0?1:v; e.target.value=fmtQ(it.qty); }
+  else it[k]=e.target.value.trim();
+  boSave();
+});
+BV.addEventListener("click",async e=>{
+  const b=e.target.closest("button"); if(!b) return; const d=b.dataset;
+  if(b.id==="boMic") return boMicToggle();
+  if(b.id==="boParse") return boParseClick();
+  if(b.id==="boClearSaid"){ bo.said=""; boSave(); renderBestellung(); return; }
+  if(b.id==="boAddRow"){ const [id]=boAdd([{qty:1,unit:"Stk",mat:""}]); BV.querySelector(`.bo-item[data-id="${id}"] .bo-mat`)?.focus(); return; }
+  if(b.id==="boDropSample"){ boEnsureReal(); boSave(); renderBestellung(); return; }
+  if(b.id==="boClearAll"){ if(boHistPending!=="clear"){ boHistPending="clear"; renderBestellung(); setTimeout(()=>{ if(boHistPending==="clear"){ boHistPending=null; renderBestellung(); } },3000); return; }
+    boHistPending=null; bo.items=[]; boSample=false; LS.set("kb_bestellung_seen",true); boSave(); renderBestellung(); toast("Liste geleert"); return; }
+  if(b.id==="boPdf") return boPdf();
+  if(b.id==="boCopy"){ const t=boText(bo); if(t) copyText(t); return; }
+  if(d.q!=null){ const q=d.q, unit=/klebeband|dichtband/i.test(q)?"Rolle":/rohr|stange|schlauch/i.test(q)?"m":/nieten|schrauben|dübel/i.test(q)?"Pkg":"Stk";
+    const [id]=boAdd([{qty:1,unit,mat:q.trim()}]); if(/DN $/.test(q)){ const inp=BV.querySelector(`.bo-item[data-id="${id}"] .bo-mat`); if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); } } return; }
+  if(d.bo){ const id=b.closest(".bo-item").dataset.id, it=bo.items.find(i=>i.id===id); if(!it) return;
+    if(d.bo==="del"){ bo.items=bo.items.filter(i=>i.id!==id); boSave(); renderBestellung(); return; }
+    it.qty=Math.max(0.5,+(it.qty+(d.bo==="plus"?1:-1)).toFixed(2)); b.parentElement.querySelector("input").value=fmtQ(it.qty); boSave(); return; }
+  const h=(state.bestellungen||[]).find(x=>x.id===(d.hpdf||d.hload||d.hdelok));
+  if(d.hpdf&&h) return boPdf(h);
+  if(d.hload&&h){ boSample=false; bo={...bo,site:h.site,by:h.by,ort:h.ort,note:h.note,date:"",items:h.items.map(i=>({...i,id:uid()}))}; boSave(); renderBestellung(); window.scrollTo(0,0); toast("Als neue Bestellung übernommen"); return; }
+  if(d.hdel){ boHistPending=d.hdel; renderBestellung(); return; }
+  if(d.hdelno){ boHistPending=null; renderBestellung(); return; }
+  if(d.hdelok&&h){ boHistPending=null; await store.del("bestellungen",h.id); renderBestellung(); }
+});
+/* Spracheingabe */
+const BO_SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let boRec=null, boRecOn=false, boKbForced=false;
+function boKeyboard(){ $("#boKb").hidden=false; $("#boSaid").focus(); $("#boMicS").textContent="Tastatur-Mikrofon benutzen (siehe Hinweis)"; }
+function boMicToggle(){
+  if(!BO_SR||boKbForced) return boKeyboard();
+  if(boRecOn){ boRec.stop(); return; }
+  try{
+    boRec=new BO_SR(); boRec.lang="de-DE"; boRec.continuous=true; boRec.interimResults=true;
+    let base=($("#boSaid").value||"").trim(); if(base) base+=", ";
+    boRec.onresult=e=>{ let fin="",tmp=""; for(let i=0;i<e.results.length;i++){ const r=e.results[i]; if(r.isFinal) fin+=r[0].transcript+", "; else tmp+=r[0].transcript; }
+      const ta=$("#boSaid"); if(ta){ ta.value=(base+fin+tmp).replace(/,\s*$/,""); bo.said=ta.value; } };
+    boRec.onstart=()=>{ boRecOn=true; $("#boMic")?.classList.add("rec"); $("#boMicT").textContent="Ich höre zu …"; $("#boMicS").textContent="Nochmal tippen zum Beenden"; };
+    boRec.onend=()=>{ boRecOn=false; $("#boMic")?.classList.remove("rec"); if($("#boMicT")) $("#boMicT").textContent="Material ansagen"; if($("#boMicS")) $("#boMicS").textContent="Fertig? Dann „In Liste übernehmen“."; boSave(); };
+    boRec.onerror=e=>{ boRecOn=false; $("#boMic")?.classList.remove("rec"); if(/not-allowed|service-not-allowed|audio-capture|network/.test(e.error)){ boKbForced=true; boKeyboard(); } };
+    boRec.start();
+  }catch(err){ boKbForced=true; boKeyboard(); }
+}
+async function boParseClick(){
+  const text=($("#boSaid").value||"").trim(), msg=$("#boMsg");
+  if(!text){ msg.textContent="Erst etwas ansagen oder eintippen."; return; }
+  if(boRecOn) boRec.stop();
+  let list=null, how="direkt";
+  if(MODE==="artifact"){ try{ boSampleFn=boSampleFn||await claude.use("sample"); }catch(e){} }
+  if(boSampleFn){
+    msg.textContent="Claude sortiert die Ansage …";
+    try{ const arr=await boSampleFn.json(`Du hilfst Monteuren eines Lüftungs- und Klimabetriebs. Wandle diese gesprochene Materialansage in eine Bestellliste um. Jede genannte Position ein Eintrag, keine Menge genannt = 1. Einheit nur aus: ${BO_UNIT_LIST.join(", ")}. Fachbegriffe korrekt schreiben, "160er" = "DN 160", "90 Grad" = "90°", "400 mal 300" = "400x300". Nichts erfinden.\nAntworte nur mit einem JSON-Array wie [{"menge":12,"einheit":"m","material":"Wickelfalzrohr DN 160"}].\n\nAnsage: """${text.slice(0,4000)}"""`,{modelTier:"quick"});
+      if(Array.isArray(arr)){ list=arr.map(x=>({qty:Number(String(x.menge).replace(",","."))||1,unit:BO_UNIT_LIST.includes(x.einheit)?x.einheit:"Stk",mat:String(x.material||"").trim()})).filter(x=>x.mat); how="mit Claude"; } }
+    catch(e){ if(["not_granted","sampling_disabled","capability_disabled"].includes(e?.code)) boSampleFn=null; }
+  }
+  if(!list||!list.length){ list=boParse(text); how="direkt"; }
+  if(!list.length){ msg.textContent="Keine Position erkannt. Zum Beispiel: „10 Meter Wickelfalzrohr 160er“."; return; }
+  bo.said=""; boAdd(list);
+  $("#boMsg").textContent=`${list.length} Position${list.length>1?"en":""} übernommen (${how}). Bitte kurz prüfen.`;
+}
+function boText(o){
+  const live=o.items.filter(i=>i.mat); if(!live.length){ toast("Die Liste ist noch leer"); return ""; }
+  const t=o.date?new Date(o.date+"T12:00").toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}):"";
+  const L=["*Materialbestellung D+W Krüger*"];
+  if(o.site) L.push("Baustelle: "+o.site); if(o.by) L.push("Besteller: "+o.by); if(t) L.push("Benötigt am: "+t);
+  L.push("Lieferung "+o.ort); if(o.note) L.push("Hinweis: "+o.note);
+  L.push("",...live.map((x,n)=>`${n+1}. ${fmtQ(x.qty)} ${x.unit} – ${x.mat}`));
+  return L.join("\n");
+}
+async function boPdf(saved){
+  const src=saved||bo, live=src.items.filter(x=>x.mat);
+  if(!live.length){ toast("Die Liste ist noch leer"); return; }
+  if(!needPdf()) return; pdfBusy=true;
+  try{
+    await loadLogo();
+    const now=saved?new Date(saved.t):new Date();
+    const nr=saved?.nr||("B-"+isoDate(now).slice(2).replace(/-/g,"")+"-"+pad2(now.getHours())+pad2(now.getMinutes()));
+    const doc=pdfDoc("Materialbestellung",`Nr. ${nr}`); const W=doc._W,M=12,CW=W-2*M,BOT=doc._H-16; let y=36;
+    const t=src.date?new Date(src.date+"T12:00").toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"}):"–";
+    // Kopfdaten als Karte
+    doc.setFillColor(...BC.soft); doc.roundedRect(M,y,CW,src.note?33:24,2,2,"F"); doc.setFillColor(...BC.orange); doc.rect(M,y+2,1.2,(src.note?33:24)-4,"F");
+    const info=[["Baustelle / Projekt",src.site||"–"],["Benötigt am",t],["Besteller",src.by||"–"],["Lieferung",src.ort]];
+    info.forEach((p,k)=>{ const x=M+6+(k%2)*(CW/2), yy=y+6+Math.floor(k/2)*10;
+      doc.setFont("helvetica","bold"); doc.setFontSize(6.8); doc.setTextColor(...BC.grey); doc.text(p[0].toUpperCase(),x,yy);
+      doc.setFont("helvetica",k===1?"bold":"normal"); doc.setFontSize(10.5); doc.setTextColor(...(k===1?BC.orange:BC.ink)); doc.text(doc.splitTextToSize(pdfSafe(p[1]),CW/2-10)[0],x,yy+4.6); });
+    if(src.note){ doc.setFont("helvetica","bold"); doc.setFontSize(6.8); doc.setTextColor(...BC.grey); doc.text("HINWEIS",M+6,y+26); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...BC.ink); doc.text(doc.splitTextToSize(pdfSafe(src.note),CW-12)[0],M+6,y+30.6); }
+    y+=(src.note?33:24)+8;
+    const cx=[M,M+14,M+36,M+54,W-M-16];
+    const head=()=>{ doc.setFillColor(...BC.navy); doc.roundedRect(M,y,CW,8,1.2,1.2,"F"); doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(8.5);
+      doc.text("Pos.",cx[0]+2,y+5.4); doc.text("Menge",cx[2]-2,y+5.4,{align:"right"}); doc.text("Einheit",cx[2]+2,y+5.4); doc.text("Material",cx[3]+2,y+5.4); doc.text("Erledigt",W-M-2,y+5.4,{align:"right"}); y+=8; };
+    head();
+    live.forEach((x,n)=>{
+      doc.setFontSize(10.5); const lines=doc.splitTextToSize(pdfSafe(x.mat),cx[4]-cx[3]-6), h=Math.max(8,lines.length*4.6+3.4);
+      if(y+h>BOT){ doc.addPage(); doc._kbHead(true); y=36; head(); }
+      if(n%2){ doc.setFillColor(...BC.soft); doc.rect(M,y,CW,h,"F"); }
+      doc.setDrawColor(...BC.line); doc.setLineWidth(0.2); doc.line(M,y+h,W-M,y+h);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...BC.grey); doc.text(String(n+1).padStart(2,"0"),cx[0]+2,y+5.3);
+      doc.setFontSize(10.5); doc.setTextColor(...BC.ink); doc.setFont("helvetica","bold"); doc.text(fmtQ(x.qty),cx[2]-2,y+5.3,{align:"right"});
+      doc.setFont("helvetica","normal"); doc.text(pdfSafe(x.unit),cx[2]+2,y+5.3); doc.text(lines,cx[3]+2,y+5.3);
+      doc.setDrawColor(...BC.navy); doc.setLineWidth(0.35); doc.rect(W-M-8,y+h/2-2.2,4.4,4.4);
+      y+=h;
+    });
+    y+=6; doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...BC.navy); doc.text(`${live.length} Positionen`,M,y);
+    if(y+22>BOT){ doc.addPage(); doc._kbHead(true); y=36; }
+    y=Math.max(y+16,BOT-14); const sw=(CW-10)/2; doc.setDrawColor(...BC.navy); doc.setLineWidth(0.4); doc.line(M,y,M+sw,y); doc.line(M+sw+10,y,W-M,y);
+    doc.setFont("helvetica","normal"); doc.setFontSize(7.6); doc.setTextColor(...BC.grey); doc.text("Bestellt: Name / Unterschrift",M,y+4); doc.text("Geliefert / kommissioniert: Datum, Name",M+sw+10,y+4);
+    pdfBusy=false;
+    if(!saved){ const rec={id:uid(),nr,t:now.getTime(),site:bo.site,by:bo.by,date:bo.date,ort:bo.ort,note:bo.note,items:live.map(({id,...r})=>r)}; await store.save("bestellungen",rec); renderBestellung(); }
+    await saveFile(pdfFinish(doc),`Bestellung_${fileSafe(src.site||"Baustelle")}_${nr}.pdf`,"PDF gespeichert");
+  }catch(e){ console.error(e); toast("PDF konnte nicht erstellt werden"); }
+  pdfBusy=false;
+}
+
+/* ================= Zeiterfassung ================= */
+const ARTEN=[["arbeit","Arbeit"],["urlaub","Urlaub"],["krank","Krank"],["feiertag","Feiertag"],["ueberstd","Überstundenabbau"],["schule","Berufsschule / Lehrgang"]];
+const ARTNAME=Object.fromEntries(ARTEN);
+const ABFAHRT_ORTE=["Betrieb","Zuhause","Baustelle","Sonstiges"];
+const BH=[["offen","offen"],["geprueft","geprüft"],["rueckfrage","Rückfrage"]];
+const BHNAME=Object.fromEntries(BH);
+const ZV=$("#view-zeit");
+const pad2=n=>String(n).padStart(2,"0");
+const isoDate=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const todayISO=()=>isoDate(new Date());
+const nowHM=()=>{const d=new Date();return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;};
+const toMin=s=>{ if(!s||!/^\d{1,2}:\d{2}$/.test(s)) return null; const [h,m]=s.split(":").map(Number); return h*60+m; };
+const span=(a,b)=>{ const x=toMin(a),y=toMin(b); if(x==null||y==null) return 0; return (y-x+1440)%1440; };
+const hm=min=>{ if(!Number.isFinite(min)) return "–"; const s=min<0?"-":""; min=Math.abs(Math.round(min)); return `${s}${Math.floor(min/60)}:${pad2(min%60)}`; };
+const hdec=min=>fmt(min/60,2);
+const weekday=iso=>{ const d=new Date(iso+"T12:00:00").getDay(); return d; };
+const isWorkday=iso=>{ const d=weekday(iso); return d>=1&&d<=5; };
+const dayName=iso=>new Date(iso+"T12:00:00").toLocaleDateString("de-DE",{weekday:"short"});
+let zt={month:todayISO().slice(0,7),editId:null,formOpen:false,formDate:null,pending:null,monthCheck:false};
+let clockTimer=null;
+
+function sollMin(iso){ return isWorkday(iso)?settings().soll*60:0; }
+function zcalc(e){
+  const s=settings();
+  if(e.art!=="arbeit"&&e.art!=="schule"){ const ist=e.art==="ueberstd"?0:sollMin(e.date); return {arbeit:0,pause:0,fahrt:0,ist,warn:[]}; }
+  if(e.art==="schule"&&!(e.beginn&&e.ende)) return {arbeit:0,pause:0,fahrt:0,ist:sollMin(e.date),warn:[]};
+  const pause=(e.pausen||[]).reduce((t,p)=>t+(p.von&&p.bis?span(p.von,p.bis):0),0);
+  const brutto=e.beginn&&e.ende?span(e.beginn,e.ende):0;
+  const arbeit=Math.max(0,brutto-pause);
+  const fahrt=(e.abfahrt&&e.beginn?span(e.abfahrt,e.beginn):0)+(e.ende&&e.rueck?span(e.ende,e.rueck):0);
+  const warn=[];
+  if(arbeit>9*60&&pause<45) warn.push("Über 9 h Arbeit: mindestens 45 min Pause nötig (ArbZG)");
+  else if(arbeit>6*60&&pause<30) warn.push("Über 6 h Arbeit: mindestens 30 min Pause nötig (ArbZG)");
+  if(arbeit>10*60) warn.push("Mehr als 10 h Arbeitszeit");
+  return {arbeit,pause,fahrt,ist:arbeit+(s.fahrt?fahrt:0),warn};
+}
+const zEntries=()=>state.zeit.slice().sort((a,b)=>(a.date+(a.beginn||a.abfahrt||"")).localeCompare(b.date+(b.beginn||b.abfahrt||"")));
+function monthDays(ym){ const [y,m]=ym.split("-").map(Number),n=new Date(y,m,0).getDate(); return Array.from({length:n},(_,i)=>`${ym}-${pad2(i+1)}`); }
+function monthStats(ym){
+  const days=monthDays(ym),today=todayISO(),ents=zEntries().filter(e=>e.date.startsWith(ym));
+  let ist=0,soll=0,fahrt=0,arbeit=0; const art={urlaub:0,krank:0,feiertag:0,ueberstd:0,schule:0}; const missing=[];
+  for(const d of days){
+    if(d>today) continue;
+    soll+=sollMin(d);
+    const de=ents.filter(e=>e.date===d);
+    if(!de.length&&isWorkday(d)) missing.push(d);
+    const seen=new Set();
+    for(const e of de){ const c=zcalc(e); ist+=c.ist; fahrt+=c.fahrt; arbeit+=c.arbeit; if(art[e.art]!=null&&!seen.has(e.art)&&isWorkday(d)){ art[e.art]++; seen.add(e.art); } }
+  }
+  for(const e of ents.filter(e=>e.date>today)){ if(art[e.art]!=null&&isWorkday(e.date)) art[e.art]++; }
+  return {ist,soll,saldo:ist-soll,fahrt,arbeit,art,missing,ents};
+}
+function todayEntry(){ return zEntries().filter(e=>e.date===todayISO()&&e.art==="arbeit").pop(); }
+
+function clockHTML(){
+  const t=todayEntry(),c=t?zcalc(t):null,openPause=t&&(t.pausen||[]).find(p=>p.von&&!p.bis);
+  let state_="Noch nicht gestartet",btns="";
+  const B=(act,label,primary)=>`<button class="btn big ${primary?"primary":""}" data-zact="stamp" data-s="${act}">${label}</button>`;
+  if(!t){ btns=B("abfahrt","🚗 Abfahrt")+B("beginn","▶ Arbeitsbeginn",true); }
+  else if(!t.beginn){ state_=`Unterwegs seit ${t.abfahrt}`; btns=B("beginn","▶ Arbeitsbeginn",true); }
+  else if(openPause){ state_=`Pause seit ${openPause.von}`; btns=B("pauseEnde","▶ Pause beenden",true); }
+  else if(!t.ende){ const run=span(t.beginn,nowHM())-c.pause; state_=`Bei der Arbeit · ${hm(run)} h`; btns=B("pause","⏸ Pause")+B("ende","■ Feierabend",true); }
+  else if(!t.rueck){ state_=`Feierabend · ${hm(c.arbeit)} h gearbeitet`; btns=B("rueck","🏠 Angekommen")+`<button class="btn big" data-zact="edit" data-id="${t.id}">Bearbeiten</button>`; }
+  else { state_=`Erledigt · ${hm(c.arbeit)} h Arbeit · ${hm(c.fahrt)} h Fahrt`; btns=`<button class="btn big" data-zact="edit" data-id="${t.id}">Tag bearbeiten</button>`; }
+  return `<section class="clock" aria-live="polite">
+    <div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="st">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})}</div><div class="now" id="zNow">${nowHM()}</div></div>
+    <div class="st" style="text-align:right">${t&&t.projNr?`Projekt ${esc(t.projNr)}<br>`:""}${t&&t.ort?esc(t.ort):""}</div></div>
+    <div class="st">${esc(state_)}</div>
+    ${t?`<div class="stamps"><div>Abfahrt<b>${t.abfahrt||"–"}</b></div><div>Beginn<b>${t.beginn||"–"}</b></div><div>Pause<b>${c?hm(c.pause):"–"}</b></div><div>Ende<b>${t.ende||"–"}</b></div></div>`:""}
+    <div class="row">${btns}</div>
+    ${c&&c.warn.length?`<div class="warnbox" style="background:rgba(255,255,255,.1);color:#ffd28a;border-color:#ffd28a">${c.warn.map(esc).join("<br>")}</div>`:""}
+  </section>`;
+}
+function monthHTML(){
+  const st=monthStats(zt.month),[y,m]=zt.month.split("-").map(Number);
+  const label=new Date(y,m-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+  const days=monthDays(zt.month).filter(d=>d<=todayISO()||st.ents.some(e=>e.date===d)).reverse();
+  let rows="";
+  for(const d of days){
+    const de=st.ents.filter(e=>e.date===d);
+    if(!de.length){ if(isWorkday(d)) rows+=`<button class="zrow missing" data-zact="new" data-date="${d}"><div class="d">${d.slice(8)}.${d.slice(5,7)}.<small>${dayName(d)}</small></div><div class="note">Kein Eintrag · antippen zum Nachtragen</div><div class="h" style="color:var(--bad)">–</div></button>`; continue; }
+    for(const e of de){ const c=zcalc(e),bh=e.bh?.status||"offen";
+      rows+=`<button class="zrow" data-zact="edit" data-id="${e.id}"><div class="d">${d.slice(8)}.${d.slice(5,7)}.<small>${dayName(d)}</small></div>
+        <div style="min-width:0"><div><span class="art ${e.art}">${ARTNAME[e.art]}</span> ${e.projNr?`<span class="tag">${esc(e.projNr)}</span>`:""} <span class="status ${bh==="geprueft"?"done":bh==="rueckfrage"?"ask":"open"}" style="font-size:11px">${BHNAME[bh]}</span></div>
+        <div class="note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.art==="arbeit"?`${e.beginn||"?"}–${e.ende||"?"} · Pause ${hm(c.pause)}${c.fahrt?` · Fahrt ${hm(c.fahrt)}`:""}`:""}${e.projekt?` · ${esc(e.projekt)}`:""}${e.kommentar?` · ${esc(e.kommentar)}`:""}</div></div>
+        <div class="h">${hm(c.ist)}${c.warn.length?` <span style="color:var(--warn)">⚠</span>`:""}</div></button>`; }
+  }
+  return `<section class="panel">
+    <div class="monthbar"><button class="iconbtn" data-zact="month" data-d="-1" aria-label="Vormonat"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b>${label}</b><button class="iconbtn" data-zact="month" data-d="1" aria-label="Nächster Monat"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+    <div class="result">
+      <div class="kv main"><span>Ist</span><strong>${hm(st.ist)} h</strong></div>
+      <div class="kv"><span>Soll (bis heute)</span><strong>${hm(st.soll)} h</strong></div>
+      <div class="kv ${st.saldo<0?"bad":"good"}"><span>Saldo</span><strong>${st.saldo>=0?"+":""}${hm(st.saldo)} h</strong></div>
+      <div class="kv"><span>Fahrzeit</span><strong>${hm(st.fahrt)} h</strong></div>
+      <div class="kv"><span>Urlaub / Krank</span><strong>${st.art.urlaub} / ${st.art.krank} T</strong></div>
+      <div class="kv ${st.missing.length?"bad":""}"><span>Tage ohne Eintrag</span><strong>${st.missing.length}</strong></div>
+    </div>
+    <div class="row"><button class="btn small primary" data-zact="pdf">Stundenzettel PDF</button><button class="btn small" data-zact="csv">CSV</button><button class="btn small" data-zact="checkMonth">Buchhaltung: Monat prüfen</button></div>
+    ${zt.monthCheck?`<div class="confirm" style="border-color:var(--steel)"><span>Alle ${st.ents.length} Einträge als geprüft markieren?</span><input id="zCheckName" placeholder="Geprüft von" style="width:150px;padding:6px 8px"><button class="btn small primary" data-zact="checkMonthOk">Geprüft</button><button class="btn small" data-zact="checkMonthNo">Abbrechen</button></div>`:""}
+  </section>
+  <div class="list" style="border-radius:var(--r);overflow:hidden;border:1px solid var(--line)">${rows||`<div class="empty" style="border:0">Noch keine Einträge in diesem Monat.</div>`}</div>`;
+}
+function pauseRow(p,i){ return `<div class="pause-row" data-pi="${i}"><input type="time" value="${p.von||""}" data-pk="von" aria-label="Pause von"><input type="time" value="${p.bis||""}" data-pk="bis" aria-label="Pause bis"><button class="iconbtn" data-zact="delPause" data-i="${i}" aria-label="Pause entfernen">✕</button></div>`; }
+function formHTML(){
+  const e=zt.editId?state.zeit.find(x=>x.id===zt.editId):null;
+  const last=zEntries().filter(x=>x.art==="arbeit").pop()||{};
+  const f=e||{date:zt.formDate||todayISO(),art:"arbeit",projNr:last.projNr||"",projekt:last.projekt||"",ort:"",abfahrtOrt:last.abfahrtOrt||"Betrieb",abfahrt:"",beginn:"",ende:"",rueck:"",pausen:[{von:"",bis:""}],kommentar:"",bh:{status:"offen"}};
+  const arbeit=f.art==="arbeit"||f.art==="schule";
+  return `<section class="panel" id="zForm">
+    <div class="row" style="justify-content:space-between"><h3>${e?"Eintrag bearbeiten":"Neuer Eintrag"}</h3><button class="iconbtn" data-zact="close" aria-label="Schließen">✕</button></div>
+    <div class="grid">
+      <label class="f">Datum<input type="date" id="zDate" value="${f.date}"></label>
+      <label class="f">Art<select id="zArt">${ARTEN.map(([v,l])=>`<option value="${v}" ${f.art===v?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label class="f" id="zBisWrap" ${["urlaub","krank"].includes(f.art)&&!e?"":"hidden"}>bis einschließlich<input type="date" id="zBis"></label>
+    </div>
+    <div class="grid">
+      <label class="f">Projektnummer<input id="zProjNr" value="${esc(f.projNr||"")}" placeholder="z. B. 2026-118"></label>
+      <label class="f">Projekt / Baustelle<input id="zProj" list="projektListe" value="${esc(f.projekt||"")}"></label>
+    </div>
+    <div id="zArbeit" ${arbeit?"":"hidden"} style="display:flex;flex-direction:column;gap:12px">
+      <label class="f">Ort<div class="row" style="flex-wrap:nowrap"><input id="zOrt" value="${esc(f.ort||"")}" placeholder="Einsatzort"><button class="btn small" data-zact="gps" type="button" aria-label="Ort per GPS">📍</button></div></label>
+      <div class="grid g2">
+        <label class="f">Abfahrt von<select id="zAbOrt">${ABFAHRT_ORTE.map(o=>`<option ${f.abfahrtOrt===o?"selected":""}>${o}</option>`).join("")}</select></label>
+        <label class="f">Abfahrt<input type="time" id="zAbfahrt" value="${f.abfahrt||""}"></label>
+        <label class="f">Arbeitsbeginn<input type="time" id="zBeginn" value="${f.beginn||""}"></label>
+        <label class="f">Arbeitsende<input type="time" id="zEnde" value="${f.ende||""}"></label>
+        <label class="f">Rückkehr / Ankunft<input type="time" id="zRueck" value="${f.rueck||""}"></label>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Pausen (von – bis)</span><div id="zPausen" style="display:flex;flex-direction:column;gap:6px">${(f.pausen?.length?f.pausen:[{von:"",bis:""}]).map(pauseRow).join("")}</div>
+        <div class="row"><button class="btn small" data-zact="addPause" type="button">+ Pause</button><button class="btn small" data-zact="quickPause" data-m="30" type="button">30 min</button><button class="btn small" data-zact="quickPause" data-m="45" type="button">45 min</button></div></div>
+      <div class="note" id="zCalc"></div>
+    </div>
+    <label class="f">Kommentar / Anmerkungen<textarea id="zKomm" placeholder="z. B. Material geholt, Überstunden angeordnet von …">${esc(f.kommentar||"")}</textarea></label>
+    <details ${e&&e.bh&&e.bh.status!=="offen"?"open":""}><summary>Prüfung Buchhaltung</summary><div class="inner">
+      <div class="grid">
+        <label class="f">Status<select id="zBhStatus">${BH.map(([v,l])=>`<option value="${v}" ${(f.bh?.status||"offen")===v?"selected":""}>${l}</option>`).join("")}</select></label>
+        <label class="f">Geprüft von<input id="zBhVon" value="${esc(f.bh?.von||"")}"></label>
+        <label class="f">Prüfdatum<input type="date" id="zBhDatum" value="${f.bh?.datum||""}"></label>
+      </div>
+      <label class="f">Anmerkung Buchhaltung<textarea id="zBhNotiz" style="min-height:56px">${esc(f.bh?.notiz||"")}</textarea></label>
+    </div></details>
+    <div class="row"><button class="btn primary" data-zact="save">Speichern</button><button class="btn" data-zact="close">Abbrechen</button>
+      ${e?(zt.pending===e.id?`<span class="confirm">Eintrag löschen?<button class="btn small danger" data-zact="delOk">Löschen</button><button class="btn small" data-zact="delNo">Nein</button></span>`:`<button class="btn danger" data-zact="del">Löschen</button>`):""}</div>
+  </section>`;
+}
+function readPausen(){ return [...ZV.querySelectorAll("#zPausen .pause-row")].map(r=>({von:r.querySelector('[data-pk="von"]').value,bis:r.querySelector('[data-pk="bis"]').value})); }
+function readForm(){
+  const v=id=>$(id)?.value??"";
+  return {date:v("#zDate"),art:v("#zArt"),bis:v("#zBis"),projNr:v("#zProjNr").trim(),projekt:v("#zProj").trim(),ort:v("#zOrt").trim(),abfahrtOrt:v("#zAbOrt"),abfahrt:v("#zAbfahrt"),beginn:v("#zBeginn"),ende:v("#zEnde"),rueck:v("#zRueck"),
+    pausen:readPausen().filter(p=>p.von||p.bis),kommentar:v("#zKomm").trim(),bh:{status:v("#zBhStatus")||"offen",von:v("#zBhVon").trim(),datum:v("#zBhDatum"),notiz:v("#zBhNotiz").trim()}};
+}
+function updateFormCalc(){
+  const el=$("#zCalc"); if(!el) return;
+  const f=readForm(); if(f.art!=="arbeit"&&f.art!=="schule"){ el.textContent=""; return; }
+  const c=zcalc(f);
+  el.innerHTML=`Arbeitszeit <b>${hm(c.arbeit)} h</b> (${hdec(c.arbeit)} h) · Pause ${hm(c.pause)} · Fahrt ${hm(c.fahrt)}${settings().fahrt?" (zählt mit)":""}`+(c.warn.length?`<div class="warnbox" style="margin-top:6px">${c.warn.map(esc).join("<br>")}</div>`:"");
+}
+function renderZeit(){
+  if(tab!=="zeit") return;
+  const formOpen=zt.formOpen;
+  ZV.innerHTML=`<div id="zClockWrap">${clockHTML()}</div>${formOpen?formHTML():`<button class="btn" data-zact="new" data-date="${todayISO()}">+ Eintrag von Hand (auch Urlaub / Krank)</button>`}<div id="zMonthWrap" style="display:flex;flex-direction:column;gap:14px">${monthHTML()}</div>`;
+  if(formOpen) updateFormCalc();
+  clearInterval(clockTimer); clockTimer=setInterval(()=>{ if(tab!=="zeit") return clearInterval(clockTimer); const w=$("#zClockWrap"); if(w) w.innerHTML=clockHTML(); },30000);
+}
+function refreshZeitLight(){ if(tab!=="zeit") return; const c=$("#zClockWrap"),m=$("#zMonthWrap"); if(c) c.innerHTML=clockHTML(); if(m) m.innerHTML=monthHTML(); if(!zt.formOpen&&!c) renderZeit(); }
+async function stamp(kind){
+  const now=nowHM(); let t=todayEntry();
+  const last=zEntries().filter(x=>x.art==="arbeit").pop()||{};
+  if(!t){ t={id:uid(),date:todayISO(),art:"arbeit",projNr:last.projNr||"",projekt:last.projekt||"",ort:"",abfahrtOrt:last.abfahrtOrt||"Betrieb",abfahrt:"",beginn:"",ende:"",rueck:"",pausen:[],kommentar:"",bh:{status:"offen"},t:Date.now()}; }
+  t={...t,pausen:[...(t.pausen||[])].map(p=>({...p}))};
+  if(kind==="abfahrt") t.abfahrt=now;
+  if(kind==="beginn") t.beginn=now;
+  if(kind==="pause") t.pausen.push({von:now,bis:""});
+  if(kind==="pauseEnde"){ const p=t.pausen.find(p=>p.von&&!p.bis); if(p) p.bis=now; }
+  if(kind==="ende"){ const p=t.pausen.find(p=>p.von&&!p.bis); if(p) p.bis=now; t.ende=now; }
+  if(kind==="rueck") t.rueck=now;
+  await store.save("zeit",t);
+  toast({abfahrt:"Abfahrt",beginn:"Arbeitsbeginn",pause:"Pause gestartet",pauseEnde:"Pause beendet",ende:"Feierabend",rueck:"Angekommen"}[kind]+" "+now);
+  if((kind==="beginn"||kind==="abfahrt")&&MODE==="app"&&!t.ort){
+    try{ const pos=await getPos(); const ort=await reverseGeo(pos.lat,pos.lon).catch(()=>""); const cur=state.zeit.find(x=>x.id===t.id); if(cur&&!cur.ort) await store.save("zeit",{...cur,ort:ort||`${pos.lat}, ${pos.lon}`,gps:pos}); }catch(e){}
+  }
+}
+ZV.addEventListener("input",e=>{ if(e.target.closest("#zForm")) updateFormCalc(); });
+ZV.addEventListener("change",e=>{
+  if(e.target.id==="zArt"){ const a=e.target.value; $("#zArbeit").hidden=!(a==="arbeit"||a==="schule"); $("#zBisWrap").hidden=!(["urlaub","krank"].includes(a)&&!zt.editId); updateFormCalc(); }
+  if(e.target.id==="zBhStatus"&&e.target.value!=="offen"&&!$("#zBhDatum").value){ $("#zBhDatum").value=todayISO(); }
+});
+ZV.addEventListener("click",async e=>{
+  const t=e.target.closest("[data-zact]"); if(!t) return; const d=t.dataset;
+  switch(d.zact){
+    case "stamp": await stamp(d.s); break;
+    case "new": zt={...zt,formOpen:true,editId:null,formDate:d.date,pending:null}; renderZeit(); $("#zForm")?.scrollIntoView({behavior:"smooth",block:"start"}); break;
+    case "edit": zt={...zt,formOpen:true,editId:d.id,pending:null}; renderZeit(); $("#zForm")?.scrollIntoView({behavior:"smooth",block:"start"}); break;
+    case "close": zt={...zt,formOpen:false,editId:null,pending:null}; renderZeit(); break;
+    case "month": { const [y,m]=zt.month.split("-").map(Number),dt=new Date(y,m-1+parseInt(d.d),1); zt.month=`${dt.getFullYear()}-${pad2(dt.getMonth()+1)}`; refreshZeitLight(); break; }
+    case "addPause": { const ps=readPausen(); ps.push({von:"",bis:""}); $("#zPausen").innerHTML=ps.map(pauseRow).join(""); break; }
+    case "delPause": { const ps=readPausen(); ps.splice(+d.i,1); $("#zPausen").innerHTML=(ps.length?ps:[{von:"",bis:""}]).map(pauseRow).join(""); updateFormCalc(); break; }
+    case "quickPause": { const ps=readPausen().filter(p=>p.von||p.bis); const b=$("#zBeginn").value,en=$("#zEnde").value; let von="12:00";
+      if(b&&en){ const mid=(toMin(b)+span(b,en)/2)%1440; von=`${pad2(Math.floor(mid/60))}:${pad2(Math.floor(mid%60/5)*5)}`; }
+      const bm=(toMin(von)+parseInt(d.m))%1440; ps.push({von,bis:`${pad2(Math.floor(bm/60))}:${pad2(bm%60)}`}); $("#zPausen").innerHTML=ps.map(pauseRow).join(""); updateFormCalc(); break; }
+    case "gps": { if(MODE!=="app"){ toast(geoErrText()); break; } t.disabled=true; try{ const pos=await getPos(); $("#zOrt").value=await reverseGeo(pos.lat,pos.lon).catch(()=>`${pos.lat}, ${pos.lon}`); $("#zOrt").dataset.gps=JSON.stringify(pos); }catch(err){ toast(geoErrText(err)); } t.disabled=false; break; }
+    case "save": {
+      const f=readForm(); if(!f.date){ toast("Bitte ein Datum wählen"); return; }
+      const old=zt.editId?state.zeit.find(x=>x.id===zt.editId):null;
+      const gps=$("#zOrt")?.dataset.gps?JSON.parse($("#zOrt").dataset.gps):old?.gps;
+      const base_={...f,gps}; delete base_.bis;
+      if(!old&&["urlaub","krank"].includes(f.art)&&f.bis&&f.bis>f.date){
+        let n=0; for(let dt=new Date(f.date+"T12:00:00");isoDate(dt)<=f.bis;dt.setDate(dt.getDate()+1)){ const iso=isoDate(dt); if(!isWorkday(iso)) continue; await store.save("zeit",{...base_,id:uid(),date:iso,t:Date.now()}); n++; }
+        toast(`${n} ${ARTNAME[f.art]}stage eingetragen`);
+      } else { await store.save("zeit",{...(old||{}),...base_,id:old?old.id:uid(),t:old?.t||Date.now()}); toast("Gespeichert"); }
+      zt={...zt,formOpen:false,editId:null,month:f.date.slice(0,7)}; renderZeit(); break; }
+    case "del": zt.pending=zt.editId; renderZeit(); break;
+    case "delNo": zt.pending=null; renderZeit(); break;
+    case "delOk": { const id=zt.editId; zt={...zt,formOpen:false,editId:null,pending:null}; await store.del("zeit",id); renderZeit(); toast("Gelöscht"); break; }
+    case "checkMonth": zt.monthCheck=true; refreshZeitLight(); break;
+    case "checkMonthNo": zt.monthCheck=false; refreshZeitLight(); break;
+    case "checkMonthOk": { const von=$("#zCheckName").value.trim(); const ents=monthStats(zt.month).ents; zt.monthCheck=false;
+      for(const e of ents) await store.save("zeit",{...e,bh:{...(e.bh||{}),status:"geprueft",von:von||e.bh?.von||"",datum:todayISO()}});
+      toast(`${ents.length} Einträge als geprüft markiert`); break; }
+    case "pdf": pdfZeit(); break;
+    case "csv": csvZeit(); break;
+  }
+});
+function zeitRows(ym){ return zEntries().filter(e=>e.date.startsWith(ym)); }
+async function pdfZeit(){
+  const rows=zeitRows(zt.month); if(!rows.length){ toast("Keine Einträge in diesem Monat"); return; }
+  if(!needPdf()) return; pdfBusy=true;
+  try{
+    const s=settings(),st=monthStats(zt.month),[y,m]=zt.month.split("-").map(Number);
+    const mon=new Date(y,m-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+    const doc=pdfDoc(`Stundenzettel ${mon}`,[s.name&&`Mitarbeiter: ${s.name}`,s.pers&&`Pers.-Nr. ${s.pers}`,`Soll ${fmt(s.soll,2)} h/Tag`].filter(Boolean).join("  ·  "),"l");
+    const W=doc._W, cols=[["Datum",12],["Art",32],["Projekt-Nr.",54],["Projekt / Ort",76],["Abf.",132],["Beginn",144],["Pause",158],["Ende",171],["Rückk.",183],["Arbeit",196],["Fahrt",210],["Kommentar",222],["Prüfung",W-12]];
+    let y_=34;
+    const head=()=>{ doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(90); cols.forEach(([t,x],i)=>doc.text(t,x,y_,i===cols.length-1?{align:"right"}:{})); doc.setDrawColor(150);doc.line(12,y_+1.8,W-12,y_+1.8); y_+=6; doc.setTextColor(20); };
+    head(); doc.setFont("helvetica","normal");doc.setFontSize(8.5);
+    for(const e of rows){
+      const c=zcalc(e),pk=e.projekt||"",ort=e.ort||"";
+      const pj=doc.splitTextToSize(pdfSafe([pk,ort].filter(Boolean).join(" · ")),54),km=doc.splitTextToSize(pdfSafe(e.kommentar||""),W-12-222-22);
+      const lines=Math.max(1,pj.length,km.length), h=lines*3.6+2;
+      if(y_+h>doc._H-40){ doc.addPage(); doc._kbHead(); y_=34; head(); doc.setFont("helvetica","normal");doc.setFontSize(8.5); }
+      const dd=new Date(e.date+"T12:00:00");
+      doc.text(`${dayName(e.date)} ${pad2(dd.getDate())}.${pad2(dd.getMonth()+1)}.`,12,y_);
+      doc.text(pdfSafe(ARTNAME[e.art]).slice(0,14),32,y_); doc.text(pdfSafe(e.projNr||""),54,y_); doc.text(pj,76,y_);
+      if(e.art==="arbeit"||e.art==="schule"){ doc.text(e.abfahrt||"",132,y_);doc.text(e.beginn||"",144,y_);doc.text(hm(c.pause),158,y_);doc.text(e.ende||"",171,y_);doc.text(e.rueck||"",183,y_);doc.text(hm(c.fahrt),210,y_); }
+      doc.setFont("helvetica","bold"); doc.text(hm(c.ist),196,y_); doc.setFont("helvetica","normal");
+      doc.text(km,222,y_);
+      const bh=e.bh?.status||"offen"; doc.setTextColor(bh==="geprueft"?46:bh==="rueckfrage"?179:120,bh==="geprueft"?125:bh==="rueckfrage"?38:120,bh==="geprueft"?79:bh==="rueckfrage"?30:120);
+      doc.text(pdfSafe(BHNAME[bh]),W-12,y_,{align:"right"}); doc.setTextColor(20);
+      if(e.bh?.notiz){ doc.setFontSize(7.5);doc.setTextColor(150,60,30); doc.text(pdfSafe("Buchhaltung: "+e.bh.notiz).slice(0,120),76,y_+lines*3.6); doc.setTextColor(20);doc.setFontSize(8.5); y_+=3.6; }
+      y_+=h; doc.setDrawColor(225);doc.line(12,y_-3,W-12,y_-3);
+    }
+    if(y_>doc._H-48){ doc.addPage(); doc._kbHead(); y_=34; }
+    y_+=4; doc.setFontSize(10);
+    const sumLine=(l,v,x)=>{ doc.setFont("helvetica","normal");doc.text(l,x,y_);doc.setFont("helvetica","bold");doc.text(v,x+42,y_,{align:"right"}); };
+    sumLine("Ist-Stunden",hm(st.ist)+" h",12); sumLine("Soll-Stunden",hm(st.soll)+" h",70); sumLine("Saldo",(st.saldo>=0?"+":"")+hm(st.saldo)+" h",128); sumLine("Fahrzeit",hm(st.fahrt)+" h",186); y_+=6;
+    sumLine("Urlaubstage",String(st.art.urlaub),12); sumLine("Krankheitstage",String(st.art.krank),70); sumLine("Feiertage",String(st.art.feiertag),128); sumLine("Ohne Eintrag",String(st.missing.length),186);
+    y_+=16; doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setDrawColor(60);
+    doc.line(12,y_,100,y_); doc.line(W-100,y_,W-12,y_); y_+=4.5;
+    doc.text("Datum, Unterschrift Mitarbeiter",12,y_); doc.text("Datum, Unterschrift Buchhaltung (geprüft)",W-100,y_);
+    pdfBusy=false;
+    await saveFile(pdfFinish(doc),`Stundenzettel_${fileSafe(s.name||"Mitarbeiter")}_${zt.month}.pdf`,"PDF gespeichert");
+  }catch(err){ console.error(err); toast("PDF konnte nicht erstellt werden"); }
+  pdfBusy=false;
+}
+function csvZeit(){
+  const rows=zeitRows(zt.month); if(!rows.length) return;
+  const s=settings();
+  const csv="﻿Datum;Wochentag;Art;Projektnummer;Projekt;Ort;Abfahrt von;Abfahrt;Beginn;Pausen;Pause h;Ende;Rückkehr;Arbeit h;Fahrt h;Ist h;Kommentar;Prüfung;Geprüft von;Prüfdatum;Anmerkung Buchhaltung\n"+
+    rows.map(e=>{const c=zcalc(e);return [e.date,dayName(e.date),ARTNAME[e.art],e.projNr,e.projekt,e.ort,e.abfahrtOrt,e.abfahrt,e.beginn,(e.pausen||[]).map(p=>`${p.von}-${p.bis}`).join(" "),hdec(c.pause),e.ende,e.rueck,hdec(c.arbeit),hdec(c.fahrt),hdec(c.ist),e.kommentar,BHNAME[e.bh?.status||"offen"],e.bh?.von,e.bh?.datum,e.bh?.notiz].map(x=>`"${String(x??"").replace(/"/g,'""')}"`).join(";");}).join("\n");
+  saveFile(new Blob([csv],{type:"text/csv"}),`Zeiterfassung_${fileSafe(s.name||"Mitarbeiter")}_${zt.month}.csv`,"CSV gespeichert");
+}
+
+/* ================= Bautagebuch ================= */
+let tb={editId:null,weather:[],photos:[],ort:"",gps:null,autoDone:false};
+function nowLocal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
+function tbReset(){
+  tb={editId:null,weather:[],photos:[],ort:"",gps:null,autoDone:false};
+  $("#tbDate").value=nowLocal(); $("#tbSite").value=LS.get("kb_lastSite","");
+  ["tbTemp","tbStaff","tbHours","tbWork","tbMat","tbIssues","tbOrt"].forEach(id=>$("#"+id).value="");
+  $("#tbWind").value=""; $("#tbTitle").textContent="Neuer Eintrag"; $("#tbCancel").hidden=true; $("#tbSave").textContent="Eintrag speichern";
+  $("#tbAutoInfo").textContent=MODE==="app"?"Wetter wird automatisch geholt":"Wetter von Hand wählen";
+  renderTbForm();
+}
+function renderTbForm(){
+  $("#tbWeather").innerHTML=WEATHER.map(w=>`<button type="button" aria-pressed="${tb.weather.includes(w)}">${w}</button>`).join("");
+  $("#tbPhotos").innerHTML=tb.photos.map((p,i)=>`<figure><img src="${esc(photoURL(p))}" alt="Foto ${i+1}"><button type="button" data-rm="${i}" aria-label="Foto entfernen">×</button></figure>`).join("")
+    +`<label class="add" for="tbCam">📷<br>Kamera</label><label class="add" for="tbFile">＋<br>Galerie</label>`;
+}
+async function runAutoWeather(manual){
+  if(MODE!=="app"){ if(manual) toast(geoErrText()); return; }
+  const btn=$("#tbAuto"); btn.disabled=true; $("#tbAutoInfo").textContent="Standort und Wetter werden ermittelt …";
+  try{
+    const r=await autoPlaceWeather(); tb.autoDone=true; tb.gps=r.pos;
+    if(r.ort&&!$("#tbOrt").value) $("#tbOrt").value=r.ort;
+    if(r.wx){ tb.weather=r.wx.chips; if(r.wx.temp!=="") $("#tbTemp").value=r.wx.temp; if(r.wx.wind) $("#tbWind").value=r.wx.wind; renderTbForm();
+      $("#tbAutoInfo").textContent=`Wetter vom Deutschen Wetterdienst · ${nowHM()} Uhr`; }
+    else $("#tbAutoInfo").textContent="Ort gefunden, Wetterdienst nicht erreichbar – bitte von Hand wählen";
+  }catch(e){ $("#tbAutoInfo").textContent=geoErrText(e); }
+  btn.disabled=false;
+}
+$("#tbAuto").addEventListener("click",()=>runAutoWeather(true));
+$("#tbWeather").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const w=b.textContent;tb.weather=tb.weather.includes(w)?tb.weather.filter(x=>x!==w):[...tb.weather,w];renderTbForm();});
+$("#tbPhotos").addEventListener("click",e=>{const b=e.target.closest("button[data-rm]");if(!b)return;tb.photos.splice(+b.dataset.rm,1);renderTbForm();});
+async function addTbFiles(e){
+  const files=[...e.target.files]; e.target.value="";
+  for(const f of files){ try{ tb.photos.push(await storePhoto(f)); }catch(err){ toast("Foto konnte nicht übernommen werden"); } renderTbForm(); }
+}
+$("#tbFile").addEventListener("change",addTbFiles); $("#tbCam").addEventListener("change",addTbFiles);
+$("#tbSave").addEventListener("click",async()=>{
+  const old=tb.editId&&state.tagebuch.find(x=>x.id===tb.editId);
+  const obj={id:old?old.id:uid(),date:$("#tbDate").value||nowLocal(),site:$("#tbSite").value.trim(),ort:$("#tbOrt").value.trim(),gps:tb.gps||old?.gps||null,weather:tb.weather,temp:$("#tbTemp").value,wind:$("#tbWind").value,
+    staff:$("#tbStaff").value.trim(),hours:$("#tbHours").value,work:$("#tbWork").value.trim(),mat:$("#tbMat").value.trim(),issues:$("#tbIssues").value.trim(),photos:tb.photos,t:old?old.t:Date.now()};
+  if(!obj.work&&!obj.photos.length&&!obj.issues){ toast("Bitte mindestens Arbeiten, Besonderheiten oder ein Foto eintragen"); return; }
+  if(obj.site) LS.set("kb_lastSite",obj.site);
+  await store.save("tagebuch",obj); toast("Eintrag gespeichert"); tbReset();
+});
+$("#tbCancel").addEventListener("click",tbReset);
+let tbFilter="",tbPending=null;
+function fmtDate(s){const d=new Date(s);return isNaN(d)?s:d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"})+" · "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});}
+const weatherText=x=>[(x.weather||[]).join(", "),x.temp!==""&&x.temp!=null?x.temp+" °C":"",x.wind].filter(Boolean).join(", ");
+function tbText(x){return `Bautagebuch ${fmtDate(x.date)}${x.site?" – "+x.site:""}${x.ort?"\nOrt: "+x.ort:""}\nWetter: ${weatherText(x)||"–"}\nPersonal: ${x.staff||"–"}${x.hours?" ("+x.hours+" h)":""}\nArbeiten: ${x.work||"–"}\nMaterial: ${x.mat||"–"}\nBesonderheiten: ${x.issues||"–"}\nFotos: ${x.photos.length}`;}
+const tbRows=()=>state.tagebuch.filter(x=>!tbFilter||x.site===tbFilter).sort((a,b)=>b.date.localeCompare(a.date));
+function renderTbList(){
+  const sites=[...new Set(state.tagebuch.map(x=>x.site).filter(Boolean))].sort();
+  $("#tbFilter").innerHTML=`<option value="">Alle Baustellen</option>`+sites.map(s=>`<option ${s===tbFilter?"selected":""}>${esc(s)}</option>`).join("");
+  const rows=tbRows(); $("#tbPdfAll").disabled=!rows.length;
+  $("#tbList").innerHTML=rows.length?rows.map(x=>`<article class="entry">
+    <div class="meta"><span class="date">${esc(fmtDate(x.date))}</span><span>${x.site?`<span class="tag">${esc(x.site)}</span>`:""}</span></div>
+    ${x.ort?`<div class="meta"><span>📍 ${esc(x.ort)}</span></div>`:""}
+    <div class="meta"><span>${esc([(x.weather||[]).join(" "),x.temp!==""?x.temp+" °C":"",x.wind].filter(Boolean).join(" · ")||"Wetter –")}</span><span>${esc(x.staff||"")}${x.hours?` · ${esc(x.hours)} h`:""}</span></div>
+    ${x.work?`<p><b>Arbeiten:</b> ${esc(x.work)}</p>`:""}${x.mat?`<p><b>Material:</b> ${esc(x.mat)}</p>`:""}${x.issues?`<p><b>Besonderheiten:</b> ${esc(x.issues)}</p>`:""}
+    ${x.photos.length?`<div class="thumbs">${x.photos.map(p=>`<img src="${esc(photoURL(p))}" alt="Baustellenfoto" data-lb="1">`).join("")}</div>`:""}
+    ${tbPending===x.id?`<div class="confirm">Eintrag löschen?<button class="btn small danger" data-tbdelok="${x.id}">Löschen</button><button class="btn small" data-tbdelno="1">Nein</button></div>`:""}
+    <div class="row"><button class="btn small primary" data-tbpdf="${x.id}">PDF teilen</button><button class="btn small" data-tbedit="${x.id}">Bearbeiten</button><button class="btn small" data-tbcopy="${x.id}">Text kopieren</button><button class="btn small danger" data-tbdel="${x.id}">Löschen</button></div>
+  </article>`).join(""):`<div class="empty">Noch keine Einträge. Datum, Uhrzeit${MODE==="app"?", Ort und Wetter":""} trägt die App automatisch ein.</div>`;
+}
+/* ---------- Bautagebuch-PDF: Deckblatt mit Übersicht, je Tag eine Seite ---------- */
+function wxKind(x){
+  const t=(x.weather||[]).join(" ").toLowerCase();
+  if(/gewitter/.test(t)) return "storm"; if(/schnee|frost/.test(t)) return "snow"; if(/regen|schauer/.test(t)) return "rain";
+  if(/nebel/.test(t)) return "fog"; if(/bewölkt/.test(t)) return "cloud"; if(/heiter/.test(t)) return "partly"; if(/sonnig/.test(t)) return "sun";
+  if(/wind/.test(t)) return "wind"; return t?"cloud":"none";
+}
+function pdfWx(doc,cx,cy,s,kind){
+  const sun=(x,y,r)=>{ doc.setFillColor(...BC.orange); doc.circle(x,y,r,"F"); doc.setDrawColor(...BC.orange); doc.setLineWidth(s*0.07);
+    for(let k=0;k<8;k++){ const a=k*Math.PI/4; doc.line(x+Math.cos(a)*r*1.35,y+Math.sin(a)*r*1.35,x+Math.cos(a)*r*1.8,y+Math.sin(a)*r*1.8); } };
+  const cloud=(x,y,w,col)=>{ doc.setFillColor(...col); doc.circle(x-w*0.22,y+w*0.05,w*0.2,"F"); doc.circle(x+w*0.04,y-w*0.08,w*0.27,"F"); doc.circle(x+w*0.27,y+w*0.06,w*0.18,"F"); doc.rect(x-w*0.22,y+w*0.04,w*0.5,w*0.2,"F"); };
+  doc.setLineCap && doc.setLineCap("round");
+  switch(kind){
+    case "sun": sun(cx,cy,s*0.26); break;
+    case "partly": sun(cx-s*0.14,cy-s*0.12,s*0.2); cloud(cx+s*0.06,cy+s*0.08,s*0.8,[160,174,190]); break;
+    case "cloud": cloud(cx,cy,s,[150,164,180]); break;
+    case "fog": cloud(cx,cy-s*0.12,s*0.85,[160,172,186]); doc.setDrawColor(150,164,180); doc.setLineWidth(s*0.07); doc.line(cx-s*0.36,cy+s*0.22,cx+s*0.36,cy+s*0.22); doc.line(cx-s*0.26,cy+s*0.36,cx+s*0.3,cy+s*0.36); break;
+    case "rain": cloud(cx,cy-s*0.14,s*0.9,[130,146,166]); doc.setDrawColor(...BC.blue); doc.setLineWidth(s*0.07); for(const dx of [-0.2,0,0.2]) doc.line(cx+dx*s,cy+s*0.14,cx+dx*s-s*0.07,cy+s*0.36); break;
+    case "snow": cloud(cx,cy-s*0.14,s*0.9,[150,164,182]); doc.setFillColor(...BC.blue); for(const dx of [-0.2,0,0.2]) doc.circle(cx+dx*s,cy+s*0.27,s*0.05,"F"); break;
+    case "storm": cloud(cx,cy-s*0.14,s*0.9,[100,112,130]); doc.setFillColor(...BC.orange); doc.triangle(cx+s*0.02,cy+s*0.02,cx-s*0.12,cy+s*0.26,cx,cy+s*0.24,"F"); doc.triangle(cx,cy+s*0.2,cx+s*0.1,cy+s*0.2,cx-s*0.06,cy+s*0.42,"F"); break;
+    case "wind": doc.setDrawColor(...BC.teal); doc.setLineWidth(s*0.07); doc.line(cx-s*0.36,cy-s*0.14,cx+s*0.22,cy-s*0.14); doc.line(cx-s*0.36,cy,cx+s*0.34,cy); doc.line(cx-s*0.36,cy+s*0.14,cx+s*0.14,cy+s*0.14); break;
+    default: doc.setDrawColor(...BC.line); doc.setLineWidth(0.4); doc.circle(cx,cy,s*0.25,"S");
+  }
+  doc.setLineCap && doc.setLineCap("butt");
+}
+const staffCount=s=>String(s||"").split(/[,;\/&+\n]|\bund\b/).map(x=>x.trim()).filter(Boolean).length;
+const numDE=v=>{ const n=parseFloat(String(v??"").replace(",",".")); return Number.isFinite(n)?n:0; };
+
+async function pdfTagebuch(entries,filename){
+  if(!needPdf()) return; pdfBusy=true; toast("PDF wird erstellt …");
+  try{
+    await loadLogo();
+    const list=[...entries].sort((a,b)=>a.date.localeCompare(b.date));
+    const sites=[...new Set(list.map(e=>e.site).filter(Boolean))];
+    const d0=new Date(list[0].date), d1=new Date(list[list.length-1].date);
+    const span=list.length>1?`${d0.toLocaleDateString("de-DE")} – ${d1.toLocaleDateString("de-DE")}`:d0.toLocaleDateString("de-DE");
+    const sub=[sites.length?"Baustelle: "+sites.join(", "):"",span].filter(Boolean).join("  ·  ");
+    const doc=pdfDoc("Bautagebuch",sub); const W=doc._W, M=12, CW=W-2*M, BOT=doc._H-16;
+    let y=34;
+    const newPage=(cont=true)=>{ doc.addPage(); doc._kbHead(cont); y=34; };
+    const need=h=>{ if(y+h>BOT){ newPage(); return true; } return false; };
+    const tile=(x,yy,w,h,acc,label,big,small,icon)=>{
+      doc.setFillColor(...BC.soft); doc.roundedRect(x,yy,w,h,1.6,1.6,"F"); doc.setFillColor(...acc); doc.rect(x,yy+2,1.1,h-4,"F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(6.6); doc.setTextColor(...BC.grey); doc.text(label.toUpperCase(),x+4,yy+5.2);
+      let bx=x+4; if(icon){ pdfWx(doc,x+9,yy+h/2+2.2,9,icon); bx=x+16; }
+      doc.setFont("helvetica","bold"); doc.setFontSize(13.5); doc.setTextColor(...BC.ink); doc.text(doc.splitTextToSize(pdfSafe(big)||"–",w-(bx-x)-2)[0],bx,yy+13.2);
+      if(small){ doc.setFont("helvetica","normal"); doc.setFontSize(7.4); doc.setTextColor(...BC.grey); doc.text(doc.splitTextToSize(pdfSafe(small),w-(bx-x)-2).slice(0,2),bx,yy+17.6); }
+    };
+
+    /* ----- Deckblatt mit Übersicht (bei mehreren Einträgen) ----- */
+    if(list.length>1){
+      const hours=list.reduce((s,x)=>s+numDE(x.hours),0), photos=list.reduce((s,x)=>s+(x.photos?.length||0),0);
+      const days=new Set(list.map(x=>x.date.slice(0,10))).size, issues=list.filter(x=>x.issues).length;
+      doc.setFillColor(...BC.navy); doc.roundedRect(M,y,CW,34,2.5,2.5,"F");
+      doc.setFillColor(...BC.orange); doc.rect(M,y+30.5,CW,3.5,"F"); doc.setFillColor(...BC.navy); doc.rect(M,y+29,CW,1.5,"F");
+      doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(24); doc.text("Bautagebuch",M+8,y+13.5);
+      doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(205,220,240);
+      doc.text(doc.splitTextToSize(pdfSafe(sites.join(", ")||"Alle Baustellen"),CW-80)[0],M+8,y+21);
+      doc.setFontSize(9.5); doc.text(pdfSafe("Zeitraum "+span),M+8,y+26.5);
+      if(LOGO_PNG) doc.addImage(LOGO_PNG,"PNG",W-M-29,y+3,25,25);
+      y+=42;
+      const tw=(CW-4*3)/5;
+      [["Einträge",String(list.length),days+" Tage",BC.navy],["Arbeitsstunden",hours?fmt(hours,1)+" h":"–","laut Einträgen",BC.blue],["Fotos",String(photos),"dokumentiert",BC.teal],["Behinderungen",String(issues),issues?"Tage mit Hinweis":"keine",issues?BC.orange:BC.teal],["Personal Ø",fmt(list.reduce((s,x)=>s+staffCount(x.staff),0)/list.length,1),"Personen je Tag",BC.dblue]]
+        .forEach((t,i)=>tile(M+i*(tw+3),y,tw,22,t[3],t[0],t[1],t[2]));
+      y+=31;
+      doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...BC.navy); doc.text("Übersicht",M,y); y+=3;
+      const cols=[[M,"Datum"],[M+30,"Wetter"],[M+62,"Personal"],[M+102,"Std."],[M+116,"Ausgeführte Arbeiten"]];
+      const head=()=>{ doc.setFillColor(...BC.navy); doc.roundedRect(M,y,CW,7,1,1,"F"); doc.setFont("helvetica","bold"); doc.setFontSize(7.8); doc.setTextColor(255);
+        cols.forEach(([x,t])=>doc.text(t,x+2,y+4.7)); y+=7; };
+      head();
+      list.forEach((x,i)=>{
+        const wAll=doc.splitTextToSize(pdfSafe(x.work||x.issues||"–"),W-M-cols[4][0]-6), work=wAll.slice(0,2); if(wAll.length>2) work[1]=work[1].replace(/\s*\S*$/," ...");
+        const staff=doc.splitTextToSize(pdfSafe(x.staff||"–"),38).slice(0,2);
+        const h=Math.max(work.length,staff.length)*3.9+4;
+        if(y+h>BOT){ newPage(); head(); }
+        if(i%2){ doc.setFillColor(...BC.soft); doc.rect(M,y,CW,h,"F"); }
+        if(x.issues){ doc.setFillColor(...BC.orange); doc.rect(M,y,1,h,"F"); }
+        const dd=new Date(x.date); doc.setFont("helvetica","bold"); doc.setFontSize(8.6); doc.setTextColor(...BC.ink);
+        doc.text(dd.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"}),M+2,y+4.6);
+        pdfWx(doc,cols[1][0]+5,y+h/2,6,wxKind(x)); doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(...BC.grey);
+        doc.text(pdfSafe(x.temp!==""&&x.temp!=null?x.temp+" °C":""),cols[1][0]+10,y+4.6);
+        doc.setTextColor(...BC.ink); doc.text(staff,cols[2][0]+2,y+4.6);
+        doc.setFont("helvetica","bold"); doc.text(x.hours?fmt(numDE(x.hours),1):"–",cols[3][0]+2,y+4.6);
+        doc.setFont("helvetica","normal"); doc.text(work,cols[4][0]+2,y+4.6);
+        y+=h; doc.setDrawColor(...BC.line); doc.setLineWidth(0.2); doc.line(M,y,W-M,y);
+      });
+      y+=4; doc.setFontSize(7.4); doc.setTextColor(...BC.grey); doc.text("Orange markierte Tage enthalten Behinderungen oder Besonderheiten. Details auf den folgenden Seiten.",M,y+2);
+    }
+
+    /* ----- je Eintrag eine Seite ----- */
+    for(const [i,x] of list.entries()){
+      if(list.length>1||i>0) newPage(false);
+      const dd=new Date(x.date);
+      // Datumskachel
+      doc.setFillColor(...BC.navy); doc.roundedRect(M,y,30,32,2.2,2.2,"F");
+      doc.setFillColor(...BC.orange); doc.roundedRect(M,y,30,8,2.2,2.2,"F"); doc.rect(M,y+4,30,4,"F");
+      doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(7.6);
+      doc.text(dd.toLocaleDateString("de-DE",{weekday:"long"}).toUpperCase(),M+15,y+5.4,{align:"center"});
+      doc.setFontSize(25); doc.text(String(dd.getDate()),M+15,y+20.5,{align:"center"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(205,220,240);
+      doc.text(pdfSafe(dd.toLocaleDateString("de-DE",{month:"short",year:"numeric"})).toUpperCase(),M+15,y+27.5,{align:"center"});
+      // Baustelle, Ort, Zeit
+      const hx=M+36;
+      doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor(...BC.orange); doc.text(`BAUTAGEBUCH · EINTRAG ${i+1} VON ${list.length}`,hx,y+4.5);
+      doc.setFontSize(17); doc.setTextColor(...BC.ink); doc.text(doc.splitTextToSize(pdfSafe(x.site||"Baustelle"),W-M-hx)[0],hx,y+13);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(...BC.grey);
+      let iy=y+19.5;
+      if(x.ort){ doc.setFillColor(...BC.orange); doc.circle(hx+1.3,iy-1.2,1.3,"F"); doc.setFillColor(255); doc.circle(hx+1.3,iy-1.2,0.5,"F");
+        doc.text(doc.splitTextToSize(pdfSafe(x.ort),W-M-hx-6)[0],hx+4.5,iy); iy+=5.2; }
+      doc.text(`${dd.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})} Uhr${x.gps?`  ·  GPS ${x.gps.lat}, ${x.gps.lon}`:""}`,hx,iy);
+      y+=38;
+      // Kennzahlen
+      const tw=(CW-3*3)/4, wtxt=(x.weather||[]).map(pdfSafe).join(", ");
+      tile(M,y,tw,23,BC.blue,"Wetter",wtxt.split(",")[0]||"–",wtxt.split(",").slice(1).join(",").trim(),wxKind(x));
+      tile(M+tw+3,y,tw,23,BC.teal,"Temperatur",x.temp!==""&&x.temp!=null?x.temp+" °C":"–",x.wind||"");
+      tile(M+2*(tw+3),y,tw,23,BC.dblue,"Personal",staffCount(x.staff)?staffCount(x.staff)+" Personen":"–",x.staff||"");
+      tile(M+3*(tw+3),y,tw,23,BC.orange,"Arbeitsstunden",x.hours?fmt(numDE(x.hours),1)+" h":"–","gesamt");
+      y+=31;
+      // Abschnitte
+      const section=(title,txt,col,hl)=>{
+        if(!txt) return;
+        doc.setFontSize(10); const lines=doc.splitTextToSize(pdfSafe(txt),hl?CW-10:CW-4);
+        need(14);
+        doc.setFillColor(...col); doc.rect(M,y-3.2,2.4,4.2,"F");
+        doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...BC.navy); doc.text(title.toUpperCase(),M+5,y);
+        doc.setDrawColor(...BC.line); doc.setLineWidth(0.25); doc.line(M+5+doc.getTextWidth(title.toUpperCase())+3,y-1,W-M,y-1);
+        y+=5.5; doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...BC.ink);
+        let k=0;
+        while(k<lines.length){
+          const fit=Math.max(1,Math.floor((BOT-y-2)/5)); const part=lines.slice(k,k+fit);
+          if(hl){ doc.setFillColor(...BC.tint); doc.rect(M,y-4,CW,part.length*5+3,"F"); doc.setFillColor(...BC.orange); doc.rect(M,y-4,1.2,part.length*5+3,"F"); }
+          doc.text(part,M+(hl?6:4),y); y+=part.length*5; k+=part.length;
+          if(k<lines.length){ newPage(); doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...BC.ink); y+=2; }
+        }
+        y+=5;
+      };
+      section("Ausgeführte Arbeiten",x.work,BC.blue,false);
+      section("Material / Lieferungen",x.mat,BC.teal,false);
+      section("Behinderungen / Besonderheiten",x.issues,BC.orange,true);
+      // Fotos
+      const ph=x.photos||[];
+      if(ph.length){
+        need(30);
+        doc.setFillColor(...BC.dblue); doc.rect(M,y-3.2,2.4,4.2,"F"); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...BC.navy);
+        const t=`FOTODOKUMENTATION (${ph.length})`; doc.text(t,M+5,y); doc.setDrawColor(...BC.line); doc.line(M+5+doc.getTextWidth(t)+3,y-1,W-M,y-1); y+=4;
+        const one=ph.length===1, ratio=4/3; let pw=one?CW:(CW-4)/2, phh=pw/ratio;
+        let col=0;
+        for(const [pi,p] of ph.entries()){
+          let img; try{ img=await loadPhoto(await photoURLAsync(p),one?1800:1100,one?null:ratio); }catch(e){ continue; }
+          if(one){ const r=img.w/img.h; phh=Math.min(100,CW/r); pw=phh*r; }
+          if(col===0 && y+phh+6>BOT){ newPage(); }
+          const px=one?M+(CW-pw)/2:M+col*(pw+4);
+          doc.setFillColor(255); doc.setDrawColor(...BC.line); doc.setLineWidth(0.3); doc.roundedRect(px-0.8,y-0.8,pw+1.6,phh+7.6,1.4,1.4,"FD");
+          doc.addImage(img.url,"JPEG",px,y,pw,phh);
+          doc.setFont("helvetica","bold"); doc.setFontSize(7.2); doc.setTextColor(...BC.orange); doc.text(`FOTO ${pi+1}`,px+1,y+phh+4.6);
+          doc.setFont("helvetica","normal"); doc.setTextColor(...BC.grey); doc.text(pdfSafe(`${dd.toLocaleDateString("de-DE")}${x.site?" · "+x.site:""}`),px+pw-1,y+phh+4.6,{align:"right"});
+          col++; if(one||col===2){ col=0; y+=phh+11; }
+        }
+        if(col) y+=phh+11;
+      }
+      // Unterschriften
+      if(i===list.length-1||list.length===1){
+        if(y+24>BOT) newPage();
+        y=Math.max(y+8,BOT-20);
+        const sw=(CW-10)/2; doc.setDrawColor(...BC.navy); doc.setLineWidth(0.4);
+        doc.line(M,y,M+sw,y); doc.line(M+sw+10,y,W-M,y);
+        doc.setFont("helvetica","normal"); doc.setFontSize(7.6); doc.setTextColor(...BC.grey);
+        doc.text(pdfSafe(`Aufgestellt: ${settings().name||"Name"} · D+W Krüger Klimatechnik`),M,y+4); doc.text("Gesehen: Bauleitung / Auftraggeber",M+sw+10,y+4);
+      }
+    }
+    pdfBusy=false;
+    await saveFile(pdfFinish(doc),filename,"PDF gespeichert");
+  }catch(e){ console.error(e); toast("PDF konnte nicht erstellt werden"); }
+  pdfBusy=false;
+}
+async function photoURLAsync(p){ if(p.blob&&!blobURLs.has(p.blob)&&idb.db){ const b=await idb.get("blobs",p.blob); if(b) blobURLs.set(p.blob,URL.createObjectURL(b)); } return photoURL(p); }
+$("#tbPdfAll").addEventListener("click",()=>{const r=tbRows(); if(r.length) pdfTagebuch(r,`Bautagebuch_${fileSafe(tbFilter||"alle")}.pdf`);});
+$("#tbFilter").addEventListener("change",e=>{tbFilter=e.target.value;renderTbList();});
+$("#tbList").addEventListener("click",e=>{
+  const img=e.target.closest("img[data-lb]"); if(img){$("#lbImg").src=img.src;$("#lightbox").hidden=false;return;}
+  const b=e.target.closest("button"); if(!b) return; const d=b.dataset;
+  if(d.tbpdf){const x=state.tagebuch.find(y=>y.id===d.tbpdf); pdfTagebuch([x],`Bautagebuch_${fileSafe(x.site)}_${x.date.slice(0,10)}.pdf`);}
+  else if(d.tbedit){const x=state.tagebuch.find(y=>y.id===d.tbedit);tb={editId:x.id,weather:[...(x.weather||[])],photos:[...x.photos],ort:x.ort||"",gps:x.gps||null,autoDone:true};
+    $("#tbDate").value=x.date;$("#tbSite").value=x.site;$("#tbOrt").value=x.ort||"";$("#tbTemp").value=x.temp;$("#tbWind").value=x.wind;$("#tbStaff").value=x.staff;$("#tbHours").value=x.hours;$("#tbWork").value=x.work;$("#tbMat").value=x.mat;$("#tbIssues").value=x.issues;
+    $("#tbTitle").textContent="Eintrag bearbeiten";$("#tbCancel").hidden=false;$("#tbSave").textContent="Änderung speichern";renderTbForm();$("#tbForm").scrollIntoView({behavior:"smooth"});}
+  else if(d.tbcopy) copyText(tbText(state.tagebuch.find(y=>y.id===d.tbcopy)));
+  else if(d.tbdel){tbPending=d.tbdel;renderTbList();}
+  else if(d.tbdelok){tbPending=null;store.del("tagebuch",d.tbdelok);}
+  else if(d.tbdelno){tbPending=null;renderTbList();}
+});
+$("#lightbox").addEventListener("click",()=>$("#lightbox").hidden=true);
+
+/* ================= Rechner ================= */
+const GWP={"R32":675,"R410A":2088,"R407C":1774,"R134a":1430,"R404A":3922,"R454B":466,"R513A":631,"R290 (Propan)":3,"R744 (CO₂)":1};
+$("#t4k").innerHTML=Object.keys(GWP).map(k=>`<option>${k}</option>`).join("");
+const kv=(lab,val,main)=>`<div class="kv${main?" main":""}"><span>${lab}</span><strong>${val}</strong></div>`;
+const num=id=>parseFloat($("#"+id).value);
+function tools(){
+  { const Vv=num("t1v"),w=num("t1w"),a=num("t1a"),A=Vv/3600/w,b=A/(a/1000)*1000,d=Math.sqrt(4*A/Math.PI)*1000;
+    $("#t1r").innerHTML=Vv>0&&w>0?kv("Querschnitt",fmt(A,3)+" m²",1)+(a>0?kv("Höhe b bei a="+a,fmt(b,0)+" mm"):"")+kv("Rund Ø",fmt(d,0)+" mm"):""; }
+  { const Vv=num("t2v"),a=num("t2a"),b=num("t2b"),A=a*b/1e6,w=Vv/3600/A,dg=1.30*Math.pow(a*b,0.625)/Math.pow(a+b,0.25),dh=2*a*b/(a+b);
+    $("#t2r").innerHTML=Vv>0&&a>0&&b>0?kv("Geschwindigkeit",fmt(w,2)+" m/s",1)+kv("Gleichw. Ø (Reibung)",fmt(dg,0)+" mm")+kv("Hydraul. Ø",fmt(dh,0)+" mm"):""; }
+  { const vol=num("t3l")*num("t3b")*num("t3h"),n=num("t3n"); $("#t3r").innerHTML=vol>0?kv("Volumenstrom",fmt(vol*n,0)+" m³/h",1)+kv("Raumvolumen",fmt(vol,1)+" m³"):""; }
+  { const t=GWP[$("#t4k").value]*num("t4m")/1000; let iv="keine Prüfpflicht"; if(t>=500) iv="alle 3 Monate"; else if(t>=50) iv="alle 6 Monate"; else if(t>=5) iv="alle 12 Monate";
+    $("#t4r").innerHTML=t>=0?kv("CO₂-Äquivalent",fmt(t,2)+" t",1)+kv("GWP",GWP[$("#t4k").value].toLocaleString("de-DE"))+kv("Dichtheitsprüfung",iv):""; }
+  { const p=num("t5p"),q=num("t5q"); $("#t5r").innerHTML=p>0&&q>0?kv("Außenluft",fmt(p*q,0)+" m³/h",1):""; }
+  { const a=num("t6a"),s=num("t6s"); $("#t6r").innerHTML=a>0&&s>0?kv("Gewicht verzinkt",fmt(a*s*7.85,1)+" kg",1)+kv("je m²",fmt(s*7.85,2)+" kg"):""; }
+}
+$("#view-tools").addEventListener("input",e=>{ if(e.target.closest(".tool")) tools(); });
+$("#view-tools").addEventListener("change",e=>{ if(e.target.closest(".tool")) tools(); });
+
+/* ================= Einstellungen ================= */
+function initSettings(){
+  const s=settings();
+  $("#setFirma").value=s.firma; $("#setName").value=s.name; $("#setPers").value=s.pers; $("#setSoll").value=s.soll; $("#setFahrt").checked=!!s.fahrt;
+  $("#setFirma").addEventListener("input",e=>LS.set("kb_firma",e.target.value));
+  $("#setName").addEventListener("input",e=>LS.set("kb_name",e.target.value));
+  $("#setPers").addEventListener("input",e=>LS.set("kb_pers",e.target.value));
+  $("#setSoll").addEventListener("input",e=>{ const n=parseFloat(e.target.value); if(n>=0) LS.set("kb_soll",n); });
+  $("#setFahrt").addEventListener("change",e=>LS.set("kb_fahrt",e.target.checked));
+  $("#modeInfo").textContent=MODE==="app"
+    ?`Kanalbuch ${APP_VERSION} · Daten liegen nur auf diesem Handy. Wetter: Deutscher Wetterdienst über Bright Sky. Ort: OpenStreetMap.`
+    :`Kanalbuch ${APP_VERSION} · Chat-Version: Daten liegen in deinem Claude-Konto. Wetter & GPS gibt es in der Android-App.`;
+}
+
+/* ================= Datensicherung ================= */
+const blobToDataURL=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});
+async function exportBackup(){
+  toast("Sicherung wird erstellt …");
+  const data=JSON.parse(JSON.stringify(Object.fromEntries(COLLS.map(c=>[c,state[c]])))),blobs={};
+  for(const e of data.tagebuch) for(let i=0;i<(e.photos||[]).length;i++){
+    const p=e.photos[i]; let key=null,blob=null;
+    try{
+      if(p.blob&&idb.db){ key=p.blob; blob=await idb.get("blobs",p.blob); }
+      else if(p.asset){ key="a_"+p.asset; const r=await fetch("/_blob/"+p.asset); if(r.ok) blob=await r.blob(); }
+    }catch(err){}
+    if(key&&blob){ blobs[key]=await blobToDataURL(blob); e.photos[i]={blob:key}; }
+  }
+  const out={app:"kanalbuch",version:APP_VERSION,created:new Date().toISOString(),settings:settings(),data,blobs};
+  await saveFile(new Blob([JSON.stringify(out)],{type:"application/json"}),`Kanalbuch_Sicherung_${todayISO()}.json`,"Sicherung gespeichert");
+}
+async function importBackup(file){
+  try{
+    const j=JSON.parse(await file.text()); if(j.app!=="kanalbuch"||!j.data) throw new Error("Keine Kanalbuch-Sicherung");
+    const map={};
+    for(const [key,url] of Object.entries(j.blobs||{})){
+      const blob=await (await fetch(url)).blob();
+      if(MODE==="app"&&idb.db){ await idb.put("blobs",key,blob); map[key]={blob:key}; }
+      else map[key]=await storePhoto(blob);
+    }
+    let n=0;
+    for(const c of COLLS) for(const item of (j.data[c]||[])){
+      if(c==="tagebuch") item.photos=(item.photos||[]).map(p=>p.blob&&map[p.blob]?map[p.blob]:p);
+      await store.save(c,item); n++;
+    }
+    if(j.settings){ const s=j.settings; ["firma","name","pers","soll","fahrt"].forEach(k=>{ if(s[k]!=null&&s[k]!=="") LS.set("kb_"+k,s[k]); }); }
+    toast(`${n} Einträge eingespielt`); initSettingsValues();
+  }catch(e){ toast("Einspielen fehlgeschlagen: "+(e.message||"Datei prüfen")); }
+}
+function initSettingsValues(){ const s=settings(); $("#setFirma").value=s.firma; $("#setName").value=s.name; $("#setPers").value=s.pers; $("#setSoll").value=s.soll; $("#setFahrt").checked=!!s.fahrt; }
+$("#bkExport").addEventListener("click",exportBackup);
+$("#bkImport").addEventListener("click",()=>$("#bkFile").click());
+$("#bkFile").addEventListener("change",e=>{ const f=e.target.files[0]; e.target.value=""; if(f) importBackup(f); });
+
+/* ================= Installation (Android) ================= */
+let installEvt=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e;
+  if(!$("#installBtn")) $("#view-tools").insertAdjacentHTML("afterbegin",`<button class="btn primary" id="installBtn">📲 Kanalbuch als App installieren</button>`);
+  $("#installBtn").onclick=async()=>{ installEvt.prompt(); await installEvt.userChoice; installEvt=null; $("#installBtn")?.remove(); };
+});
+
+/* ================= Tabs & Start ================= */
+function showTab(name){
+  tab=name;
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===name));
+  ["aufmass","bestellung","zeit","tagebuch","tools"].forEach(t=>$("#view-"+t).hidden=t!==name);
+  try{localStorage.setItem("kb_tab",name);}catch(e){}
+  if(name!=="aufmass"){ $("#fab")?.remove(); $("#footbar")?.remove(); closeViz(); }
+  if(name==="aufmass") renderAufmass();
+  if(name==="bestellung") renderBestellung();
+  if(name==="zeit") renderZeit();
+  if(name==="tagebuch"&&MODE==="app"&&!tb.editId&&!tb.autoDone) runAutoWeather(false);
+  updateHeader(); window.scrollTo(0,0);
+}
+document.querySelector("nav.tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(b)showTab(b.dataset.tab);});
+function renderAll(){
+  $("#projektListe").innerHTML=[...new Set([...projectNames(),...state.tagebuch.map(t=>t.site).filter(Boolean),...state.zeit.map(z=>z.projekt).filter(Boolean)])].map(p=>`<option value="${esc(p)}">`).join("");
+  renderTbList();
+  const typing=document.activeElement&&V.contains(document.activeElement)&&document.activeElement.matches("input,select,textarea");
+  if(tab==="aufmass"&&nav.screen!=="editor"&&!typing) renderAufmass();
+  if(tab==="zeit") refreshZeitLight();
+  if(tab==="tagebuch") renderTbForm();
+}
+onDataChange=renderAll;
+init3D(); initSettings(); tbReset(); tools();
+let startTab="aufmass"; try{startTab=localStorage.getItem("kb_tab")||"aufmass";}catch(e){}
+const hashTab=location.hash.slice(1);
+showTab(["aufmass","bestellung","zeit","tagebuch","tools"].includes(hashTab)?hashTab:startTab);
+initStorage();
+if(MODE==="app"&&"serviceWorker" in navigator&&location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+})();
+</script>
+</body>
+</html>
