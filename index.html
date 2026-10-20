@@ -234,6 +234,9 @@ details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
 .sk-note{fill:var(--muted);font:italic 10px var(--f-body)}
 .sk-fr{fill:none;stroke:var(--ink);stroke-width:4}
 /* Materialbestellung */
+.bo-item.dup{box-shadow:inset 3px 0 0 #e8743b}
+.bo-item.dup .bo-mat{background:rgba(232,116,59,.08)}
+.bo-live{min-height:1.3em;font-size:13px;color:#8a94a6;font-style:italic;margin:2px 2px 6px}
 .bo-brand{display:flex;align-items:center;gap:12px}
 .bo-brand svg{width:46px;height:46px;flex:none}
 .bo-co{font:500 13px var(--f-body);color:#e8743b;letter-spacing:.03em}
@@ -419,7 +422,7 @@ details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
 <script>
 (() => {
 "use strict";
-const APP_VERSION = "3.1";
+const APP_VERSION = "3.2";
 const $ = s => document.querySelector(s);
 const fmt = (n, d=2) => Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1470,59 +1473,141 @@ function copyBereich(){ const b=bereich(nav.bereichId),r=posIn(b.id); if(!r.leng
   copyText(`Aufmaß ${b.projekt} – ${b.name}\n`+r.map(p=>`${p.bez} (${p.type}) ${maszText(p.type,p.v)} · ${p.qty}× · ${fmt(p.flaeche*p.qty,2)} m²`).join("\n")+`\nSumme: ${fmt(sumA(r),2)} m²`); }
 
 /* ================= Materialbestellung (Sprachansage → Bestellliste → PDF) ================= */
-/* --- Spracherkennung der Ansage --- */
-const BO_NUMW={"ein":1,"eine":1,"einen":1,"einer":1,"eins":1,"zwei":2,"drei":3,"vier":4,"fünf":5,"sechs":6,"sieben":7,"acht":8,"neun":9,"zehn":10,"elf":11,"zwölf":12,"dreizehn":13,"vierzehn":14,"fünfzehn":15,"sechzehn":16,"siebzehn":17,"achtzehn":18,"neunzehn":19,"zwanzig":20,"fünfundzwanzig":25,"dreißig":30,"vierzig":40,"fünfzig":50,"sechzig":60,"siebzig":70,"achtzig":80,"neunzig":90,"hundert":100,"einhundert":100,"zweihundert":200,"halbe":0.5,"halben":0.5,"anderthalb":1.5,"eineinhalb":1.5,"paar":2};
+/* --- Sprachansage → Positionen (v3.2: Token-basiert, erkennt Menge, Einheit, DN/Maße) --- */
 const BO_UNITS=[
-  [/^(meter|metern|m|mtr|lfm|laufmeter)$/i,"m"],[/^(stück|stk|st|teile?)$/i,"Stk"],[/^(rollen?)$/i,"Rolle"],
+  [/^(meter|metern|m|mtr|lfm|laufmeter|lfdm)$/i,"m"],[/^(stück|stücke|stk|st|teile?)$/i,"Stk"],[/^(rollen?)$/i,"Rolle"],
   [/^(kartons?|kisten?)$/i,"Karton"],[/^(pakete?|packungen?|pack|pck|päckchen)$/i,"Pkg"],[/^(sack|säcke|beutel)$/i,"Sack"],
   [/^(eimer)$/i,"Eimer"],[/^(dosen?)$/i,"Dose"],[/^(kartuschen?|tuben?)$/i,"Kartusche"],[/^(paar)$/i,"Paar"],
   [/^(satz|sätze)$/i,"Satz"],[/^(liter|l)$/i,"l"],[/^(kilo|kg|kilogramm)$/i,"kg"],[/^(quadratmeter|qm|m²|m2)$/i,"m²"],
   [/^(platten?|tafeln?)$/i,"Platte"],[/^(bund|bündel)$/i,"Bund"],[/^(stangen?)$/i,"Stange"]
 ];
 const BO_UNIT_LIST=["Stk","m","m²","Rolle","Karton","Pkg","Sack","Eimer","Dose","Kartusche","Paar","Satz","Platte","Stange","Bund","l","kg"];
-const BO_NUM_ALT="\\d+(?:[.,]\\d+)?|"+Object.keys(BO_NUMW).sort((a,b)=>b.length-a.length).join("|");
-const BO_NO_BEFORE=/^(dn|nw|m|x|mal|auf|ø|durchmesser|länge|lang|breite|ca\.?|circa|etwa|von|bis|à|je|zu|und|oder|dann|plus|noch|außerdem|,)$/i;
-const BO_NO_AFTER=/^(er|grad|°|mm|cm|zoll|x|mal|auf|bar|pa|kw|w|v|prozent|%|uhr|und|oder|dann|plus|noch|außerdem)$/i;
-function boUnitOf(w){ for(const [re,u] of BO_UNITS) if(re.test(w)) return u; return null; }
-function boToNum(w){ if(w==null) return NaN; w=w.toLowerCase(); if(w in BO_NUMW) return BO_NUMW[w]; return parseFloat(w.replace(",",".")); }
-function boBreaks(text){
-  const tok=text.replace(/\r/g,"").split(/(\s+)/), words=[]; for(let i=0;i<tok.length;i+=2) words.push(tok[i]);
-  const numWord=w=>/^\d+(?:[.,]\d+)?$/.test(w)||(w.toLowerCase() in BO_NUMW&&!/^(ein|eine|einen|einer|eins|paar|halbe|halben)$/i.test(w));
-  const isNum=w=>/^\d+(?:[.,]\d+)?$/.test(w), isUnit=w=>!!(w&&boUnitOf(w.replace(/[.,]$/,"")));
-  const first=words.find(w=>w&&w.trim()), trailing=first&&!numWord(first)&&!/^(ein|eine|einen)$/i.test(first), out=[];
-  for(let i=0;i<words.length;i++){
-    const w=words[i],prev=words[i-1],next=words[i+1];
-    if(trailing){ out.push(w); if(i>0&&isUnit(w)&&numWord(prev)&&words[i+1]&&/^[a-zäöüß]/i.test(words[i+1])) out.push(","); continue; }
-    const softPrev=prev&&!BO_NO_BEFORE.test(prev.replace(/[.,]$/,""));
-    if(i>0&&numWord(w)&&next&&softPrev&&(isUnit(next)||(/[a-zäöüß0-9°]$/i.test(prev)&&!isNum(prev)&&/^[a-zäöüß]/i.test(next)&&!BO_NO_AFTER.test(next)))) out.push(",");
-    out.push(w);
-  }
-  return out.join(" ").replace(/ ,/g,",");
+function boUnitOf(w){ w=String(w||"").replace(/[.,:;]$/,""); for(const [re,u] of BO_UNITS) if(re.test(w)) return u; return null; }
+
+/* Zahlwörter bis 9999, auch zusammengesetzt: "zweiundzwanzig", "hundertfünfzig", "zweieinhalb" */
+const BO_EINER={null:0,ein:1,eins:1,eine:1,einen:1,einer:1,zwei:2,zwo:2,drei:3,vier:4,fünf:5,sechs:6,sieben:7,acht:8,neun:9};
+const BO_TEEN={zehn:10,elf:11,zwölf:12,dreizehn:13,vierzehn:14,fünfzehn:15,sechzehn:16,siebzehn:17,achtzehn:18,neunzehn:19};
+const BO_ZEHNER={zwanzig:20,dreißig:30,dreissig:30,vierzig:40,fünfzig:50,sechzig:60,siebzig:70,achtzig:80,neunzig:90};
+function boWordNum(w){
+  w=w.toLowerCase().replace(/ß/g,"ß");
+  if(w==="halbe"||w==="halben"||w==="halb") return 0.5;
+  if(w==="anderthalb"||w==="eineinhalb") return 1.5;
+  const m=w.match(/^(.*?)einhalb$/); if(m&&m[1]){ const b=boWordNum(m[1]); return isNaN(b)?NaN:b+0.5; }
+  let rest=w, total=0;
+  const t=rest.match(/^(.*?)tausend(.*)$/); if(t){ const f=t[1]?boWordNum(t[1]):1; if(isNaN(f)) return NaN; total+=f*1000; rest=t[2]; if(!rest) return total; }
+  const h=rest.match(/^(.*?)hundert(.*)$/); if(h){ const f=h[1]?boWordNum(h[1]):1; if(isNaN(f)) return NaN; total+=f*100; rest=h[2]; if(!rest) return total; }
+  rest=rest.replace(/^und/,"");
+  if(rest in BO_TEEN) return total+BO_TEEN[rest];
+  if(rest in BO_ZEHNER) return total+BO_ZEHNER[rest];
+  const z=rest.match(/^(ein|zwei|drei|vier|fünf|sechs|sieben|acht|neun)und(zwanzig|dreißig|dreissig|vierzig|fünfzig|sechzig|siebzig|achtzig|neunzig)$/);
+  if(z) return total+BO_EINER[z[1]]+BO_ZEHNER[z[2]];
+  if(rest in BO_EINER && rest!=="null") return total+BO_EINER[rest];
+  return NaN;
 }
-function boClean(s){
-  s=s.replace(/\b(bitte|brauche|brauchen|wir|ich|noch|so|ungefähr|circa|ca\.?|etwa|von|vom|der|die|das|den|dem|des)\b/gi," ");
-  s=s.replace(/\bkomma\b/gi,",").replace(/(\d+)\s*(?:mal|x)\s*(\d+)/gi,"$1x$2").replace(/\b(?:dn\s*)?(\d{2,4})\s*er\b/gi,"DN $1").replace(/\b(\d{2,3})\s*grad\b/gi,"$1°");
-  s=s.replace(/\bm\s*(\d{1,2})\b/gi,"M$1").replace(/\bdn\s*(\d{2,4})\b/gi,"DN $1");
-  s=s.replace(/\balu\s*klebeband\b/gi,"Alu-Klebeband").replace(/\bt\s*stück(e)?\b/gi,"T-Stück").replace(/\bbögen\b/gi,"Bogen");
-  s=s.replace(/\b(und|oder|dann|plus)\s*$/i,"").replace(/^(und|oder)\s+/i,"");
-  s=s.replace(/\s{2,}/g," ").trim().replace(/^[-–:,.]+|[-–:,.]+$/g,"").trim();
-  if(!/[a-zäöüß]{2,}/i.test(s)) return "";
-  return s.charAt(0).toUpperCase()+s.slice(1);
+
+/* Text vereinheitlichen, bevor zerlegt wird */
+function boNormalize(text){
+  let s=" "+String(text||"").replace(/\r/g," ").replace(/[–—]/g," ")+" ";
+  // Zahlwörter → Ziffern (ein/eine nur, wenn danach Einheit oder Großwort folgt; das prüft der Zerleger)
+  s=s.replace(/[A-Za-zÄÖÜäöüß]+/g,w=>{ const lw=w.toLowerCase(); if(/^(ein|eine|einen|einer|eins)$/.test(lw)) return w; const n=boWordNum(lw); return isNaN(n)?w:String(n); });
+  s=s.replace(/(\d)\s*komma\s*(\d)/gi,"$1,$2");                     // 2 komma 5 → 2,5
+  s=s.replace(/(\d+(?:,\d+)?)\s*einhalb\b/gi,(m,a)=>String(parseFloat(a.replace(",","."))+0.5));
+  s=s.replace(/(\d+)\s*(?:x|mal|×)\s*(\d+)(?:\s*(?:x|mal|×)\s*(\d+))?/gi,(m,a,b,c)=>c?`${a}x${b}x${c}`:`${a}x${b}`); // 400 mal 300
+  s=s.replace(/\b(?:dn\s*|nw\s*)?(\d{2,4})\s*er(?=[\s,.]|er|$)/gi,"DN $1 ");          // 160er → DN 160
+  s=s.replace(/\b(?:dn|nw)\s*(\d{2,4})\s*(?:auf|zu|\/)\s*(?:dn\s*)?(\d{2,4})\b/gi,"DN $1/$2"); // DN 160 auf 125
+  s=s.replace(/\b(\d{2,4})\s+(?:auf|zu)\s+(?:dn\s*)?(\d{2,4})\b/gi,"$1/$2");          // 200 auf 160 → 200/160
+  s=s.replace(/\b(\d{1,3})\s*(?:grad|°)/gi,"$1°");                                      // 90 Grad → 90°
+  s=s.replace(/\bm\s?(\d{1,2})\b(?!\s*(?:meter|m\b))/gi,"M$1");                         // m 8 → M8
+  s=s.replace(/\bdn\s*(\d{2,4})\b/gi,"DN$1");                                            // DN zusammenhalten
+  s=s.replace(/\b(?:länge|lang)\s*(\d+(?:,\d+)?)\s*(meter|m|mm)\b/gi,(m,a,u)=>"L="+a+(u.toLowerCase()==="mm"?"mm":"m"));   // Länge 1 Meter → L=1m
+  s=s.replace(/\b(\d+(?:,\d+)?)\s*(meter|m|mm)\s+lang\b/gi,(m,a,u)=>"L="+a+(u.toLowerCase()==="mm"?"mm":"m"));          // 1 Meter lang → L=1m
+  s=s.replace(/\b(\d+)\s*mm\b/gi,"$1mm");
+  s=s.replace(/\balu\s*-?\s*klebeband\b/gi,"Alu-Klebeband").replace(/\bt\s*-?\s*stück(e|en)?\b/gi,"T-Stück");
+  return s.replace(/\s+/g," ").trim();
 }
+
+const BO_FILL=/^(bitte|brauche|brauchen|bräuchte|bräuchten|benötige|benötigen|hätte|hätten|gerne|gern|wir|ich|mal|noch|so|ungefähr|circa|ca\.?|etwa|von|vom|der|die|das|den|dem|des|und|oder|dann|plus|außerdem|auch|sowie|weiter|weitere|weiterhin|also|ähm|äh|hm|okay|ok|ja|nochmal|nochmals|mit|dazu)$/i;
+const BO_SEP=/^(und|oder|dann|plus|außerdem|sowie|dazu|noch|nochmal)$/i;
+/* Rundteile: bloße Zahl dahinter ist ein Durchmesser */
+const BO_ROUND=/(rohr|bogen|bögen|muffe|nippel|t-stück|abzweig|reduzier|schelle|flex|schlauch|ventil|deckel|endkappe|kappe|schalldämpfer|drossel|klappe|regler|stutzen|sattel|hose|gitter)/i;
+const BO_SING=[[/\bBögen\b/gi,"Bogen"],[/\bMuffen\b/gi,"Muffe"],[/\bReduzierungen\b/gi,"Reduzierung"],[/\bRohrschellen\b/gi,"Rohrschelle"],[/\bSchellen\b/gi,"Schelle"],
+  [/\bGewindestangen\b/gi,"Gewindestange"],[/\bTellerventile\b/gi,"Tellerventil"],[/\bBrandschutzklappen\b/gi,"Brandschutzklappe"],[/\bKlappen\b/gi,"Klappe"],
+  [/\bDeckel\b/gi,"Deckel"],[/\bEndkappen\b/gi,"Endkappe"],[/\bAbzweige\b/gi,"Abzweig"],[/\bBlechschrauben\b/gi,"Blechschraube"],[/\bSchrauben\b/gi,"Schraube"],
+  [/\bMuttern\b/gi,"Mutter"],[/\bScheiben\b/gi,"Scheibe"],[/\bGitter\b/gi,"Gitter"],[/\bStutzen\b/gi,"Stutzen"],[/\bSchalldämpfern?\b/gi,"Schalldämpfer"],
+  [/\bRohre\b/gi,"Rohr"],[/\bWickelfalzrohre\b/gi,"Wickelfalzrohr"],[/\bVentile\b/gi,"Ventil"],[/\bNieten\b/gi,"Niete"]];
+
 function boParse(text){
-  const parts=(" "+boBreaks(text)+" ").split(new RegExp("\\s*(?:[,;\\n]|\\.\\s|\\bdann\\b|\\baußerdem\\b|\\bnoch\\b(?=\\s+(?:"+BO_NUM_ALT+")\\b)|\\bplus\\b|\\bund\\b)\\s*","i")).map(s=>s.trim()).filter(s=>s&&/[a-zäöüß]/i.test(s));
-  const out=[];
-  for(const seg of parts){
-    let s=seg,qty=NaN,unit=null;
-    const m=s.match(new RegExp("^(?:ca\\.?\\s+|circa\\s+|etwa\\s+)?("+BO_NUM_ALT+")\\b\\s*","i")); if(m){ qty=boToNum(m[1]); s=s.slice(m[0].length); }
-    const u=s.match(/^([A-Za-zäöüÄÖÜß²2]+)\.?(?:\s+|$)/); if(u){ const un=boUnitOf(u[1]); if(un){ unit=un; s=s.slice(u[0].length); } }
-    if(isNaN(qty)){ const t=s.match(new RegExp("\\s("+BO_NUM_ALT+")\\s*([A-Za-zäöüß²]+)?\\s*$","i")); if(t&&(!t[2]||boUnitOf(t[2]))){ qty=boToNum(t[1]); if(t[2]) unit=boUnitOf(t[2]); s=s.slice(0,t.index); } }
-    s=s.replace(/^(?:stück|meter)\s+/i,"");
-    const mat=boClean(s);
-    if(!mat){ const last=out[out.length-1]; if(last&&!isNaN(qty)&&last.qd){ last.qty=qty; if(unit) last.unit=unit; last.qd=false; } continue; }
-    out.push({qty:isNaN(qty)?1:qty,unit:unit||"Stk",mat,qd:isNaN(qty)});
+  const raw=boNormalize(text);
+  // Satzzeichen als eigene Trenner
+  const tokens=raw.replace(/([,;.!?])(\s|$)/g," $1 ").split(/\s+/).filter(Boolean);
+  const isNum=t=>/^\d+(?:[.,]\d+)?$/.test(t);
+  const isOne=t=>/^(ein|eine|einen|einer|eins)$/i.test(t);
+  const num=t=>isOne(t)?1:parseFloat(String(t).replace(",","."));
+  const isPunct=t=>/^[,;.!?]$/.test(t);
+  const isWord=t=>/[A-Za-zÄÖÜäöüß]/.test(t)&&!boUnitOf(t)&&!isPunct(t);
+  const isDim=t=>/^(DN\d|M\d|L=\d|\d+x\d|\d+°|\d+\/\d|\d+mm$)/i.test(t);
+  const items=[]; let cur=null;
+  const newItem=()=>{ cur={qty:NaN,unit:null,words:[],dims:[],closed:false,hasDN:false}; items.push(cur); return cur; };
+  const hasMat=it=>it&&it.words.some(w=>!BO_FILL.test(w));
+
+  for(let i=0;i<tokens.length;i++){
+    const t=tokens[i], nx=tokens[i+1], nx2=tokens[i+2];
+    if(isPunct(t)){ if(cur&&hasMat(cur)) cur.closed=true; continue; }
+    if(BO_SEP.test(t)&&cur&&hasMat(cur)){ cur.closed=true; continue; }
+    const quantityStart = (isNum(t)||(isOne(t)&&(boUnitOf(nx)||(nx&&/^[A-ZÄÖÜ]/.test(nx)))));
+    if(quantityStart){
+      const u=boUnitOf(nx);
+      // Zahl + Einheit
+      if(u){
+        if(cur && !cur.closed && isNaN(cur.qty) && hasMat(cur)){        // nachgestellte Menge: "Rohr 160 10 Meter"
+          cur.qty=num(t); cur.unit=u; cur.closed=true; i++; continue; }
+        if(cur && hasMat(cur) && !isNaN(cur.qty) && !cur.closed && u==="m" && num(t)<=6 && nx2 && isNum(nx2)){ // "Gewindestange M8 1 Meter 50 …" → Länge
+          cur.dims.push(String(t).replace(".",",")+" m"); i++; continue; }
+        const it=newItem(); it.qty=num(t); it.unit=u; i++; continue;
+      }
+      // bloße Zahl direkt nach einem Rundteil ohne DN → Durchmesser
+      if(isNum(t) && cur && hasMat(cur) && !cur.hasDN && !cur.closed && BO_ROUND.test(cur.words.join(" ")) && +t>=63 && +t<=2000){
+        // "Rohr 160 6 Bögen" → 160 = DN, 6 = Menge der nächsten Position
+        cur.dims.push("DN "+t); cur.hasDN=true; continue; }
+      // bloße Zahl vor einem Wort → Menge einer neuen Position
+      if(nx && (isWord(nx)||isDim(nx))){ const it=newItem(); it.qty=num(t); continue; }
+      // Zahl am Ende ohne Bezug: Menge der aktuellen Position, wenn noch keine da
+      if(cur && isNaN(cur.qty)){ cur.qty=num(t); cur.closed=true; continue; }
+      if(cur){ cur.dims.push(t); continue; }
+      const it=newItem(); it.qty=num(t); continue;
+    }
+    if(isDim(t)){
+      if(!cur||cur.closed) newItem();
+      if(/^DN\d/i.test(t)){ if(cur.hasDN){ cur.closed=true; newItem(); } cur.hasDN=true; cur.dims.push(t.replace(/^DN/i,"DN ")); }
+      else cur.dims.push(t);
+      continue;
+    }
+    const u=boUnitOf(t);
+    if(u && cur && !cur.unit && cur.words.length===0){ cur.unit=u; continue; } // "6 Stück Bogen"
+    if(BO_FILL.test(t) && (!cur || cur.words.length===0 || cur.closed)) continue;
+    if(!cur || cur.closed) newItem();
+    cur.words.push(t);
   }
-  return out.map(({qd,...x})=>x);
+
+  const out=[];
+  for(const it of items){
+    let words=it.words.filter((w,k)=>!(BO_FILL.test(w)&&(k===0||k===it.words.length-1)));
+    while(words.length&&BO_FILL.test(words[words.length-1])) words.pop();
+    while(words.length&&BO_FILL.test(words[0])) words.shift();
+    let mat=words.join(" ");
+    if(!/[A-Za-zÄÖÜäöüß]{2,}/.test(mat)){
+      // nur Maße/Menge ohne Material → an die vorige Position hängen
+      const last=out[out.length-1];
+      if(last){ if(it.dims.length) last.mat+=" "+it.dims.join(" "); if(!isNaN(it.qty)&&last.qtyDefault){ last.qty=it.qty; if(it.unit) last.unit=it.unit; last.qtyDefault=false; } }
+      continue;
+    }
+    for(const [re,r] of BO_SING) mat=mat.replace(re,r);
+    mat=mat.charAt(0).toUpperCase()+mat.slice(1);
+    if(it.dims.length) mat+=" "+it.dims.join(" ");
+    mat=mat.replace(/\s+/g," ").trim();
+    out.push({qty:isNaN(it.qty)?1:it.qty, unit:it.unit||"Stk", mat, qtyDefault:isNaN(it.qty)});
+  }
+  return out.map(({qtyDefault,...x})=>x);
 }
 
 /* --- Zustand: Entwurf lokal, abgeschickte Bestellungen in der Datensicherung --- */
@@ -1536,9 +1621,13 @@ const boSave=()=>LS.set("kb_bestellung",boSample?{...bo,items:[]}:bo);
 function boEnsureReal(){ if(boSample){ boSample=false; bo.items=[]; LS.set("kb_bestellung_seen",true); } }
 function boAdd(list){
   boEnsureReal(); const ids=[];
-  for(const x of list){ const same=bo.items.find(i=>i.mat&&i.mat.toLowerCase()===x.mat.toLowerCase()&&i.unit===x.unit);
-    if(same){ same.qty=+(same.qty+x.qty).toFixed(2); ids.push(same.id); } else { const it={id:uid(),qty:x.qty,unit:x.unit,mat:x.mat}; bo.items.push(it); ids.push(it.id); } }
-  boFlash=ids; boSave(); renderBestellung(); return ids;
+  // v3.2: gleiche Positionen werden NICHT mehr still aufaddiert, sondern als eigene Zeile angelegt und markiert
+  let dup=0;
+  for(const x of list){ const same=bo.items.some(i=>i.mat&&i.mat.toLowerCase()===x.mat.toLowerCase()&&i.unit===x.unit); if(same) dup++;
+    const it={id:uid(),qty:x.qty,unit:x.unit,mat:x.mat}; bo.items.push(it); ids.push(it.id); }
+  boFlash=ids; boSave(); renderBestellung();
+  if(dup) toast(`${dup} Position${dup>1?"en stehen":" steht"} schon auf der Liste – bitte prüfen`);
+  return ids;
 }
 function renderBestellung(){
   if(!BV) return;
@@ -1559,6 +1648,7 @@ function renderBestellung(){
     <div class="bo-mic"><button class="bo-micbtn" id="boMic" type="button" aria-label="Material ansagen"><svg viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg></button>
       <div><b id="boMicT">Material ansagen</b><div class="note" id="boMicS">z. B. „12 Meter Wickelfalzrohr 160er, 6 Bögen 90 Grad 160er und 2 Rollen Alu-Klebeband“</div></div></div>
     <div class="warnbox" id="boKb" hidden>Tippe ins Feld und dann in der Tastatur auf das Mikrofon. Einfach durchsprechen.</div>
+    <div class="bo-live" id="boLive" aria-live="polite"></div>
     <textarea id="boSaid" placeholder="Hier landet die Ansage – du kannst auch tippen.">${esc(bo.said||"")}</textarea>
     <div class="row"><button class="btn primary" id="boParse" type="button">In Liste übernehmen</button><button class="btn small" id="boClearSaid" type="button">Leeren</button></div>
     <div class="note" id="boMsg" aria-live="polite"></div>
@@ -1566,7 +1656,7 @@ function renderBestellung(){
   <section class="panel">
     <div class="row" style="justify-content:space-between"><h3>Bestellliste · ${its.length} Pos.</h3><div class="row"><button class="btn small" id="boAddRow" type="button">＋ Zeile</button>${its.length?`<button class="btn small danger" id="boClearAll" type="button">${boHistPending==="clear"?"Wirklich löschen?":"Alles löschen"}</button>`:""}</div></div>
     ${boSample?`<div class="warnbox" style="display:flex;gap:8px;align-items:center;justify-content:space-between">Beispiel – so sieht eine Liste aus.<button class="btn small" id="boDropSample" type="button">Entfernen</button></div>`:""}
-    <div class="bo-items">${its.length?its.map(it=>`<div class="bo-item${boFlash.includes(it.id)?" new":""}" data-id="${it.id}">
+    <div class="bo-items">${its.length?its.map(it=>`<div class="bo-item${boFlash.includes(it.id)?" new":""}${its.some(o=>o!==it&&o.mat&&it.mat&&o.mat.toLowerCase()===it.mat.toLowerCase()&&o.unit===it.unit)?" dup":""}" data-id="${it.id}">
       <div class="bo-step"><button type="button" data-bo="minus" aria-label="weniger">−</button><input inputmode="decimal" value="${fmtQ(it.qty)}" data-k="qty" aria-label="Menge"><button type="button" data-bo="plus" aria-label="mehr">+</button></div>
       <select data-k="unit" aria-label="Einheit">${BO_UNIT_LIST.map(u=>`<option${u===it.unit?" selected":""}>${u}</option>`).join("")}</select>
       <input class="bo-mat" data-k="mat" value="${esc(it.mat)}" placeholder="Material" aria-label="Material">
@@ -1620,24 +1710,59 @@ BV.addEventListener("click",async e=>{
 const BO_SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let boRec=null, boRecOn=false, boKbForced=false;
 function boKeyboard(){ $("#boKb").hidden=false; $("#boSaid").focus(); $("#boMicS").textContent="Tastatur-Mikrofon benutzen (siehe Hinweis)"; }
+/* v3.2: Android-sicher. Chrome auf Android liefert bei continuous=true denselben Satz mehrfach
+   (jedes Ergebnis enthält alles bisher Gesagte). Darum: je Satz eine kurze Sitzung, danach automatisch
+   neu starten, bis man nochmal tippt. Jeder fertige Satz wird genau einmal übernommen, Wiederholungen
+   und "wachsende" Sätze werden erkannt. */
+let boWantRec=false, boChunks=[], boRestarts=0;
+const boNormCmp=t=>String(t||"").toLowerCase().replace(/[^a-z0-9äöüß]+/g," ").trim();
+function boPushChunk(txt){
+  txt=String(txt||"").trim(); if(!txt) return;
+  const n=boNormCmp(txt), last=boChunks[boChunks.length-1], ln=last?boNormCmp(last):"";
+  if(last && (n===ln || ln.startsWith(n))) return;          // exakt doppelt oder Teil des letzten
+  if(last && n.startsWith(ln)){ boChunks[boChunks.length-1]=txt; } // letzter Satz ist gewachsen → ersetzen
+  else boChunks.push(txt);
+  const ta=$("#boSaid"); if(ta){ ta.value=(ta.dataset.base?ta.dataset.base+", ":"")+boChunks.join(", "); bo.said=ta.value; boSave(); }
+}
+function boMicUI(on){
+  $("#boMic")?.classList.toggle("rec",on);
+  if($("#boMicT")) $("#boMicT").textContent=on?"Ich höre zu …":"Material ansagen";
+  if($("#boMicS")) $("#boMicS").textContent=on?"Ruhig mit kurzen Pausen sprechen. Nochmal tippen zum Beenden.":"Fertig? Dann „In Liste übernehmen“.";
+  if(!on && $("#boLive")) $("#boLive").textContent="";
+}
+function boStartSession(){
+  const rec=new BO_SR(); boRec=rec;
+  rec.lang="de-DE"; rec.continuous=false; rec.interimResults=true; rec.maxAlternatives=1;
+  rec.onresult=e=>{
+    let fin="", tmp="";
+    for(let i=e.resultIndex;i<e.results.length;i++){ const r=e.results[i]; if(r.isFinal) fin=r[0].transcript; else tmp=r[0].transcript; }
+    if($("#boLive")) $("#boLive").textContent=tmp?"… "+tmp:"";
+    if(fin){ boPushChunk(fin); if($("#boLive")) $("#boLive").textContent=""; }
+  };
+  rec.onstart=()=>{ boRecOn=true; boMicUI(true); };
+  rec.onerror=e=>{
+    if(/not-allowed|service-not-allowed|audio-capture/.test(e.error)){ boWantRec=false; boKbForced=true; boMicUI(false); boKeyboard(); }
+    else if(e.error==="network"){ boWantRec=false; boMicUI(false); toast("Spracherkennung braucht Internet – bitte Tastatur-Mikrofon nutzen"); boKbForced=true; boKeyboard(); }
+    // "no-speech" / "aborted": einfach neu starten (siehe onend)
+  };
+  rec.onend=()=>{
+    boRecOn=false;
+    if(boWantRec && boRestarts<60){ boRestarts++; setTimeout(()=>{ if(boWantRec){ try{ boStartSession(); }catch(err){ boWantRec=false; boMicUI(false); } } },250); return; }
+    boWantRec=false; boMicUI(false); boSave();
+  };
+  rec.start();
+}
 function boMicToggle(){
   if(!BO_SR||boKbForced) return boKeyboard();
-  if(boRecOn){ boRec.stop(); return; }
-  try{
-    boRec=new BO_SR(); boRec.lang="de-DE"; boRec.continuous=true; boRec.interimResults=true;
-    let base=($("#boSaid").value||"").trim(); if(base) base+=", ";
-    boRec.onresult=e=>{ let fin="",tmp=""; for(let i=0;i<e.results.length;i++){ const r=e.results[i]; if(r.isFinal) fin+=r[0].transcript+", "; else tmp+=r[0].transcript; }
-      const ta=$("#boSaid"); if(ta){ ta.value=(base+fin+tmp).replace(/,\s*$/,""); bo.said=ta.value; } };
-    boRec.onstart=()=>{ boRecOn=true; $("#boMic")?.classList.add("rec"); $("#boMicT").textContent="Ich höre zu …"; $("#boMicS").textContent="Nochmal tippen zum Beenden"; };
-    boRec.onend=()=>{ boRecOn=false; $("#boMic")?.classList.remove("rec"); if($("#boMicT")) $("#boMicT").textContent="Material ansagen"; if($("#boMicS")) $("#boMicS").textContent="Fertig? Dann „In Liste übernehmen“."; boSave(); };
-    boRec.onerror=e=>{ boRecOn=false; $("#boMic")?.classList.remove("rec"); if(/not-allowed|service-not-allowed|audio-capture|network/.test(e.error)){ boKbForced=true; boKeyboard(); } };
-    boRec.start();
-  }catch(err){ boKbForced=true; boKeyboard(); }
+  if(boWantRec||boRecOn){ boWantRec=false; try{ boRec&&boRec.stop(); }catch(e){} boMicUI(false); return; }
+  const ta=$("#boSaid"); if(ta) ta.dataset.base=(ta.value||"").trim().replace(/,\s*$/,"");
+  boChunks=[]; boRestarts=0; boWantRec=true;
+  try{ boStartSession(); }catch(err){ boWantRec=false; boKbForced=true; boKeyboard(); }
 }
 async function boParseClick(){
   const text=($("#boSaid").value||"").trim(), msg=$("#boMsg");
   if(!text){ msg.textContent="Erst etwas ansagen oder eintippen."; return; }
-  if(boRecOn) boRec.stop();
+  if(boWantRec||boRecOn){ boWantRec=false; try{ boRec.stop(); }catch(e){} boMicUI(false); }
   let list=null, how="direkt";
   if(MODE==="artifact"){ try{ boSampleFn=boSampleFn||await claude.use("sample"); }catch(e){} }
   if(boSampleFn){
