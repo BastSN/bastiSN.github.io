@@ -1,5 +1,19 @@
-KANALBUCH – Android-App (Version 3.3)
+KANALBUCH – Android-App (Version 3.4)
 =====================================
+
+NEU in 3.4 – Dichtheitsprüfung als eigener Reiter „Dichtheit“ in der unteren Leiste
+  - Stücklisten-Excel aus dem Aufmaß-Programm einlesen (Rechteck aus der Stückliste
+    und/oder Rund aus den Rund-Summen), Positionen einzeln an- und abhaken.
+  - Exakte Flächen statt DIN-Rundung: Kanäle U·L, Bögen U·Mittellinie, Übergänge und
+    Etagen als Mantelfläche, Brandschutzklappen nach DIN EN 15650 (Umfang × 1 m).
+  - Adapter für das Lindab LT510 automatisch: f × p^0,65 × A (Klasse A–D).
+  - Vorab-Liste (Excel/PDF) vor dem Messen: Fläche, zul. Leckluftstrom, Adapter.
+  - Bon mit der Kamera fotografieren – wird automatisch ausgeschnitten und entzerrt.
+  - Pläne mit Prüfbereich (PDF oder Bild) als eigene Seiten im Protokoll.
+  - Protokoll als Excel (bearbeitbare Zellen, Formeln) und PDF: Bericht, Kanalliste, Pläne.
+  - Neue Datei im Ordner: dichtheit.html – beim Update MIT hochladen!
+  - Zeiterfassung: Einstellung „Fahrzeit zählt als Arbeitszeit“ entfernt. Die Fahrzeit wird
+    weiter erfasst und extra ausgewiesen, zählt aber nicht zu den Ist-Stunden.
 
 NEU in 3.3 – drei neue Bereiche unter „Mehr“ > „Weitere Bereiche“
   - Wochenbericht Lüftungsbau
@@ -47,12 +61,13 @@ NEU in 3.1
 
 UPDATE einer bestehenden Installation:
   In deinem GitHub-Repository einfach index.html und sw.js durch die neuen Dateien
-  ersetzen (Add file > Upload files > Commit changes). Nach 1–2 Minuten die App auf dem
-  Handy zweimal schließen und neu öffnen – dann ist 3.2 drauf (steht unter Mehr > Einstellungen).
+  ersetzen, bei 3.4 zusätzlich dichtheit.html hochladen (Add file > Upload files > Commit changes). Nach 1–2 Minuten die App auf dem
+  Handy zweimal schließen und neu öffnen – dann ist die neue Version drauf (steht unter Mehr > Einstellungen).
   Deine Daten bleiben erhalten.
 
 Inhalt dieses Ordners:
   index.html            die komplette App
+  dichtheit.html        Dichtheitsprüfung (wird aus der App heraus geöffnet)
   manifest.webmanifest  App-Name, Farben, Symbole (damit Android sie als App erkennt)
   sw.js                 sorgt dafür, dass die App auch ohne Internet startet
   icons/                App-Symbole

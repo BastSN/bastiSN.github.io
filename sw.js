@@ -1,6 +1,6 @@
 // Kanalbuch Service Worker – macht die App offline-fähig
-const CACHE = "kanalbuch-3.3";
-const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+const CACHE = "kanalbuch-3.4";
+const CORE = ["./", "./index.html", "./dichtheit.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 const LIB_HOSTS = ["cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", e => {
