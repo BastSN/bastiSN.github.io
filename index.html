@@ -264,6 +264,39 @@ details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
 .bo-hist{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
 .bo-hist .tx{min-width:0;flex:1}
 @media (max-width:430px){.bo-item{grid-template-columns:auto 66px minmax(0,1fr) 26px;gap:6px}.bo-step button{width:26px}.bo-step input{width:40px}}
+
+/* 3.3: Mehr-Bereiche */
+.kb-launch{display:flex;flex-direction:column;gap:8px}
+.kb-launch .card{align-items:center}
+.kb-launch .card svg{width:34px;height:34px;stroke:var(--accent);fill:none;stroke-width:1.7;flex:none}
+.kb-launch .card .go{color:var(--muted);font-size:22px}
+.wb-day{gap:8px}
+.wb-dh{display:flex;gap:10px;align-items:flex-end}
+.wb-ak{width:112px;flex:none}
+.wb-tag{color:var(--accent);font-weight:700}
+.wb-r{display:grid;grid-template-columns:minmax(0,1fr) 86px;gap:8px}
+.wb-r select,.wb-r input{padding:9px 8px;font-size:15px}
+.wb-sum{border-left:5px solid #E8743B;background:color-mix(in srgb,#E8743B 9%,var(--panel))}
+.wb-wg{font:600 21px var(--f-display);color:var(--ink)}
+.wb-sigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.wb-sig{display:flex;flex-direction:column;gap:6px}
+.wb-sig img{background:#fff;border:1px solid var(--line);border-radius:6px;height:60px;object-fit:contain;align-self:flex-start;max-width:100%}
+.st-lines{display:flex;flex-direction:column}
+.st-line{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.st-line .tx{flex:1;min-width:0}
+.st-mats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.st-mats button{text-align:left;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;cursor:pointer}
+.st-mats button small{display:block;color:var(--muted);font-size:12px}
+.st-mats button.on{outline:2px solid var(--accent);border-color:var(--accent)}
+.st-mat{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.st-sumroom{padding:8px 0;border-top:1px solid var(--line)}
+.sp-joke{font-size:20px;line-height:1.45;margin:0;font-weight:500;text-wrap:pretty}
+.sp-ans{border-top:1px dashed var(--line);padding-top:10px;margin:0;color:var(--accent);font-weight:600;font-size:17px}
+.sp-card{min-height:200px}
+.sp-card .tag{align-self:flex-start;text-transform:uppercase;letter-spacing:.08em;font-family:var(--f-body);font-weight:700}
+.sp-versaut{color:#7a2e8f}.sp-raetsel{color:var(--accent)}
+.chips button.sp-adult[aria-pressed="true"]{background:#7a2e8f;border-color:#7a2e8f}
+@media (prefers-reduced-motion:no-preference){.sp-flip{animation:spflip .35s ease}@keyframes spflip{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 </style>
@@ -319,6 +352,14 @@ details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
 </main>
 
 <main id="view-tools" hidden>
+  <section class="panel">
+    <h3>Weitere Bereiche</h3>
+    <div class="kb-launch">
+      <button class="card" data-open="woche" type="button"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M4 9h16M8 2.5v3M16 2.5v3M7.5 13h3M13.5 13h3M7.5 17h3"/></svg><div class="tx"><div class="t">Wochenbericht</div><div class="s">Lüftungsbau · Tage, Stunden, Unterschrift, PDF</div></div><span class="go">›</span></button>
+      <button class="card" data-open="stahl" type="button"><svg viewBox="0 0 24 24"><path d="M5 4h4v16H5zM9 6h9M9 10h9M15 6v4"/><path d="M5 20h14"/></svg><div class="tx"><div class="t">Stahlaufmaß</div><div class="s">Räume, C-Schienen &amp; Konsolen, kg · Excel &amp; PDF</div></div><span class="go">›</span></button>
+      <button class="card" data-open="spruch" type="button"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8.5 9.5h.01M12 9.5h.01M15.5 9.5h.01"/></svg><div class="tx"><div class="t">Sprücheklopfer</div><div class="s">Witze, Sprüche &amp; Rätsel für die Pause</div></div><span class="go">›</span></button>
+    </div>
+  </section>
   <section class="panel tool">
     <details open><summary>Kanal dimensionieren</summary><div class="inner">
       <div class="grid">
@@ -384,11 +425,15 @@ details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
 
   <section class="panel">
     <h3>Datensicherung</h3>
-    <p class="note" style="margin:0">Sichert Aufmaß, Zeiterfassung, Bautagebuch und Fotos in eine Datei. Mach das regelmäßig und vor jedem Handywechsel.</p>
+    <p class="note" style="margin:0">Sichert Aufmaß, Zeiterfassung, Bautagebuch, Fotos, Wochenberichte, Stahlaufmaß und gemerkte Sprüche in eine Datei. Mach das regelmäßig und vor jedem Handywechsel.</p>
     <div class="row"><button class="btn" id="bkExport">Sicherung erstellen</button><button class="btn" id="bkImport">Sicherung einspielen</button></div>
     <input type="file" id="bkFile" accept=".json,application/json" hidden>
   </section>
 </main>
+
+<main id="view-woche" hidden></main>
+<main id="view-stahl" hidden></main>
+<main id="view-spruch" hidden></main>
 
 <datalist id="projektListe"></datalist>
 
@@ -422,7 +467,7 @@ details > .inner{display:flex;flex-direction:column;gap:10px;padding-top:10px}
 <script>
 (() => {
 "use strict";
-const APP_VERSION = "3.2";
+const APP_VERSION = "3.3";
 const $ = s => document.querySelector(s);
 const fmt = (n, d=2) => Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1034,13 +1079,14 @@ let tab="aufmass";
 let nav={screen:"projects"}; const navStack=[];
 function go(next){ navStack.push(nav); nav=next; renderAufmass(); window.scrollTo(0,0); }
 function back(){ if(nav.screen==="editor") closeViz(); nav=navStack.pop()||{screen:"projects"}; renderAufmass(); window.scrollTo(0,0); }
-$("#hBack").addEventListener("click",back);
+$("#hBack").addEventListener("click",()=>{ if(SUBS.includes(tab)) return showTab("tools"); back(); });
 function setHeader(title,sub,{back:showBack=false,action=null}={}){
   $("#hTitle").textContent=title; $("#hSub").textContent=sub||""; $("#hSub").hidden=!sub;
   $("#hBack").hidden=!showBack;
   const a=$("#hAction"); a.hidden=!action; if(action){ a.textContent=action.label; a.onclick=action.fn; a.disabled=!!action.disabled; }
 }
 function updateHeader(){
+  if(MOD[tab]) return setHeader(MOD[tab].title[0],MOD[tab].title[1],{back:true});
   if(tab==="aufmass") return renderAufmassHeader();
   const t={bestellung:["Materialbestellung","Ansagen · Liste · PDF teilen"],zeit:["Zeiterfassung",settings().name||""],tagebuch:["Bautagebuch",""],tools:["Mehr","Rechner · Einstellungen · Sicherung"]}[tab];
   setHeader(t[0],t[1]);
@@ -2403,7 +2449,8 @@ async function exportBackup(){
     }catch(err){}
     if(key&&blob){ blobs[key]=await blobToDataURL(blob); e.photos[i]={blob:key}; }
   }
-  const out={app:"kanalbuch",version:APP_VERSION,created:new Date().toISOString(),settings:settings(),data,blobs};
+  const extra=Object.assign({},...Object.values(MOD).map(m=>m.backup()));
+  const out={app:"kanalbuch",version:APP_VERSION,created:new Date().toISOString(),settings:settings(),data,blobs,extra};
   await saveFile(new Blob([JSON.stringify(out)],{type:"application/json"}),`Kanalbuch_Sicherung_${todayISO()}.json`,"Sicherung gespeichert");
 }
 async function importBackup(file){
@@ -2421,6 +2468,7 @@ async function importBackup(file){
       await store.save(c,item); n++;
     }
     if(j.settings){ const s=j.settings; ["firma","name","pers","soll","fahrt"].forEach(k=>{ if(s[k]!=null&&s[k]!=="") LS.set("kb_"+k,s[k]); }); }
+    if(j.extra) Object.values(MOD).forEach(m=>{ try{ m.restore(j.extra); }catch(_){} });
     toast(`${n} Einträge eingespielt`); initSettingsValues();
   }catch(e){ toast("Einspielen fehlgeschlagen: "+(e.message||"Datei prüfen")); }
 }
@@ -2436,11 +2484,972 @@ window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEv
   $("#installBtn").onclick=async()=>{ installEvt.prompt(); await installEvt.userChoice; installEvt=null; $("#installBtn")?.remove(); };
 });
 
+const MOD={};
+const TABS=["aufmass","bestellung","zeit","tagebuch","tools"], SUBS=["woche","stahl","spruch"];
+/* ================= Wochenbericht Lüftungsbau ================= */
+{
+const WV=$("#view-woche");
+const WB_T=["","Baustelle eingerichtet / Material angeliefert & verteilt","Lüftungsanlage (RLT-Gerät) transportiert & eingebracht","RLT-Gerät am Aufstellort aufgebaut & ausgerichtet","Abhängungen & Befestigungen gesetzt (Traversen)","Lüftungskanäle (Rechteck) montiert","Lüftungsrohre (Wickelfalz / Spiro) montiert","Formteile, Abzweige & Übergänge montiert","Brandschutzklappen eingebaut","Volumenstromregler / Absperrklappen eingebaut","Schalldämpfer montiert","Luftauslässe, Gitter & Tellerventile montiert","Wand-/Deckendurchführungen & Flexanschlüsse","Dämmung / Isolierung Kanäle & Rohre","Dichtheitsprüfung / Kanalreinigung durchgeführt","Inbetriebnahme, Einregulierung & Luftmengenmessung","Sonstiges (siehe Bemerkungen)"];
+const WB_STD=[""]; for(let h=0.5;h<=12.001;h+=0.5) WB_STD.push(h.toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1}));
+const WB_TAGE=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+const WB_COL=["#3F9BDB","#4DB0C8","#E8743B","#1F4E8C","#24477F"];
+const emptyDay=()=>({datum:"",auto:false,t:["","",""],std:["","","",""],frei:"",ak:""});
+const wbEmpty=()=>({nr:"",von:"",bis:"",kw:"",projektnr:"",kunde:"",bv:"",bauleiter:"",days:[0,1,2,3,4].map(emptyDay),bem:"",sig:{monteur:"",bauleitung:"",kunde:""},sigImg:{monteur:"",bauleitung:"",kunde:""}});
+let wb=Object.assign(wbEmpty(),LS.get("kb_wb",{}));
+let wbHist=LS.get("kb_wb_hist",[]);
+let wbConfirm=null, wbSigKey=null;
+const wbSave=()=>LS.set("kb_wb",wb);
+const num=s=>{ const v=parseFloat(String(s||"").replace(",",".")); return isFinite(v)?v:0; };
+const dDE=iso=>{ if(!iso) return ""; const [y,m,d]=iso.split("-"); return `${d}.${m}.${y}`; };
+const parseISO=iso=>{ const [y,m,d]=(iso||"").split("-").map(Number); return y?new Date(y,m-1,d):null; };
+function kwOf(d){ const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()); t.setDate(t.getDate()+3-((t.getDay()+6)%7)); const w1=new Date(t.getFullYear(),0,4); return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7); }
+function workDay(start,i){ const d=new Date(start); let n=0,g=0; while(g++<40){ const wd=d.getDay(); if(wd!==0&&wd!==6){ if(n===i) break; n++; } d.setDate(d.getDate()+1); } return d; }
+const stdSum=()=>wb.days.reduce((s,d)=>s+d.std.reduce((a,v)=>a+num(v),0),0);
+const akSum=()=>wb.days.reduce((s,d)=>s+num(d.ak),0);
+const fmt1=v=>v?v.toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:2}):"";
+
+function vonChanged(){
+  const d=parseISO(wb.von); if(!d) return;
+  wb.kw=String(kwOf(d));
+  if(!wb.bis||wb.bisAuto){ wb.bis=isoDate(workDay(d,4)); wb.bisAuto=true; }
+  wb.days.forEach((day,i)=>{ if(!day.datum||day.auto){ day.datum=isoDate(workDay(d,i)); day.auto=true; } });
+}
+
+function head(){ return `<section class="panel bo-head">
+    <div class="bo-brand"><svg viewBox="-50 -50 100 100" aria-hidden="true">${LOGO_SVG}</svg><div><div class="bo-co">D+W <b>KRÜGER</b> KLIMATECHNIK</div><div class="bo-sub">Wochenbericht · Lüftungsbau</div></div></div>
+    <div class="grid">
+      <label class="f">Bericht-Nr.<input data-w="nr" value="${esc(wb.nr)}" inputmode="numeric"></label>
+      <label class="f">Zeitraum von<input type="date" data-w="von" value="${esc(wb.von)}"></label>
+      <label class="f">bis<input type="date" data-w="bis" value="${esc(wb.bis)}"></label>
+      <label class="f">KW<input data-w="kw" value="${esc(wb.kw)}" inputmode="numeric" placeholder="automatisch"></label>
+    </div>
+    <div class="grid">
+      <label class="f">Projektnummer<input data-w="projektnr" value="${esc(wb.projektnr)}"></label>
+      <label class="f">Kunde / Auftraggeber<input data-w="kunde" value="${esc(wb.kunde)}"></label>
+    </div>
+    <label class="f">Bauvorhaben / Baustelle / Bauabschnitt<input data-w="bv" list="projektListe" value="${esc(wb.bv)}"></label>
+    <label class="f">Kolonnenführer / Bauleiter<input data-w="bauleiter" value="${esc(wb.bauleiter)}"></label>
+  </section>`; }
+
+function dayHtml(d,i){
+  const date=parseISO(d.datum), tag=date?WB_TAGE[date.getDay()]:"";
+  const sel=(k,opts,val)=>`<select data-w="${k}">${opts.map(o=>`<option${o===val?" selected":""}>${esc(o)}</option>`).join("")}</select>`;
+  const daySum=d.std.reduce((a,v)=>a+num(v),0);
+  return `<section class="panel wb-day" style="border-left:5px solid ${WB_COL[i]}">
+    <div class="wb-dh"><label class="f" style="flex:1">Tag ${i+1}${tag?` · <span class="wb-tag">${tag}</span>`:""}<input type="date" data-w="days.${i}.datum" value="${esc(d.datum)}"></label>
+      <label class="f wb-ak">AK (Personen)<input data-w="days.${i}.ak" value="${esc(d.ak)}" inputmode="numeric"></label></div>
+    ${[0,1,2].map(r=>`<div class="wb-r">${sel(`days.${i}.t.${r}`,WB_T,d.t[r])}${sel(`days.${i}.std.${r}`,WB_STD,d.std[r])}</div>`).join("")}
+    <div class="wb-r"><input data-w="days.${i}.frei" value="${esc(d.frei)}" placeholder="freie Eingabe – eigene Tätigkeit">${sel(`days.${i}.std.3`,WB_STD,d.std[3])}</div>
+    ${daySum?`<div class="note" style="text-align:right">Tag: ${fmt1(daySum)} Std.</div>`:""}
+  </section>`;
+}
+
+function sigHtml(key,label){
+  return `<div class="wb-sig"><label class="f">${label}<input data-w="sig.${key}" value="${esc(wb.sig[key])}" placeholder="Name"></label>
+    ${wb.sigImg[key]?`<img src="${wb.sigImg[key]}" alt="Unterschrift">`:""}
+    <div class="row"><button class="btn small" data-wsig="${key}" type="button">✍ ${wb.sigImg[key]?"Neu unterschreiben":"Unterschreiben"}</button>${wb.sigImg[key]?`<button class="btn small danger" data-wsigdel="${key}" type="button">Entfernen</button>`:""}</div></div>`;
+}
+
+function render(){
+  const s=stdSum(), a=akSum();
+  WV.innerHTML=head()+
+  `<div class="row" style="justify-content:space-between"><h3>Ausgeführte Arbeiten</h3><span class="note">3 Tätigkeiten aus der Liste + 1 freie Zeile pro Tag</span></div>`+
+  wb.days.map(dayHtml).join("")+
+  `<section class="panel wb-sum"><div class="row" style="justify-content:space-between"><b class="wb-wg">Woche gesamt</b>
+     <div class="row" style="gap:18px"><div class="kv main"><span>Summe Stunden</span><strong>${fmt1(s)||"0"}</strong></div><div class="kv"><span>Personentage</span><strong>${a||"0"}</strong></div></div></div></section>
+   <section class="panel"><label class="f">Bemerkungen / Behinderungen / Nachträge<textarea data-w="bem">${esc(wb.bem)}</textarea></label></section>
+   <section class="panel"><h3>Unterschriften</h3><div class="wb-sigs">${sigHtml("monteur","Kolonnenführer / Monteur")}${sigHtml("bauleitung","Bauleitung D+W Krüger")}${sigHtml("kunde","Auftraggeber / Bauleitung Kunde")}</div></section>
+   <div class="row"><button class="btn primary big" id="wbPdf" type="button">PDF erstellen &amp; teilen</button></div>
+   <div class="row">
+     <button class="btn big" id="wbNext" type="button">Nächste Woche</button>
+     ${wbConfirm==="clear"?`<button class="btn big danger" id="wbClearOk" type="button" style="border-color:var(--bad)">Wirklich alles löschen?</button><button class="btn" id="wbClearNo" type="button">Nein</button>`
+       :`<button class="btn big danger" id="wbClear" type="button">🗑 Blatt leeren</button>`}
+   </div>
+   <p class="note" style="margin:-4px 2px 0">„Nächste Woche“ behält Projekt, Kunde, BV und Namen und rückt Datum und Bericht-Nr. eine Woche weiter. „Blatt leeren“ setzt alles auf null.</p>
+   ${wbHist.length?`<section class="panel"><h3>Letzte Berichte</h3>${wbHist.map(h=>`<div class="bo-hist"><div class="tx"><b>${h.d.nr?"Nr. "+esc(h.d.nr):"Bericht"}${h.d.kw?" · KW "+esc(h.d.kw):""}</b><div class="note">${esc(h.d.bv||"ohne Baustelle")} · ${dDE(h.d.von)}–${dDE(h.d.bis)}</div></div>
+     <div class="row">${wbConfirm===h.id?`<button class="btn small danger" data-whdelok="${h.id}">Löschen</button><button class="btn small" data-whdelno="1">Nein</button>`:`<button class="btn small" data-whpdf="${h.id}">PDF</button><button class="btn small" data-whload="${h.id}">Laden</button><button class="btn small danger" data-whdel="${h.id}">×</button>`}</div></div>`).join("")}</section>`:""}`;
+}
+
+function setPath(path,val){ const k=path.split("."); let o=wb; while(k.length>1) o=o[k.shift()]; o[k[0]]=val; }
+WV.addEventListener("input",e=>{ const p=e.target.dataset.w; if(!p||e.target.tagName==="SELECT"||e.target.type==="date") return; setPath(p,e.target.value); wbSave(); });
+WV.addEventListener("change",e=>{
+  const p=e.target.dataset.w; if(!p) return;
+  setPath(p,e.target.value);
+  if(p==="von") vonChanged();
+  if(p==="bis") wb.bisAuto=false;
+  const m=p.match(/^days\.(\d)\.datum$/); if(m) wb.days[+m[1]].auto=false;
+  wbSave();
+  if(e.target.tagName==="SELECT"||e.target.type==="date"||p==="kw"||/\.ak$/.test(p)){ const y=window.scrollY; render(); window.scrollTo(0,y); }
+});
+WV.addEventListener("click",async e=>{
+  const b=e.target.closest("button"); if(!b) return; const d=b.dataset;
+  const rer=()=>{ const y=window.scrollY; render(); window.scrollTo(0,y); };
+  if(b.id==="wbPdf") return wbPdf(wb,true);
+  if(b.id==="wbClear"){ wbConfirm="clear"; rer(); setTimeout(()=>{ if(wbConfirm==="clear"){ wbConfirm=null; rer(); } },4000); return; }
+  if(b.id==="wbClearNo"){ wbConfirm=null; return rer(); }
+  if(b.id==="wbClearOk"){ wbConfirm=null; wb=wbEmpty(); wbSave(); render(); window.scrollTo(0,0); toast("Blatt geleert"); return; }
+  if(b.id==="wbNext"){ const keep={projektnr:wb.projektnr,kunde:wb.kunde,bv:wb.bv,bauleiter:wb.bauleiter,sig:{...wb.sig}};
+    const nr=/^\d+$/.test(wb.nr)?String(+wb.nr+1):""; const v=parseISO(wb.von);
+    wb=Object.assign(wbEmpty(),keep,{nr,sigImg:{monteur:"",bauleitung:"",kunde:""}});
+    if(v){ v.setDate(v.getDate()+7); wb.von=isoDate(v); vonChanged(); }
+    wbSave(); render(); window.scrollTo(0,0); toast("Neue Woche angelegt"); return; }
+  if(d.wsig) return openSig(d.wsig);
+  if(d.wsigdel){ wb.sigImg[d.wsigdel]=""; wbSave(); return rer(); }
+  if(d.whpdf){ const h=wbHist.find(x=>x.id===d.whpdf); if(h) wbPdf(h.d,false); return; }
+  if(d.whload){ const h=wbHist.find(x=>x.id===d.whload); if(h){ wb=Object.assign(wbEmpty(),JSON.parse(JSON.stringify(h.d))); wbSave(); render(); window.scrollTo(0,0); toast("Bericht geladen"); } return; }
+  if(d.whdel){ wbConfirm=d.whdel; return rer(); }
+  if(d.whdelno){ wbConfirm=null; return rer(); }
+  if(d.whdelok){ wbHist=wbHist.filter(x=>x.id!==d.whdelok); LS.set("kb_wb_hist",wbHist); wbConfirm=null; return rer(); }
+});
+
+/* ---- Unterschrift mit dem Finger ---- */
+function openSig(key){
+  wbSigKey=key;
+  const m=document.createElement("div"); m.className="modal"; m.id="wbSigModal";
+  m.innerHTML=`<div class="box" style="background:var(--panel)"><div class="mh"><button aria-label="Schließen" data-x>×</button><b>Unterschrift</b></div>
+    <div style="padding:12px"><canvas id="wbPad" style="width:100%;height:200px;background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;display:block"></canvas>
+    <div class="row" style="margin-top:10px"><button class="btn" data-c>Löschen</button><button class="btn primary" data-ok style="flex:1">Übernehmen</button></div></div></div>`;
+  document.body.append(m);
+  const cv=m.querySelector("#wbPad"), r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr; cv.height=r.height*dpr; const x=cv.getContext("2d"); x.scale(dpr,dpr); x.lineWidth=2.2; x.lineCap="round"; x.lineJoin="round"; x.strokeStyle="#16222e";
+  let draw=false, used=false; const pt=e=>{ const b=cv.getBoundingClientRect(); return [e.clientX-b.left,e.clientY-b.top]; };
+  cv.addEventListener("pointerdown",e=>{ draw=true; used=true; cv.setPointerCapture(e.pointerId); x.beginPath(); x.moveTo(...pt(e)); });
+  cv.addEventListener("pointermove",e=>{ if(!draw) return; x.lineTo(...pt(e)); x.stroke(); });
+  cv.addEventListener("pointerup",()=>draw=false);
+  m.addEventListener("click",e=>{
+    if(e.target.closest("[data-x]")) m.remove();
+    if(e.target.closest("[data-c]")){ x.clearRect(0,0,cv.width,cv.height); used=false; }
+    if(e.target.closest("[data-ok]")){ if(used){ wb.sigImg[wbSigKey]=cv.toDataURL("image/png"); wbSave(); } m.remove(); const y=window.scrollY; render(); window.scrollTo(0,y); }
+  });
+}
+
+/* ---- PDF im Layout des Wochenbericht-Formulars (WB-LB) ---- */
+async function wbPdf(data,archive){
+  if(!needPdf()) return; pdfBusy=true; toast("PDF wird erstellt …");
+  try{
+    await loadLogo();
+    const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:"pt",format:"a4"});
+    const PH=841.89, R=559.28, L=36, Y=y=>PH-y;
+    const hex=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+    const NAVY=hex("#24477F"), ORANGE=hex("#E8743B"), GREY=hex("#6B7787"), INK=hex("#1E2A3A"), FIELD=hex("#F2F6FB"), LINE=hex("#D5DDE8"), ALT=hex("#F8FAFD"), OL=hex("#FDF0E8");
+    const S=s=>pdfSafe(s);
+    const T=(x,y,s,{size=8,col=GREY,bold=false,align="left",max=null}={})=>{ doc.setFont("helvetica",bold?"bold":"normal"); doc.setFontSize(size); doc.setTextColor(...col);
+      let t=S(s); if(max&&doc.getTextWidth(t)>max){ while(t.length>4&&doc.getTextWidth(t+"...")>max) t=t.slice(0,-1); t=t.trim()+"..."; } doc.text(t,x,Y(y),{align}); };
+    const box=(x,y,w,h,fill=FIELD,stroke=LINE)=>{ doc.setFillColor(...fill); if(stroke){ doc.setDrawColor(...stroke); doc.setLineWidth(0.6); } doc.roundedRect(x,Y(y+h),w,h,3,3,stroke?"FD":"F"); };
+    // Kopf
+    if(LOGO_PNG) doc.addImage(LOGO_PNG,"PNG",36,PH-805.9,63,63);
+    doc.setFont("helvetica","normal"); doc.setFontSize(21); doc.setTextColor(...ORANGE); doc.text("D+W",110,Y(783.89));
+    const w1=doc.getTextWidth("D+W "); doc.setFont("helvetica","bold"); doc.text("KRÜGER",110+w1,Y(783.89));
+    T(110,767.89,"KLIMATECHNIK",{size:12.5,col:ORANGE}); const w2=doc.getTextWidth("KLIMATECHNIK "); T(110+w2,767.89,"GmbH",{size:7,col:ORANGE});
+    T(110,752.89,"Klima. Lüftung. MSR",{size:8.5,col:NAVY});
+    T(R,787.89,"WOCHENBERICHT",{size:19,col:NAVY,bold:true,align:"right"});
+    T(R,774.89,"Bautagebuch  ·  Lüftungsbau",{size:8.5,align:"right"});
+    T(449.28,762.39,"BERICHT-NR.",{size:6.3}); box(449.28,742.89,R-449.28,17); T(453,747.5,data.nr,{size:9,col:INK});
+    ["#3F9BDB","#4DB0C8","#E8743B","#1F4E8C"].forEach((c,i)=>{ doc.setFillColor(...hex(c)); doc.rect(L+i*130.82,Y(733.89),130.82,3,"F"); });
+    const lab=(label,val,x,w,y,{orange=false,center=false}={})=>{ T(x,y+20,label,{size:6.3,col:orange?ORANGE:GREY}); box(x,y-1,w,18,orange?OL:FIELD);
+      T(center?x+w/2:x+4,y+4.5,val,{size:9,col:INK,align:center?"center":"left",max:w-8}); };
+    lab("ZEITRAUM VON",dDE(data.von),36,84,698.89,{orange:true}); lab("BIS",dDE(data.bis),128,84,698.89,{orange:true});
+    lab("KW",data.kw,220,44,698.89,{center:true}); lab("PROJEKTNUMMER",data.projektnr,272,110,698.89); lab("KUNDE / AUFTRAGGEBER",data.kunde,390,R-390,698.89);
+    lab("BAUVORHABEN / BAUSTELLE / BAUABSCHNITT",data.bv,36,300,667.89); lab("KOLONNENFÜHRER / BAULEITER",data.bauleiter,344,R-344,667.89);
+    // Tabelle
+    T(36,642.89,"Ausgeführte Arbeiten",{size:11,col:NAVY,bold:true});
+    doc.setFillColor(...NAVY); doc.roundedRect(L,Y(637.39),R-L,16,3,3,"F");
+    T(48,626.39,"Datum",{size:8,col:[255,255,255],bold:true}); T(148,626.39,"Tätigkeit",{size:8,col:[255,255,255],bold:true});
+    T(466.28,626.39,"Std.",{size:8,col:[255,255,255],bold:true,align:"center"}); T(531.28,626.39,"AK",{size:8,col:[255,255,255],bold:true,align:"center"});
+    const BH=84,PITCH=19,FH=15.5,TOP=619.39,TX0=142,TX1=423.28,SX0=435.28,SX1=497.28,AX0=511.28,AX1=551.28;
+    data.days.forEach((d,i)=>{
+      const top=TOP-i*BH, bot=top-BH;
+      if(i%2){ doc.setFillColor(...ALT); doc.rect(L,Y(top),R-L,BH,"F"); }
+      doc.setFillColor(...hex(WB_COL[i])); doc.rect(L,Y(top-2),3,BH-4,"F");
+      doc.setDrawColor(...LINE); doc.setLineWidth(0.6); doc.line(L,Y(bot),R,Y(bot));
+      const date=parseISO(d.datum);
+      for(let r=0;r<4;r++){
+        const y=top-4-FH-r*PITCH;
+        if(r===0){ box(44,y-1,88,FH+2); T(48,y+4.3,dDE(d.datum),{size:9,col:INK}); box(AX0,y-1,AX1-AX0,FH+2); T((AX0+AX1)/2,y+4.3,d.ak,{size:10,col:INK,align:"center"}); }
+        if(r===1){ T(46,y+8,date?WB_TAGE[date.getDay()]:"",{size:7}); T((AX0+AX1)/2,y+8.5,"PERSONEN",{size:5.8,align:"center"}); }
+        box(TX0-2,y-1,TX1-TX0+4,FH+2,r<3?FIELD:[255,255,255]); box(SX0-2,y-1,SX1-SX0+4,FH+2);
+        if(r===3) T(46,y+4.5,"freie Eingabe",{size:6.3});
+        T(TX0+3,y+4.5,r<3?d.t[r]:d.frei,{size:8,col:INK,max:TX1-TX0-6});
+        T((SX0+SX1)/2,y+4.3,d.std[r],{size:9,col:INK,align:"center"});
+      }
+    });
+    const wy=TOP-5*BH-2-26, ss=data.days.reduce((s,d)=>s+d.std.reduce((a,v)=>a+num(v),0),0), aa=data.days.reduce((s,d)=>s+num(d.ak),0);
+    doc.setFillColor(...OL); doc.rect(L,Y(wy+26),R-L,26,"F"); doc.setFillColor(...ORANGE); doc.rect(L,Y(wy+26),3,26,"F");
+    T(48,wy+10,"Woche gesamt",{size:10,col:NAVY,bold:true});
+    box(SX0-2,wy+8,SX1-SX0+4,15,[255,255,255]); box(AX0-2,wy+8,AX1-AX0+4,15,[255,255,255]);
+    T((SX0+SX1)/2,wy+12,ss?fmt1(ss):"",{size:10,col:ORANGE,bold:true,align:"center"}); T((AX0+AX1)/2,wy+12,aa?String(aa):"",{size:10,col:INK,bold:true,align:"center"});
+    T((SX0+SX1)/2,wy+1.5,"SUMME STUNDEN",{size:5.6,col:ORANGE,align:"center"}); T((AX0+AX1)/2,wy+1.5,"PERS.-TAGE",{size:5.6,align:"center"});
+    const bt=wy-10; T(36,bt,"BEMERKUNGEN / BEHINDERUNGEN / NACHTRÄGE",{size:6.3}); box(36,99,R-36,bt-5-99);
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...INK);
+    const lines=doc.splitTextToSize(S(data.bem),R-48).slice(0,5); doc.text(lines,42,Y(bt-17));
+    const sw=(R-36-24)/3;
+    [["monteur","KOLONNENFÜHRER / MONTEUR"],["bauleitung","BAULEITUNG D+W KRÜGER"],["kunde","AUFTRAGGEBER / BAULEITUNG KUNDE"]].forEach(([k,l],i)=>{
+      const x=36+i*(sw+12);
+      if(data.sigImg?.[k]) doc.addImage(data.sigImg[k],"PNG",x+sw-100,Y(92),96,29);
+      T(x+2,66,data.sig?.[k]||"",{size:8.5,col:INK,max:sw-104});
+      doc.setDrawColor(...NAVY); doc.setLineWidth(0.8); doc.line(x,Y(62),x+sw,Y(62)); T(x,54,l,{size:6.3});
+    });
+    doc.setDrawColor(...LINE); doc.setLineWidth(0.5); doc.line(36,Y(33),R,Y(33));
+    T(36,22,`${BRAND.name}  ·  ${BRAND.addr}  ·  ${BRAND.tel}  ·  ${BRAND.web}`,{size:6.5}); T(R,22,"WB-LB 3.1",{size:6.5,col:ORANGE,bold:true,align:"right"});
+    doc.setProperties({title:"Wochenbericht Lüftungsbau",author:BRAND.name});
+    const name=`Wochenbericht_${data.kw?"KW"+data.kw+"_":""}${fileSafe(data.bv||data.projektnr||"Baustelle")}.pdf`;
+    if(archive){ const snap=JSON.parse(JSON.stringify(data)); wbHist=[{id:uid(),t:Date.now(),d:snap},...wbHist.filter(h=>!(h.d.nr===snap.nr&&h.d.von===snap.von&&h.d.bv===snap.bv))].slice(0,20); LS.set("kb_wb_hist",wbHist); }
+    pdfBusy=false;
+    await saveFile(doc.output("blob"),name,"PDF gespeichert");
+    if(archive&&tab==="woche"){ const y=window.scrollY; render(); window.scrollTo(0,y); }
+  }catch(err){ toast("PDF fehlgeschlagen: "+(err.message||err)); }
+  finally{ pdfBusy=false; }
+}
+MOD.woche={render,title:["Wochenbericht","Lüftungsbau · PDF"],backup:()=>({kb_wb:wb,kb_wb_hist:wbHist}),restore:o=>{ if(o.kb_wb){ wb=Object.assign(wbEmpty(),o.kb_wb); wbSave(); } if(o.kb_wb_hist){ wbHist=o.kb_wb_hist; LS.set("kb_wb_hist",wbHist); } }};
+}
+
+/* ================= Stahlaufmaß ================= */
+{
+const SV=$("#view-stahl");
+const DEFAULT_MATS=[
+  {id:"csch",name:"C-Schiene",unit:"m",kg:2.45,steel:true,lengths:[0.3,0.4,0.5,0.6,0.8,1,1.2,1.4,1.6,1.8,2]},
+  {id:"k04",name:"Konsole L=0,4 m",unit:"St",kg:1.515,steel:true},
+  {id:"k06",name:"Konsole L=0,6 m",unit:"St",kg:1.972,steel:true},
+  {id:"k07",name:"Konsole L=0,7 m",unit:"St",kg:2.29,steel:true},
+  {id:"cwink",name:"C-Schienen-Winkel",unit:"St",kg:0.7,steel:true},
+  {id:"cfuss",name:"C-Schienen-Fuß",unit:"St",kg:0.805,steel:true},
+  {id:"duebel",name:"Dübel (Bauch.)",unit:"St",kg:0,steel:false}];
+const newA=()=>({bv:"",anr:"",datum:todayISO(),monteur:settings().name||"",rooms:[]});
+let MATS=LS.get("kb_stahl_mats",null)||JSON.parse(JSON.stringify(DEFAULT_MATS));
+let A=LS.get("kb_stahl",null)||newA();
+let sub="aufmass", pk=null, confirmNew=false;
+const save=()=>{ LS.set("kb_stahl",A); LS.set("kb_stahl_mats",MATS); };
+const num=s=>{ const v=parseFloat(String(s).replace(",",".")); return isFinite(v)?v:0; };
+const f2=(v,d=2)=>(+v).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fL=v=>(+v).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:3});
+const mat=id=>MATS.find(m=>m.id===id)||{id,name:"(gelöschtes Material)",unit:"St",kg:0,steel:false};
+const lineQty=l=>mat(l.mat).unit==="m"?(l.len||0)*(l.qty||0):(l.qty||0);
+const lineKg=l=>{ const m=mat(l.mat); return m.steel?lineQty(l)*m.kg:0; };
+const lineLabel=l=>{ const m=mat(l.mat); return m.unit==="m"?`${m.name} ${fL(l.len)} m`:m.name; };
+const roomKg=r=>r.lines.reduce((s,l)=>s+lineKg(l),0);
+function totals(){
+  const by=new Map();
+  for(const r of A.rooms) for(const l of r.lines){ if(!l.qty) continue; const m=mat(l.mat);
+    if(!by.has(m.id)) by.set(m.id,{m,qty:0,kg:0,lens:new Map()}); const t=by.get(m.id); t.qty+=lineQty(l); t.kg+=lineKg(l);
+    if(m.unit==="m") t.lens.set(l.len,(t.lens.get(l.len)||0)+l.qty); }
+  const order=MATS.map(m=>m.id); const list=[...by.values()].sort((a,b)=>order.indexOf(a.m.id)-order.indexOf(b.m.id));
+  return {list,kg:list.reduce((s,t)=>s+t.kg,0)};
+}
+const brand=`<div class="bo-brand"><svg viewBox="-50 -50 100 100" aria-hidden="true">${LOGO_SVG}</svg><div><div class="bo-co">D+W <b>KRÜGER</b> KLIMATECHNIK</div><div class="bo-sub">Stahlaufmaß · Montagestahl</div></div></div>`;
+
+function render(){
+  const T=totals();
+  let h=`<div class="subtabs" style="grid-template-columns:1fr 1fr 1fr;margin:-16px calc(-1*max(16px,env(safe-area-inset-left,0px))) 0;border-radius:0">${[["aufmass","Aufmaß"],["summe","Zusammenfassung"],["material","Material"]].map(([k,l])=>`<button data-ssub="${k}" aria-selected="${sub===k}">${l}</button>`).join("")}</div>`;
+  if(sub==="aufmass"){
+    h+=`<section class="panel bo-head">${brand}
+      <div class="grid"><label class="f">BV<input data-sa="bv" list="projektListe" value="${esc(A.bv)}" placeholder="Bauvorhaben"></label><label class="f">Aufmaß Nr.<input data-sa="anr" value="${esc(A.anr)}"></label>
+      <label class="f">Datum<input type="date" data-sa="datum" value="${esc(A.datum)}"></label><label class="f">Monteur<input data-sa="monteur" value="${esc(A.monteur)}"></label></div></section>`;
+    h+=A.rooms.map((r,ri)=>`<section class="panel st-room" data-ri="${ri}">
+      <div class="row" style="flex-wrap:nowrap"><input data-sr="nr" value="${esc(r.nr)}" placeholder="Raum-Nr." style="width:96px;flex:none;font-weight:600"><input data-sr="name" value="${esc(r.name)}" placeholder="Raumbezeichnung"><button class="bo-del" data-srdel aria-label="Raum löschen">×</button></div>
+      ${r.lines.length?`<div class="st-lines">${r.lines.map((l,li)=>`<div class="st-line" data-li="${li}"><div class="tx"><b>${esc(lineLabel(l))}</b><div class="note">${mat(l.mat).unit==="m"?f2(lineQty(l))+" m · ":""}${mat(l.mat).steel?f2(lineKg(l))+" kg":"kein Stahl"}</div></div>
+        <div class="bo-step"><button type="button" data-sq="-1">−</button><input inputmode="decimal" value="${l.qty}" data-sqin><button type="button" data-sq="1">+</button></div><button class="bo-del" data-sldel aria-label="Zeile löschen">×</button></div>`).join("")}</div>`:`<div class="note">Noch kein Material in diesem Raum.</div>`}
+      <div class="row" style="justify-content:space-between"><button class="btn small" data-spick>＋ Material</button><b style="font-family:var(--f-mono)">${f2(roomKg(r))} kg</b></div></section>`).join("");
+    h+=`<button class="btn primary big" id="stAddRoom" type="button">＋ Raum hinzufügen</button>`;
+    if(A.rooms.length) h+=`<div class="summary" style="margin:0"><div class="tx"><b>Gesamtmasse Stahl</b><div class="note">${A.rooms.length} Räume</div></div><b style="font:600 20px var(--f-mono)">${f2(T.kg)} kg</b></div>`;
+  } else if(sub==="summe"){
+    h+=`<section class="panel bo-head">${brand}<div class="note">BV: <b>${esc(A.bv)||"–"}</b> · Aufmaß Nr. ${esc(A.anr)||"–"} · ${A.datum?new Date(A.datum+"T12:00").toLocaleDateString("de-DE"):""}${A.monteur?" · "+esc(A.monteur):""}</div>
+      <div class="kv main"><span>Gesamtmasse Stahl</span><strong>${f2(T.kg)} kg</strong></div></section>`;
+    h+=`<section class="panel"><h3>Materialliste</h3><div class="tablewrap"><table><thead><tr><th>Material</th><th class="n">Menge</th><th>Einh.</th><th class="n">kg/E.</th><th class="n">kg</th></tr></thead><tbody>${T.list.map(t=>`<tr><td>${esc(t.m.name)}${t.m.unit==="m"?`<div class="note">${[...t.lens.entries()].sort((a,b)=>a[0]-b[0]).map(([L,q])=>`${q}× ${fL(L)} m`).join(" · ")}</div>`:""}</td><td class="n">${t.m.unit==="m"?f2(t.qty):f2(t.qty,0)}</td><td>${t.m.unit}</td><td class="n">${t.m.steel?f2(t.m.kg,3):"–"}</td><td class="n">${t.m.steel?f2(t.kg):"–"}</td></tr>`).join("")||`<tr><td colspan="5" class="note">Noch nichts erfasst.</td></tr>`}</tbody>
+      <tfoot><tr><th colspan="4">Gesamtmasse Stahl</th><th class="n">${f2(T.kg)}</th></tr></tfoot></table></div></section>`;
+    h+=`<section class="panel"><h3>Nach Räumen</h3>${A.rooms.filter(r=>r.lines.some(l=>l.qty)).map(r=>`<div class="st-sumroom"><div class="row" style="justify-content:space-between"><b>${esc(r.nr)} ${esc(r.name)}</b><span class="note">${f2(roomKg(r))} kg</span></div>${r.lines.filter(l=>l.qty).map(l=>`<div class="note">${l.qty} × ${esc(lineLabel(l))}${mat(l.mat).unit==="m"?` = ${f2(lineQty(l))} m`:""}</div>`).join("")}</div>`).join("")||`<div class="note">Noch keine Räume.</div>`}</section>`;
+    h+=`<div class="row"><button class="btn primary big" id="stPdf" type="button">PDF erstellen &amp; teilen</button><button class="btn big" id="stXlsx" type="button">Excel teilen</button></div>`;
+  } else {
+    h+=`<section class="panel"><h3>Stahlmaterialien</h3><p class="note" style="margin:0">Gewichte gelten für alle Aufmaße. Bei „Meter“ werden die Längen als Schnellauswahl angeboten. „Kein Stahl“ wird gezählt, aber nicht gewogen (z. B. Dübel).</p>
+      ${MATS.map((m,i)=>`<div class="st-mat" data-mi="${i}"><div class="grid"><label class="f">Bezeichnung<input data-sm="name" value="${esc(m.name)}"></label>
+        <label class="f">Einheit<select data-sm="unit"><option value="St"${m.unit==="St"?" selected":""}>Stück</option><option value="m"${m.unit==="m"?" selected":""}>Meter (mit Längen)</option></select></label>
+        <label class="f">kg pro ${m.unit==="m"?"m":"Stück"}<input data-sm="kg" inputmode="decimal" value="${f2(m.kg,3)}"></label></div>
+        ${m.unit==="m"?`<label class="f">Längen-Schnellauswahl (m, mit ; trennen)<input data-sm="lengths" value="${(m.lengths||[]).map(fL).join("; ")}"></label>`:""}
+        <div class="row" style="justify-content:space-between"><label class="row" style="gap:8px;font-size:14px"><input type="checkbox" data-sm="steel"${m.steel?" checked":""}> zählt als Stahl</label>
+        <div class="row"><button class="btn small" data-smup${i===0?" disabled":""}>↑</button><button class="btn small danger" data-smdel>Löschen</button></div></div></div>`).join("")}
+      <button class="btn primary" id="stAddMat" type="button">＋ Material anlegen</button></section>
+      <section class="panel"><h3>Aufmaß</h3><div class="row">${confirmNew?`<button class="btn danger" id="stNewOk">Wirklich neu beginnen?</button><button class="btn" id="stNewNo">Nein</button>`:`<button class="btn danger" id="stNew">🗑 Neues Aufmaß</button>`}</div>
+      <p class="note" style="margin:0">Stahlaufmaß und Materialliste sind in der Datensicherung unter „Mehr“ enthalten.</p></section>`;
+  }
+  SV.innerHTML=h;
+}
+const rer=()=>{ const y=window.scrollY; render(); window.scrollTo(0,y); };
+SV.addEventListener("input",e=>{
+  const t=e.target, room=t.closest(".st-room");
+  if(t.dataset.sa){ A[t.dataset.sa]=t.value; save(); }
+  else if(t.dataset.sr&&room){ A.rooms[+room.dataset.ri][t.dataset.sr]=t.value; save(); }
+});
+SV.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.sqin!=null){ const r=A.rooms[+t.closest(".st-room").dataset.ri], l=r.lines[+t.closest(".st-line").dataset.li]; l.qty=Math.max(0,num(t.value)); save(); return rer(); }
+  if(t.dataset.sm){ const m=MATS[+t.closest(".st-mat").dataset.mi], k=t.dataset.sm;
+    if(k==="kg") m.kg=num(t.value); else if(k==="steel") m.steel=t.checked;
+    else if(k==="lengths") m.lengths=t.value.split(/[;\s]+/).map(num).filter(v=>v>0).sort((a,b)=>a-b);
+    else m[k]=t.value;
+    if(k==="unit"&&m.unit==="m"&&!m.lengths) m.lengths=[0.5,1,1.5,2];
+    save(); rer(); }
+});
+SV.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return; const d=b.dataset, room=b.closest(".st-room"), r=room?A.rooms[+room.dataset.ri]:null;
+  if(d.ssub){ sub=d.ssub; confirmNew=false; render(); window.scrollTo(0,0); return; }
+  if(b.id==="stAddRoom"){ A.rooms.push({id:uid(),nr:"",name:"",lines:[]}); save(); render(); const rs=SV.querySelectorAll(".st-room"); const inp=rs[rs.length-1].querySelector("input"); inp.focus(); inp.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+  if(d.srdel!=null){ if(r.lines.length&&!confirm(`Raum ${r.nr} ${r.name} mit ${r.lines.length} Positionen löschen?`)) return; A.rooms.splice(+room.dataset.ri,1); save(); return rer(); }
+  if(d.sq){ const l=r.lines[+b.closest(".st-line").dataset.li]; l.qty=Math.max(0,(l.qty||0)+(+d.sq)); save(); return rer(); }
+  if(d.sldel!=null){ r.lines.splice(+b.closest(".st-line").dataset.li,1); save(); return rer(); }
+  if(d.spick!=null) return openPicker(r);
+  if(b.id==="stPdf") return stPdf();
+  if(b.id==="stXlsx") return saveFile(buildXlsx(),`Stahlaufmass_${fname()}.xlsx`,"Excel gespeichert");
+  if(b.id==="stAddMat"){ MATS.push({id:uid(),name:"Neues Material",unit:"St",kg:0,steel:true}); save(); render(); const ms=SV.querySelectorAll(".st-mat"); ms[ms.length-1].querySelector("input").select(); return; }
+  if(d.smup!=null){ const i=+b.closest(".st-mat").dataset.mi; MATS.splice(i-1,0,MATS.splice(i,1)[0]); save(); return rer(); }
+  if(d.smdel!=null){ const i=+b.closest(".st-mat").dataset.mi, m=MATS[i]; const used=A.rooms.some(x=>x.lines.some(l=>l.mat===m.id));
+    if(!confirm(used?`„${m.name}“ wird im Aufmaß verwendet. Trotzdem löschen?`:`„${m.name}“ löschen?`)) return; MATS.splice(i,1); save(); return rer(); }
+  if(b.id==="stNew"){ confirmNew=true; return rer(); }
+  if(b.id==="stNewNo"){ confirmNew=false; return rer(); }
+  if(b.id==="stNewOk"){ confirmNew=false; A=newA(); save(); sub="aufmass"; render(); toast("Neues Stahlaufmaß"); return; }
+});
+
+/* ---- Material-Auswahl ---- */
+function openPicker(room){
+  pk={room,m:null,len:null};
+  const md=document.createElement("div"); md.className="modal"; md.id="stPicker";
+  md.innerHTML=`<div class="box" style="background:var(--panel)"><div class="mh"><button aria-label="Schließen" data-x>×</button><b>Material · ${esc(room.nr||"")} ${esc(room.name||"")}</b></div>
+    <div style="padding:14px;overflow:auto;display:flex;flex-direction:column;gap:12px"><div class="st-mats">${MATS.map(m=>`<button data-pm="${m.id}" type="button"><b>${esc(m.name)}</b><small>${m.unit==="m"?"Längen":"Stück"}${m.steel?` · ${f2(m.kg,3)} kg/${m.unit}`:" · kein Stahl"}</small></button>`).join("")}</div><div id="stPkD"></div></div></div>`;
+  document.body.append(md);
+  const flash=t=>{ const f=md.querySelector(".fl"); if(f){ f.textContent=t; setTimeout(()=>{ if(f.textContent===t) f.textContent=""; },1600); } };
+  const add=(id,len,q)=>{ if(!q) return; const ex=room.lines.find(l=>l.mat===id&&(len==null||Math.abs((l.len||0)-len)<1e-9));
+    if(ex) ex.qty+=q; else room.lines.push(len==null?{mat:id,qty:q}:{mat:id,len,qty:q}); save(); };
+  const detail=()=>{ const m=pk.m, D=md.querySelector("#stPkD");
+    D.innerHTML=m.unit==="m"?`<span class="note">Länge antippen, dann Stückzahl</span><div class="chips" style="margin-top:6px">${(m.lengths||[]).map(v=>`<button type="button" data-pl="${v}" aria-pressed="${pk.len===v}">${fL(v)} m</button>`).join("")}</div>
+      <div class="grid" style="margin-top:10px"><label class="f">Andere Länge (m)<input id="stPkLen" inputmode="decimal" placeholder="z. B. 2,35"></label><label class="f">Stück<input id="stPkQ" inputmode="numeric" value="1"></label></div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-padd type="button" style="flex:1">Hinzufügen</button><span class="fl note"></span></div>`
+      :`<div class="grid"><label class="f">Stück<input id="stPkQ" inputmode="numeric" value="1"></label></div><div class="row" style="margin-top:10px"><button class="btn primary" data-padd type="button" style="flex:1">Hinzufügen</button><span class="fl note"></span></div>`;
+    const li=D.querySelector("#stPkLen"); if(li) li.oninput=()=>{ pk.len=null; D.querySelectorAll("[data-pl]").forEach(x=>x.setAttribute("aria-pressed","false")); };
+  };
+  md.addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.x!=null){ md.remove(); rer(); return; }
+    if(b.dataset.pm){ pk.m=mat(b.dataset.pm); pk.len=null; md.querySelectorAll("[data-pm]").forEach(x=>x.classList.toggle("on",x===b)); detail(); return; }
+    if(b.dataset.pl){ pk.len=+b.dataset.pl; md.querySelector("#stPkLen").value=""; md.querySelectorAll("[data-pl]").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
+    if(b.dataset.padd!=null){ const q=num(md.querySelector("#stPkQ").value);
+      if(pk.m.unit==="m"){ const len=pk.len??num(md.querySelector("#stPkLen").value); if(!len){ flash("Bitte Länge wählen"); return; } add(pk.m.id,len,q); flash(`✓ ${q} × ${fL(len)} m`); }
+      else { add(pk.m.id,null,q); flash(`✓ ${q} St ${pk.m.name}`); }
+      md.querySelector("#stPkQ").value="1"; }
+  });
+}
+
+/* ---- Export ---- */
+const fname=()=>fileSafe(A.bv||"Aufmass")+(A.anr?"_"+fileSafe(A.anr):"");
+async function stPdf(){
+  if(!needPdf()) return; pdfBusy=true;
+  try{
+    await loadLogo(); const T=totals();
+    const doc=pdfDoc("Stahlaufmaß",[A.bv,A.anr?"Aufmaß Nr. "+A.anr:"",A.datum?new Date(A.datum+"T12:00").toLocaleDateString("de-DE"):"",A.monteur].filter(Boolean).join(" · "));
+    const W=doc._W, H=doc._H, M=12; let y=36;
+    const need=h=>{ if(y+h>H-16){ doc.addPage(); doc._kbHead(true); y=36; } };
+    const th=(cols)=>{ need(9); doc.setFillColor(...BC.navy); doc.rect(M,y-5,W-2*M,7,"F"); doc.setFont("helvetica","bold"); doc.setFontSize(8.5); doc.setTextColor(255);
+      cols.forEach(([t,x,al])=>doc.text(pdfSafe(t),x,y,{align:al||"left"})); y+=6; doc.setFont("helvetica","normal"); doc.setTextColor(...BC.ink); };
+    const tr=(cols,bold)=>{ need(6); doc.setFont("helvetica",bold?"bold":"normal"); doc.setFontSize(9); cols.forEach(([t,x,al])=>doc.text(pdfSafe(t),x,y,{align:al||"left"}));
+      y+=1.8; doc.setDrawColor(...BC.line); doc.setLineWidth(0.2); doc.line(M,y,W-M,y); y+=4.2; };
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...BC.navy); doc.text("Materialliste",M,y); y+=6;
+    const X=[M+2,120,138,165,W-M-2];
+    th([["Material",X[0]],["Menge",X[1],"right"],["Einh.",X[1]+3],["kg/Einh.",X[3],"right"],["kg",X[4],"right"]]);
+    for(const t of T.list){ tr([[t.m.name,X[0]],[t.m.unit==="m"?f2(t.qty):f2(t.qty,0),X[1],"right"],[t.m.unit,X[1]+3],[t.m.steel?f2(t.m.kg,3):"-",X[3],"right"],[t.m.steel?f2(t.kg):"-",X[4],"right"]]);
+      if(t.m.unit==="m"){ y-=1.6; doc.setFontSize(7.5); doc.setTextColor(...BC.grey); doc.text(pdfSafe([...t.lens.entries()].sort((a,b)=>a[0]-b[0]).map(([L,q])=>`${q}x ${fL(L)} m`).join("  ·  ")),X[0]+2,y); doc.setTextColor(...BC.ink); y+=5; } }
+    need(10); doc.setFillColor(...BC.tint); doc.rect(M,y-4.6,W-2*M,7,"F"); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...BC.orange);
+    doc.text("Gesamtmasse Stahl",X[0],y); doc.text(f2(T.kg)+" kg",X[4],y,{align:"right"}); y+=12; doc.setTextColor(...BC.ink);
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...BC.navy); need(14); doc.text("Aufstellung je Raum",M,y); y+=6;
+    const Y2=[M+2,56,140,165,W-M-2];
+    th([["Raum",Y2[0]],["Material",Y2[1]],["Stück",Y2[2],"right"],["Menge",Y2[3],"right"],["kg",Y2[4],"right"]]);
+    for(const r of A.rooms.filter(r=>r.lines.some(l=>l.qty))){
+      const rn=doc.splitTextToSize(pdfSafe(`${r.nr} ${r.name}`.trim()),Y2[1]-Y2[0]-3); r.lines.filter(l=>l.qty).forEach((l,i)=>tr([[rn[i]||"",Y2[0]],[lineLabel(l),Y2[1]],[String(l.qty),Y2[2],"right"],[mat(l.mat).unit==="m"?f2(lineQty(l))+" m":f2(l.qty,0)+" St",Y2[3],"right"],[mat(l.mat).steel?f2(lineKg(l)):"-",Y2[4],"right"]],false));
+      tr([["",Y2[0]],["Summe Raum",Y2[1]],["",Y2[2]],["",Y2[3]],[f2(roomKg(r)),Y2[4],"right"]],true);
+    }
+    pdfBusy=false;
+    await saveFile(pdfFinish(doc),`Stahlaufmass_${fname()}.pdf`,"PDF gespeichert");
+  }catch(err){ toast("PDF fehlgeschlagen: "+(err.message||err)); }
+  finally{ pdfBusy=false; }
+}
+
+/* Excel: Blatt 1 Räume × Material (wie bisheriges Stahlaufmaß), Blatt 2 Materialliste */
+const xe=s=>String(s??"").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const colL=n=>{ let s=""; n++; while(n){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
+const XS={title:1,hdr:2,txt:3,n2:4,n0:5,totL:6,totN:7,lbl:8,n3:9,totN0:10};
+const STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="2"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="#,##0.000"/></numFmts>
+<fonts count="3"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FFE8762D"/><name val="Arial"/></font><font><b/><sz val="10"/><name val="Arial"/></font></fonts>
+<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDF0E6"/></patternFill></fill></fills>
+<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"/><right style="thin"/><top style="thin"/><bottom style="thin"/><diagonal/></border></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="11">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>
+<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="3" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+<xf numFmtId="164" fontId="2" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="3" fontId="2" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>
+</cellXfs>
+<cellStyles count="1"><cellStyle name="Standard" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`;
+function sheet(rows, cols, merges, landscape){
+  const R = rows.map((cells, i) => cells ? `<row r="${i + 1}"${cells.ht ? ` ht="${cells.ht}" customHeight="1"` : ""}>${cells.map((c, j) => {
+    if (!c) return ""; const ref = colL(j) + (i + 1);
+    if (c.f != null) return `<c r="${ref}" s="${c.s || 0}"><f>${xe(c.f)}</f><v>${+c.v || 0}</v></c>`;
+    if (typeof c.v === "number") return `<c r="${ref}" s="${c.s || 0}"><v>${c.v}</v></c>`;
+    if (c.v == null || c.v === "") return `<c r="${ref}" s="${c.s || 0}"/>`;
+    return `<c r="${ref}" s="${c.s || 0}" t="inlineStr"><is><t xml:space="preserve">${xe(c.v)}</t></is></c>`;
+  }).join("")}</row>` : "").join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>
+<sheetViews><sheetView workbookViewId="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+<sheetFormatPr defaultRowHeight="12.75"/><cols>${cols.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>
+<sheetData>${R}</sheetData>${merges.length ? `<mergeCells count="${merges.length}">${merges.map(m => `<mergeCell ref="${m}"/>`).join("")}</mergeCells>` : ""}
+<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>
+<pageSetup paperSize="9" orientation="${landscape ? "landscape" : "portrait"}" fitToWidth="1" fitToHeight="0"/>
+<headerFooter><oddFooter>&amp;L&amp;8D+W Krüger Klimatechnik GmbH&amp;R&amp;8Seite &amp;P von &amp;N</oddFooter></headerFooter></worksheet>`;
+}
+function buildXlsx(){
+  const T = totals();
+  const datum = A.datum ? new Date(A.datum).toLocaleDateString("de-DE") : "";
+  const head = [
+    [{ v:"D+W KRÜGER Klimatechnik GmbH – Stahlaufmaß", s:XS.title }],
+    [{ v:"BV:", s:XS.lbl }, null, { v:A.bv }],
+    [{ v:"Aufmaß Nr:", s:XS.lbl }, null, { v:A.anr }, null, { v:"Datum:", s:XS.lbl }, { v:datum }, null, { v:A.monteur ? "Monteur: " + A.monteur : "" }],
+  ];
+  /* --- Blatt 1: Räume × Material --- */
+  const cols = []; // {label, mat, len?, kind:'len'|'sum'|'st'}
+  for (const t of T.list){
+    if (t.m.unit === "m"){
+      [...t.lens.keys()].sort((a, b) => a - b).forEach(L => cols.push({ label:`${t.m.name} ${fL(L)} m [St]`, m:t.m, len:L, kind:"len" }));
+      cols.push({ label:`${t.m.name} Ges. [m]`, m:t.m, kind:"sum" });
+    } else cols.push({ label:`${t.m.name} [St]`, m:t.m, kind:"st" });
+  }
+  const C0 = 2; // A=Raum-Nr, B=Bezeichnung
+  const rows = head.concat([null, Object.assign([{ v:"Raum-Nr.", s:XS.hdr }, { v:"Raumbezeichnung", s:XS.hdr }].concat(cols.map(c => ({ v:c.label, s:XS.hdr }))), { ht:54 })]);
+  const first = rows.length + 1;
+  const rms = A.rooms.filter(r => r.lines.some(l => l.qty));
+  for (const r of rms){
+    const row = [{ v:r.nr, s:XS.txt }, { v:r.name, s:XS.txt }];
+    const rowNo = rows.length + 1;
+    cols.forEach((c, j) => {
+      if (c.kind === "len"){ const q = r.lines.filter(l => l.mat === c.m.id && Math.abs(l.len - c.len) < 1e-9).reduce((s, l) => s + l.qty, 0); row.push({ v:q || "", s:XS.n0 }); }
+      else if (c.kind === "st"){ const q = r.lines.filter(l => l.mat === c.m.id).reduce((s, l) => s + l.qty, 0); row.push({ v:q || "", s:XS.n0 }); }
+      else { // Summe Meter: Σ Länge × Stück aus den Längenspalten dieses Materials
+        const parts = cols.map((cc, k) => cc.kind === "len" && cc.m.id === c.m.id ? `${cc.len}*${colL(C0 + k)}${rowNo}` : null).filter(Boolean);
+        const v = r.lines.filter(l => l.mat === c.m.id).reduce((s, l) => s + lineQty(l), 0);
+        row.push({ f:parts.join("+"), v, s:XS.n2 });
+      }
+    });
+    rows.push(row);
+  }
+  const last = rows.length;
+  const tot = [{ v:"Gesamt (m / St)", s:XS.totL }, { v:"", s:XS.totL }], kgpe = [{ v:"kg je Einheit", s:XS.totL }, { v:"", s:XS.totL }], kgr = [{ v:"Gesamt kg", s:XS.totL }, { v:"", s:XS.totL }];
+  const totRow = last + 1, kgpeRow = last + 2, kgRow = last + 3, kgCells = [];
+  cols.forEach((c, j) => {
+    const L = colL(C0 + j), sumV = rms.reduce((s, r) => s + r.lines.filter(l => l.mat === c.m.id && (c.kind !== "len" || Math.abs(l.len - c.len) < 1e-9)).reduce((a, l) => a + (c.kind === "sum" ? lineQty(l) : l.qty), 0), 0);
+    tot.push({ f:last >= first ? `SUM(${L}${first}:${L}${last})` : "0", v:sumV, s:c.kind === "sum" ? XS.totN : XS.totN0 });
+    if (c.kind === "len"){ kgpe.push({ v:"", s:XS.totL }); kgr.push({ v:"", s:XS.totL }); return; }
+    kgpe.push({ v:c.m.steel ? c.m.kg : 0, s:XS.n3 });
+    const kv = c.m.steel ? sumV * c.m.kg : 0;
+    kgr.push({ f:`${L}${totRow}*${L}${kgpeRow}`, v:kv, s:XS.totN }); kgCells.push(`${L}${kgRow}`);
+  });
+  rows.push(tot, kgpe, kgr, null, [{ v:"Gesamtmasse Stahl", s:XS.totL }, { v:"", s:XS.totL }, { f:kgCells.length ? kgCells.join("+") : "0", v:T.kg, s:XS.totN }, { v:"kg", s:XS.lbl }]);
+  const s1 = sheet(rows, [10, 26].concat(cols.map(() => 10)), ["A1:F1", `A${totRow}:B${totRow}`, `A${kgpeRow}:B${kgpeRow}`, `A${kgRow}:B${kgRow}`, `A${kgRow + 2}:B${kgRow + 2}`], cols.length > 6);
+
+  /* --- Blatt 2: Materialliste + Detail je Raum --- */
+  const r2 = head.concat([null, [{ v:"Material", s:XS.hdr }, { v:"Länge [m]", s:XS.hdr }, { v:"Stück", s:XS.hdr }, { v:"Menge", s:XS.hdr }, { v:"Einheit", s:XS.hdr }, { v:"kg/Einh.", s:XS.hdr }, { v:"kg", s:XS.hdr }]]);
+  const m1 = r2.length + 1;
+  for (const t of T.list){
+    if (t.m.unit === "m") [...t.lens.entries()].sort((a, b) => a[0] - b[0]).forEach(([L, q]) => { const n = r2.length + 1;
+      r2.push([{ v:t.m.name, s:XS.txt }, { v:L, s:XS.n2 }, { v:q, s:XS.n0 }, { f:`B${n}*C${n}`, v:L * q, s:XS.n2 }, { v:"m", s:XS.txt }, { v:t.m.steel ? t.m.kg : 0, s:XS.n3 }, { f:`D${n}*F${n}`, v:t.m.steel ? L * q * t.m.kg : 0, s:XS.n2 }]); });
+    else { const n = r2.length + 1;
+      r2.push([{ v:t.m.name, s:XS.txt }, { v:"", s:XS.txt }, { v:t.qty, s:XS.n0 }, { f:`C${n}`, v:t.qty, s:XS.n2 }, { v:"St", s:XS.txt }, { v:t.m.steel ? t.m.kg : 0, s:XS.n3 }, { f:`D${n}*F${n}`, v:t.kg, s:XS.n2 }]); }
+  }
+  const m2 = r2.length;
+  r2.push([{ v:"Gesamtmasse Stahl", s:XS.totL }, { v:"", s:XS.totL }, { v:"", s:XS.totL }, { v:"", s:XS.totL }, { v:"", s:XS.totL }, { v:"", s:XS.totL }, { f:m2 >= m1 ? `SUM(G${m1}:G${m2})` : "0", v:T.kg, s:XS.totN }]);
+  r2.push(null, [{ v:"Aufstellung je Raum", s:XS.lbl }], [{ v:"Raum-Nr.", s:XS.hdr }, { v:"Raumbezeichnung", s:XS.hdr }, { v:"Material", s:XS.hdr }, { v:"Stück", s:XS.hdr }, { v:"Menge", s:XS.hdr }, { v:"Einheit", s:XS.hdr }, { v:"kg", s:XS.hdr }]);
+  for (const r of rms) for (const l of r.lines.filter(l => l.qty)){
+    const m = mat(l.mat);
+    r2.push([{ v:r.nr, s:XS.txt }, { v:r.name, s:XS.txt }, { v:lineLabel(l), s:XS.txt }, { v:l.qty, s:XS.n0 }, { v:lineQty(l), s:XS.n2 }, { v:m.unit, s:XS.txt }, { v:lineKg(l), s:XS.n2 }]);
+  }
+  const s2 = sheet(r2, [26, 12, 30, 9, 11, 9, 11], ["A1:F1", `A${m2 + 1}:F${m2 + 1}`], false);
+  return zip([
+    ["[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`],
+    ["_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ["xl/workbook.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Stahlaufmaß" sheetId="1" r:id="rId1"/><sheet name="Materialliste" sheetId="2" r:id="rId2"/></sheets><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`],
+    ["xl/_rels/workbook.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+    ["xl/styles.xml", STYLES],
+    ["xl/worksheets/sheet1.xml", s1],
+    ["xl/worksheets/sheet2.xml", s2],
+  ]);
+}
+/* Minimaler ZIP-Writer (ohne Kompression) */
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b){ let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zip(files){
+  const enc = new TextEncoder(), chunks = [], central = []; let off = 0;
+  const d = new Date(), dt = ((d.getFullYear() - 1980) << 9 | (d.getMonth() + 1) << 5 | d.getDate()), tm = (d.getHours() << 11 | d.getMinutes() << 5 | (d.getSeconds() >> 1));
+  for (const [name, content] of files){
+    const nb = enc.encode(name), data = enc.encode(content), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true);
+    h.setUint16(10, tm, true); h.setUint16(12, dt, true); h.setUint32(14, crc, true);
+    h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, nb.length, true);
+    chunks.push(new Uint8Array(h.buffer), nb, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+    c.setUint16(12, tm, true); c.setUint16(14, dt, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+    c.setUint16(28, nb.length, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), nb); off += 30 + nb.length + data.length;
+  }
+  const cd = central.reduce((a, b) => a + b.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cd, true); e.setUint32(16, off, true);
+  return new Blob([...chunks, ...central, new Uint8Array(e.buffer)], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
+MOD.stahl={render,title:["Stahlaufmaß","Räume · Material · kg"],backup:()=>({kb_stahl:A,kb_stahl_mats:MATS}),restore:o=>{ if(o.kb_stahl) A=o.kb_stahl; if(o.kb_stahl_mats) MATS=o.kb_stahl_mats; save(); }};
+}
+
+/* ================= Sprücheklopfer ================= */
+{
+const PV=$("#view-spruch");
+const NAMES=["Basti","Bert","Jo","Hannes","Max","Gerd","Andre","Philipp","Marcus","Erik","Axel","Marcel","Silvio","Diana","Angelo","Felix"];
+const FEMALE=new Set(["Diana"]);
+const CATS=[["alle","Alle"],["baustelle","Baustelle"],["handwerk","Handwerk"],["chef","Chef"],["sprueche","Sprüche"],["namen","Namenswitze"],["schwarz","Schwarz"],["versaut","Versaut"],["raetsel","Rätsel"]];
+const TAGS={baustelle:"Baustelle",handwerk:"Handwerk & Klima",chef:"Chef & Mitarbeiter",sprueche:"Spruch",namen:"Namenswitz",schwarz:"Schwarzer Humor",versaut:"Versaut",raetsel:"Rätsel"};
+const J={
+baustelle:[
+"Wie viele Bauarbeiter braucht man, um eine Glühbirne zu wechseln? Einen. Plus vier, die zugucken und sagen, dass sie es anders gemacht hätten.",
+"Der Bauherr fragt: „Wann sind Sie fertig?“ Der Polier: „Womit?“",
+"Baustellen-Regel Nr. 1: Was nicht passt, wird passend gemacht. Regel Nr. 2: Was dann nicht hält, war das Vorgewerk.",
+"Architekt, Statiker und Lüftungsbauer stehen vor einer Wand. Architekt: „Schön.“ Statiker: „Tragend.“ Lüftungsbauer: „Kernbohrung.“",
+"Das Dixi ist der einzige Ort auf der Baustelle, an dem morgens alle pünktlich sind.",
+"Bauleiter: „Der Termin ist fix.“ Übersetzung: Er wird verschoben. Fix.",
+"Plan A: Zeichnung. Plan B: Bestand. Plan C: Flex.",
+"Unterschied zwischen Märchen und Bauzeitenplan? Märchen fangen mit „Es war einmal“ an, Bauzeitenpläne mit „Spätestens bis“.",
+"Auf der Baustelle gibt es drei Geschwindigkeiten: langsam, Frühstückspause und „In fünf Minuten ist Feierabend“.",
+"„Das hält!“ – berühmte letzte Worte, Teil 1.",
+"Der Bauherr will alles bis Freitag. Wir fragen nur: Welcher Freitag?",
+"Elektriker: „Strom ist da.“ Lüftungsbauer: „Dann fehlt nur noch Luft.“ Trockenbauer: „Die mach ich gleich zu.“",
+"Ein Nachtrag ist wie die Liebe: Keiner hat ihn geplant, aber er kommt trotzdem.",
+"Wie nennt man einen Bauarbeiter ohne Kaffee? Krankmeldung.",
+"Der Architekt hat sich was gedacht. Leider nicht zu Ende.",
+"Bauzeitverzögerung? Nein, das heißt bei uns „gelebte Terminplanung“.",
+"Auf dem Plan ist die Decke 3,00 m hoch. In echt 2,40 m. Der Architekt: „Das war maßstäblich gemeint.“",
+"Die Kernbohrung sitzt 20 cm daneben. Zum Glück ist Brandschutzmasse eine Lebenseinstellung.",
+"Warum stehen immer fünf Leute um ein Loch? Einer gräbt, vier sind Gutachter.",
+"Montag: Material fehlt. Dienstag: Leute fehlen. Mittwoch: Plan fehlt. Donnerstag: Bauherr ändert alles. Freitag: Feierabend um zwölf.",
+"Der Baustellenhund ist der einzige, der jeden Tag pünktlich kommt und nie einen Nachtrag stellt.",
+"Brandschutzklappe vergessen? Ach was, das ist eine Wärmerückgewinnung mit Überraschungseffekt.",
+"Der Trockenbauer hat die Revisionsöffnung vergessen. Macht nix – die Lüftung revisioniert sich jetzt selbst. Einmal im Jahr. Durch die Decke.",
+"Baubesprechung: zwei Stunden geredet, ein Ergebnis – nächste Woche wieder Baubesprechung.",
+"Bauherr: „Können wir die Lüftung nicht weglassen? Wir machen einfach das Fenster auf.“ Wir: „Klar. Und die Statik ersetzen wir durch Hoffnung.“",
+"Was ist der Unterschied zwischen einem Bauleiter und einem Wetterbericht? Der Wetterbericht stimmt manchmal.",
+"Abnahme ist, wenn der Bauherr zum ersten Mal mit Taschenlampe kommt.",
+"Schutzhelm-Pflicht? Klar. Er liegt ja auch sicher auf dem Armaturenbrett."
+],
+handwerk:[
+"Was ist der Unterschied zwischen einem Lüftungsbauer und einer Pizza? Eine Pizza kann eine vierköpfige Familie ernähren.",
+"Kunde: „Können Sie das auch schwarz machen?“ Monteur: „Klar, RAL 9005, kostet extra.“",
+"Ein Anwalt ruft den Klempner. Zehn Minuten Arbeit, 300 €. Anwalt: „So viel verdiene ich als Anwalt nicht!“ Klempner: „Ich damals auch nicht.“",
+"Ein Klimatechniker stirbt und steht vor der Himmelstür. Petrus: „Endlich! Wir warten seit drei Wochen, die Klima im Himmel tropft.“",
+"Kunde: „Die Anlage macht so ein Geräusch.“ Monteur: „Welches?“ Kunde: „So … brrrmmmm.“ Monteur: „Das ist Ihr Geld, das gerade verbrennt.“",
+"Lüftungsbauer streiten nie. Die lassen einfach alles an sich vorbeiziehen.",
+"Wie viele Klimatechniker braucht man, um eine Glühbirne zu wechseln? Keinen. Nicht unser Gewerk.",
+"„Wer hat denn den Mist eingebaut?“ – „Du. Vor drei Jahren.“",
+"Azubi-Klassiker: Ab zum Großhändler, einen Eimer Luftblasen für die Wasserwaage holen.",
+"Handwerker-Mathe: 15 Minuten = 1 Stunde. 1 Stunde = halber Tag. „Morgen“ = nächste Woche.",
+"Kunde: „Bei YouTube sah das aber anders aus.“ Monteur: „Dann rufen Sie doch YouTube an.“",
+"Preisliste: Machen 60 €. Wenn Sie zugucken 80 €. Wenn Sie helfen 120 €. Wenn Sie es vorher selbst versucht haben 250 €.",
+"Lüftung ist wie eine Beziehung: Ohne Abluft wird's irgendwann stickig.",
+"Warum lieben Klimatechniker die Hitzewelle? Weil dann zum ersten Mal im Jahr alle Kunden zurückrufen.",
+"Monteur zum Kunden: „Der Filter wurde zuletzt gewechselt, da hieß der Kanzler noch Kohl.“",
+"Die drei großen Lügen im Handwerk: „Ich komm gleich.“ „Ist in fünf Minuten erledigt.“ „Das war der Vorgänger.“",
+"Das Gefährlichste auf der Baustelle? Ein Elektriker mit dem Satz „Ist bestimmt aus.“",
+"Das schönste Wort im Handwerk: Abnahme. Das zweitschönste: Zahlungseingang.",
+"Kunde: „Geht's nicht günstiger?“ Meister: „Klar. Dann mach ich's genau so gut, wie Sie es bezahlen wollen.“",
+"Warum tragen Lüftungsbauer keine Uhr? Die rechnen Zeit in Kubikmeter pro Stunde.",
+"Ein guter Monteur hat immer drei Sachen dabei: Akkuschrauber, Kabelbinder und eine Ausrede.",
+"Azubi: „Meister, wo ist der Kanalhammer?“ Meister: „Liegt neben dem Gewindefeiler und der Luftschaufel.“",
+"Kälteanlage leer? Kunde: „Kann man da nicht einfach Kälte nachfüllen?“ Klar. Wir haben auch Dunkelheit in Tüten.",
+"Ein Kältetechniker kommt in eine Bar. Barkeeper: „Was darf's sein?“ – „Nix, ich will nur gucken, ob die Theke richtig kühlt.“",
+"Warum ist der Großhandel montags so voll? Weil am Freitag alle gesagt haben: „Das reicht noch.“",
+"Kunde: „Sie waren ja schnell!“ Monteur: „Ich hab's ja auch schon zweimal falsch gemacht – da hat man Routine.“",
+"Was ist ein Klimatechniker im Winter? Ein Lüftungsbauer mit Kältemittel-Entzug.",
+"Wer sagt, Luft sei nichts wert, hat noch nie ein Angebot für eine RLT-Anlage gesehen."
+],
+sprueche:[
+"Geht nicht gibt's nicht. Und wenn's trotzdem nicht geht: Nachtrag.",
+"Wer früh aufsteht, ist eher auf der Baustelle. Weitere Vorteile sind nicht bekannt.",
+"Ich bin nicht faul. Ich bin im Energiesparmodus – A+++.",
+"Pfusch ist erst Pfusch, wenn's einer sieht.",
+"Ich hab kein Problem mit Autorität. Ich hab ein Problem mit Bauleitern.",
+"Arbeit adelt. Ich bleib lieber bürgerlich.",
+"Mein Werkzeug ist teurer als dein Auto. Und zuverlässiger.",
+"Lieber Silikon in der Fuge als Wasser in der Bude.",
+"Feierabend ist das Licht am Ende des Kanals.",
+"Kaffee rein, Luft raus.",
+"Planung ersetzt den Zufall durch den Irrtum.",
+"„Gleich“ ist auf der Baustelle keine Zeitangabe, sondern eine Hoffnung.",
+"Hier wird nicht gemeckert. Hier werden Mängel gerügt.",
+"Messen, messen, schneiden, fluchen, neu bestellen.",
+"Schöner wird's nicht. Aber dicht.",
+"Wer bohrt, der findet. Meistens die Wasserleitung.",
+"Wenn's gut werden muss: Krüger. Wenn's schnell gehen muss: auch Krüger – mit Zuschlag.",
+"Das Leben ist zu kurz für falsche Schrauben.",
+"Montag ist kein Wochentag, Montag ist eine Prüfung.",
+"Ohne uns wär's überall stickig. Im Büro leider trotzdem.",
+"Erst der Kaffee, dann der Kanal.",
+"Handwerk hat goldenen Boden. Nur leider ist der Rohbau noch nicht fertig.",
+"Ich arbeite unter Druck am besten. Darum mach ich ja Lüftung.",
+"Panzertape ist keine Lösung. Aber ein sehr guter Anfang.",
+"Ich mach das jetzt seit 25 Jahren. Und genauso lange sagt mir der Kunde, wie's geht.",
+"Man muss nicht alles können. Man muss nur wissen, wen man anruft.",
+"Dicht ist dicht. Fast dicht ist nass."
+],
+schwarz:[
+"Mein Opa ist friedlich im Schlaf gestorben. Nicht schreiend wie seine Beifahrer.",
+"Was sind die letzten Worte eines Elektrikers? „Ich hab doch ausgeschaltet …“",
+"Was ruft der Dachdecker zum Abschied? „Bis gleich unten!“",
+"Warum ist der Friedhof eingezäunt? Weil alle reinwollen.",
+"Arzt: „Sie haben noch zehn.“ – „Zehn was? Jahre? Monate?“ – „Neun … acht …“",
+"Unterweisung Absturzsicherung: „Noch Fragen?“ Stille. „Gut. Die ohne Gurt fragen eh nichts mehr.“",
+"Warum hat der Sensenmann eine Sense? Weil der Akku vom Freischneider schon wieder leer war.",
+"Arzt: „Die schlechte Nachricht: Sie haben nur noch 24 Stunden.“ – „Und die gute?“ – „Sie müssen morgen nicht zur Baustelle.“",
+"Bestatter: „Sarg oder Urne?“ Klimatechniker: „Was hat die bessere Wärmerückgewinnung?“",
+"Testament eines Monteurs: „Mein Werkzeug vermache ich dem Azubi. Der hat sich eh schon immer alles geliehen.“",
+"Mein Psychiater sagt, ich soll Briefe an alle schreiben, die ich hasse, und sie dann verbrennen. Hab ich gemacht. Jetzt weiß ich nicht, was ich mit den Briefen machen soll.",
+"Opa hat immer gesagt: „Mit Asbest ist nicht zu spaßen.“ Hat er dann auch nicht mehr.",
+"Wie nennt man einen Monteur, der keine PSA trägt? Kurz.",
+"Ich lache auf Beerdigungen immer. Ich stell mir vor, wer da die Lüftung geplant hat.",
+"Krematorium: die einzige Heizungsanlage, über die sich noch nie ein Kunde beschwert hat.",
+"Der Gerüstbauer hatte immer recht. Nur am letzten Tag lag er falsch. Und zwar unten.",
+"Woran merkt man, dass der Kollege tot ist? Er hat sich seit drei Stunden nicht beschwert. Meistens heißt das aber nur: Pause.",
+"Unterschied zwischen Fallschirm und Gerüst ohne Abnahme? Beim Fallschirm weiß man vorher, dass es runter geht.",
+"Lebensversicherung für Dachdecker? Der Vertreter hat gelacht. Dann hat er aufgelegt.",
+"„Papa, was ist ein Stromschlag?“ – „Weiß nicht, Junge, frag mal Onkel Heinz.“ – „Der ist doch tot.“ – „Eben.“",
+"Ich will so sterben wie ich gelebt habe: kurz vor Feierabend und mit Überstunden.",
+"Der Sicherheitsbeauftragte ist gestorben. An Langeweile. Ironischerweise auf unserer Baustelle ist sonst nie was los."
+],
+versaut:[
+"Was haben Lüftungsbauer und gute Liebhaber gemeinsam? Beide wissen: Ohne ordentlichen Luftaustausch wird's schnell stickig.",
+"Sie fragt: „Bist du schon drin?“ Er, Lüftungsbauer: „Moment, ich mess noch den Querschnitt.“",
+"Warum sind Monteure gute Liebhaber? Jedes Werkzeug dabei – und trotzdem fragen sie: „Wo genau soll's hin?“",
+"Azubi beim Großhändler: „Ich brauch 'nen Doppelnippel, 'ne Muffe und was zum Reinstecken.“ Die ganze Theke lacht. Er versteht's bis heute nicht.",
+"Was sagt der Trockenbauer beim ersten Date? „Versprechen kann ich nix. Aber verspachteln.“",
+"„Schatz, warum riechst du nach Parfüm?“ – „Ich hab acht Stunden Kanal in einer Parfümerie gezogen.“ – „Und der Lippenstift?“ – „… Brandschutzmarkierung.“",
+"Lüftungsbauer im Bett: „Zuluft, Abluft – egal, Hauptsache Volumenstrom.“",
+"Kollegin: „Hast du was Langes, Hartes für mich?“ Monteur: „Gewindestange M10, ein Meter.“ Sie: „Perfekt, das Regal wackelt.“",
+"Mein Akkuschrauber hat mehr Drehmoment als mein letztes Date. Und er kommt nicht zu früh.",
+"Was ist der Unterschied zwischen Silikon und dem Ex? Silikon hält dicht.",
+"„Liebling, ich hab ein Rohr verlegt.“ – „Wohin?“ – „Wenn ich das wüsste …“",
+"Auf der Baustelle heißt es: „Reinstecken, festziehen, abdichten.“ Zuhause heißt es: „Und danach räumst du auf.“",
+"Sie: „Du bist wie meine Klimaanlage.“ Er: „Leistungsstark?“ Sie: „Laut. Und nur an, wenn's dir passt.“",
+"Was ist der Unterschied zwischen einem Dübel und einem Mann? Der Dübel weiß, wo er hingehört.",
+"Wie flirtet ein Kältetechniker? „Na, Lust auf ein bisschen Druckausgleich?“",
+"Sie: „Mach mal langsamer.“ Er: „Geht nicht, ich werd nach Stunden bezahlt – äh, nach Aufmaß.“",
+"Warum haben Dachdecker so ein gutes Liebesleben? Sie wissen, oben ist's am schönsten – und sie sind immer gesichert.",
+"Was sagt die Frau des Lüftungsbauers? „Endlich mal einer, der weiß, was ein ordentlicher Anschluss ist.“",
+"„Ist der schon drin?“ – „Nein, das war die Wand.“ Baustellen-Dialog oder Hochzeitsnacht? Beides.",
+"Der Azubi fragt, was ein Spreizdübel ist. Der Geselle: „Frag deine Freundin.“ Seitdem redet der Azubi nicht mehr mit ihm."
+],
+raetsel:[
+["Je mehr du davon wegnimmst, desto größer wird es. Was ist das?","Ein Loch – jeder Lüftungsbauer kennt's von der Kernbohrung."],
+["Ein Monteur hat 10 Schrauben. Alle außer 7 fallen in den Schacht. Wie viele hat er noch?","7."],
+["Wie viel Erde ist in einem Loch von 2 × 2 × 2 Metern?","Keine. Ist ja ein Loch."],
+["Wie viele Monate haben 28 Tage?","Alle zwölf."],
+["Was wird nasser, je mehr es trocknet?","Das Handtuch."],
+["Ich habe Rippen, aber keine Knochen. Ich bin warm, aber lebe nicht. Was bin ich?","Ein Heizkörper."],
+["Ich habe Lamellen, bin aber kein Fisch. Ich mache kalt, bin aber kein Kühlschrank.","Ein Klimagerät (bzw. der Verdampfer)."],
+["Was ist leicht wie eine Feder, aber selbst der stärkste Monteur kann es keine fünf Minuten halten?","Den Atem."],
+["Ein Mann fährt gegen die Einbahnstraße direkt an der Polizei vorbei. Warum halten sie ihn nicht an?","Er geht zu Fuß."],
+["Elektriker, Klempner und Lüftungsbauer stecken im Aufzug fest. Wer repariert ihn?","Keiner. Nicht ihr Gewerk."],
+["Was geht die Treppe rauf und runter, bewegt sich aber nicht?","Das Geländer."],
+["Was hat einen Hals, aber keinen Kopf?","Eine Flasche."],
+["Du verlegst 10 m Kanal. Jeden Tag montierst du die Hälfte der Reststrecke. Wann bist du fertig?","Nie. Aber du stellst trotzdem jeden Tag eine Abschlagsrechnung."],
+["Wer hat auf der Baustelle immer Schuld, auch wenn er gar nicht da war?","Das Vorgewerk."],
+["Was hat Zähne, beißt aber nie?","Eine Säge (oder ein Kamm)."],
+["Eine Anlage fördert 1000 m³/h. Wie viel fördert sie, wenn der Filter seit 5 Jahren nicht gewechselt wurde?","Eine Begründung für einen Wartungsvertrag."],
+["Was gehört dir, wird aber von anderen viel öfter benutzt?","Dein Name. (Und dein Akkuschrauber.)"],
+["Je länger es ist, desto weniger sieht man es. Was ist das?","Die Dunkelheit – oder der Kabelkanal hinter der Abhangdecke."],
+["Was kann man brechen, ohne es anzufassen?","Ein Versprechen – z. B. „Ich komm morgen früh.“"],
+["Welches Gewerk kommt immer zuletzt und ist trotzdem schuld, dass alles zu spät ist?","Das, das gerade auf der Baustelle ist."]
+]
+};
+
+/* Namenswitze: {n}=Name, {er}/{Er}, {sein}, {seinen}, {seine}, {ihn}, {ihm} */
+const NT=[
+"{n} ist so langsam, heute wurde {ihm} auf der Baustelle von einer Schnecke überholt. Mit Anhänger.",
+"Gestern hat {n} ein Loch gebohrt. Heute bohrt {er} dasselbe nochmal – diesmal an der richtigen Stelle.",
+"Warum hat {n} immer zwei Wasserwaagen dabei? Eine für „gerade“ und eine für „passt schon“.",
+"{n} macht nie Fehler. {n} macht nur Nachträge.",
+"Chuck Norris hat {n} einmal beim Arbeiten zugeschaut. Seitdem macht Chuck auch Mittagsschlaf.",
+"{n} hat den Akku nicht vergessen. Der Akku hat {n} vergessen.",
+"Wenn {n} sagt „Bin gleich da“, gilt Baustellenzeit: irgendwann diese Woche.",
+"{n} misst zweimal, schneidet einmal – und bestellt trotzdem neu.",
+"{n} hat beim Großhändler nach Luft in Dosen gefragt. {Er} hat sie bekommen. Und bezahlt.",
+"{n} hat ein unglaubliches Gedächtnis. Vergisst nie, wann Feierabend ist.",
+"Unterschied zwischen {n} und einem Akkuschrauber? Der Akkuschrauber läuft auch montags.",
+"Wenn {n} auf die Leiter steigt, macht die Leiter vorher ihr Testament.",
+"{n} hat versucht, die Klimaanlage mit dem Föhn zu reparieren. Warm war's danach. Repariert nicht.",
+"Wenn {n} einen Witz erzählt, lacht genau einer: {n}.",
+"{n} hat ein neues Hobby: Schlafen im Transporter. {Er} nennt es Fahrzeugpflege.",
+"{n} kommt in den Himmel. Petrus: „Endlich, die Lüftung tropft seit Wochen!“ {n}: „Nicht mein Gewerk.“",
+"Gott schuf die Welt in sechs Tagen. {n} hätte drei Wochen gebraucht und einen Nachtrag gestellt.",
+"Der Bauleiter fragt: „Wer hat das verbaut?“ Alle zeigen auf {n}. {n} zeigt auf den Plan.",
+"{n} ist wie ein Tellerventil: Man muss ewig dran rumdrehen, bis {er} richtig eingestellt ist.",
+"{n} und Pünktlichkeit – wie Lüftungskanal und Brandschutz: gehört zusammen, sieht man aber selten.",
+"Bei {n} ist die Brotdose größer als der Werkzeugkoffer. Und besser sortiert.",
+"{n} hat „Das hält!“ gesagt. Die Berufsgenossenschaft hat jetzt eine eigene Akte.",
+"Wenn {n} die Flex anmacht, gehen im Umkreis von 50 Metern die Rauchmelder freiwillig in Rente.",
+"{n} hat das Navi auf „kürzeste Route zum Imbiss“ eingestellt. Seit Jahren.",
+"{n} hat einen Schrank aufgebaut. Übrig: zwölf Schrauben. {n}: „Reserve.“",
+"Was hat {n} mit WLAN gemeinsam? Wenn man {ihn} braucht, ist {er} weg.",
+"Die Anlage läuft, die Klima kühlt, alles dicht – ach so, {n} war im Urlaub.",
+"{n} hat die Kühlschranktür offen gelassen. Ausrede: „Ich test nur die Kälteleistung.“",
+"{n} ist so ehrlich, {er} gibt jedes Mal zu, dass {er} es nicht war.",
+"Wer ist morgens der Erste an der Kaffeemaschine und abends der Erste am Auto? Richtig: {n}.",
+"{n} hat bei „Wer wird Millionär“ den Telefonjoker genommen und den Großhändler angerufen. Warteschleife. 50 €.",
+"{n} wollte sich im Büro mal nützlich machen. Der Drucker hat gekündigt.",
+"{n} hat {seinen} Helm zehn Jahre falsch rum getragen. Erklärt einiges.",
+"Wenn {n} sagt „Kurz noch was erledigen“, sollte man {ihm} einen Schlafsack mitgeben.",
+"{n} hat {seine} Wasserwaage zur Kalibrierung geschickt. Ergebnis: Die Waage war gerade. {n} nicht.",
+"Was ist der Unterschied zwischen {n} und einem Brandschutzklappen-Prüfprotokoll? Das Protokoll wird irgendwann fertig.",
+"{n} ist wie Bauschaum: quillt überall raus, wo man's nicht braucht, und geht nie wieder ab.",
+"Ein Bauherr wollte {n} abwerben. Nach einem Tag hat er {ihn} mit Gutschein zurückgeschickt.",
+"Wenn {n} die Kaffeemaschine entkalkt, gibt's danach Betriebsausflug. Ins Krankenhaus.",
+"{n} wurde für den Nobelpreis nominiert: in der Kategorie „Ausreden“.",
+"Das Rätsel von {n}: Was hat vier Räder, steht immer im Weg und ist nie getankt? {Sein} Transporter."
+];
+
+/* ===== Nachschub ===== */
+J.chef=[
+"Regel 1: Der Chef hat immer recht. Regel 2: Hat der Chef mal nicht recht, tritt automatisch Regel 1 in Kraft.",
+"Der Chef sagt: „Wir sind ein Team.“ Übersetzung: Ihr macht's, ich unterschreib.",
+"Chef: „Ich will mehr Eigeninitiative!“ Monteur macht um 14 Uhr Feierabend. Chef: „Doch nicht so!“",
+"Warum kommt der Chef immer genau in der Pause auf die Baustelle? Er hat ein Radar für Kaffeedampf.",
+"Der Chef hat gestern auf der Baustelle mit angepackt. Wir haben zwei Tage gebraucht, um es zurückzubauen.",
+"Woran erkennt man den Chef auf der Baustelle? Saubere Schuhe und die meisten Fragen.",
+"Chef: „Meine Tür steht euch immer offen.“ Stimmt. Er ist ja nie drin.",
+"Der Chef rechnet ein LV. Die Monteure zünden schon mal eine Kerze an.",
+"Was sagt der Chef, wenn's gut läuft? Nichts. Und wenn's schlecht läuft? Alles. Zweimal.",
+"Wie viele Chefs braucht man, um eine Glühbirne zu wechseln? Einen. Er hält sie fest und wartet, bis sich die Welt um ihn dreht.",
+"Mitarbeitergespräch. Chef: „Wo sehen Sie sich in fünf Jahren?“ Monteur: „Auf Ihrem Stuhl. Aber mit Mittagsschlaf.“",
+"Chef: „Ich will hier keine Ja-Sager!“ Alle: „Ja, Chef.“",
+"Warum hat der Chef zwei Handys? Eins zum Telefonieren und eins, um nicht ranzugehen, wenn die Baustelle anruft.",
+"Der Chef sagt, Überstunden sind freiwillig. So freiwillig wie die Steuererklärung.",
+"Chef: „Sie waren gestern krank, aber ich hab Sie im Baumarkt gesehen.“ Monteur: „Ich hab mir Medizin geholt. Silikon.“",
+"Chef: „Wie viele Leute arbeiten eigentlich bei uns?“ – „Ungefähr die Hälfte.“",
+"Chef: „Wenn ihr so schnell arbeiten würdet, wie ihr Feierabend macht, wären wir Marktführer.“",
+"Chef: „Sie kommen jeden Tag zu spät!“ Monteur: „Dafür geh ich jeden Tag pünktlich.“",
+"Chef: „Glauben Sie an ein Leben nach dem Tod?“ – „Ja.“ – „Gut. Gestern, als Sie auf der Beerdigung Ihrer Oma waren, war sie hier und hat Sie gesucht.“",
+"Chef: „Warum haben Sie nichts gemacht?“ – „Ich hab gewartet.“ – „Worauf?“ – „Dass Sie fragen.“",
+"Chef: „Ihr seid wie Wolken. Wenn ihr weg seid, wird's ein schöner Tag.“",
+"Chef: „Der Azubi hat heute was ganz Neues ausprobiert.“ – „Was denn?“ – „Arbeiten.“",
+"Chef: „Wer von euch glaubt an Wunder?“ Alle melden sich. „Gut. Die Stundenzettel waren diese Woche nämlich pünktlich.“",
+"Chef: „Ich bezahle Sie nicht fürs Denken!“ Monteur: „Ich weiß. Das mach ich gratis.“",
+"Chef: „Die Lohnerhöhung kommt.“ – „Wann?“ – „Wenn die erste Baustelle ohne Nachtrag fertig wird.“",
+"Chef zum Neuen: „Hier wird hart gearbeitet, fragen Sie die anderen.“ Der Neue: „Hab ich. Die sagen, Sie arbeiten hart – an deren Nerven.“",
+"Chef: „Was ist Ihre größte Stärke?“ – „Ehrlichkeit.“ – „Das ist doch keine Stärke!“ – „Ist mir ehrlich gesagt egal, was Sie denken.“",
+"Chef: „Sie sind wie ein Akku. Morgens voll, ab zehn Uhr nur noch Ladeanzeige.“",
+"Was ist der Unterschied zwischen dem Chef und einem Lüftungskanal? Der Kanal hat irgendwann ein Ende. Die Besprechung nicht.",
+"Der Chef hat ein offenes Ohr für alle. Das andere ist auch offen. Dazwischen zieht's.",
+"Chef: „Ich hab ein gutes und ein schlechtes Gefühl für die Baustelle.“ – „Das gute?“ – „Das hab ich nur zur Motivation gesagt.“",
+"Chef: „Wer hat heute Geburtstag?“ Monteur: „Ich!“ Chef: „Glückwunsch. Ihr Geschenk: Sie dürfen in den Schacht.“",
+"Der Chef fährt den neuen Transporter. Wir fahren den mit dem Kilometerstand „zweimal Mond und zurück“.",
+"Chef: „Ich habe drei Sorten Mitarbeiter: die, die arbeiten, und die, die mir erklären, warum die anderen nicht arbeiten.“ – „Das sind doch nur zwei.“ – „Die dritte zählt nicht.“",
+"Monteur: „Chef, ich brauch mehr Geld, drei Firmen sind hinter mir her.“ – „Welche?“ – „Strom, Gas und Wasser.“",
+"Chef: „Wenn jemand Verbesserungsvorschläge hat, bitte in den Kasten.“ Monteur: „Welcher Kasten?“ Chef: „Der Altpapier-Container.“"
+];
+J.baustelle.push(
+"Was ist ein Bauzeitenplan? Eine Liste von Terminen, die garantiert nicht eingehalten werden.",
+"Baustellenradio hat zwei Sender: Schlager und lauter Schlager.",
+"Wie erkennt man einen neuen Bauleiter? Er hat noch Hoffnung.",
+"Der Kran steht still. Grund: Wind. Oder Mittag. Oder beides.",
+"Der Maler ist da, bevor der Putz trocken ist. Der Elektriker kommt, nachdem der Maler fertig ist. Traumhafte Abstimmung.",
+"Auf der Baustelle gibt's kein „Das geht nicht“. Nur ein „Das kostet“.",
+"Wenn der Bauherr mit eigenem Zollstock kommt, ist es zu spät.",
+"Der Bauherr hat gegoogelt. Jetzt weiß er alles. Leider falsch.",
+"Lieferschein: 50 Formteile. Auf der Palette: 49 und ein Fragezeichen.",
+"Nichts hält so lange wie ein Provisorium.",
+"Baustellenrundgang. Bauherr: „Wozu ist das Rohr da?“ Wir fragen uns das auch.",
+"Die Abhangdecke ist zu, die Lüftung ist nicht drin. Ab jetzt heißt das „Überraschungsdecke“.",
+"Warum ist die Baustelle eingezäunt? Damit die Bauherren nicht reinkommen.",
+"Wenn auf der Baustelle alles glattläuft, hast du was übersehen.",
+"Bauherr: „Das hab ich mir aber anders vorgestellt!“ Wir: „Steht das so im LV?“ Stille.",
+"Der Statiker sagt nein. Der Bauherr sagt ja. Die Wand sagt gar nichts mehr.",
+"Baustellen-Wetterbericht: Wenn's regnet, ist das Dach noch offen. Wenn's heiß ist, ist die Klima noch nicht dran."
+);
+J.handwerk.push(
+"Kunde: „Die Klima kühlt nicht!“ Monteur: „Ist sie an?“ – „… Moment. Jetzt kühlt sie.“",
+"Der Kunde stellt die Klima auf 16 Grad und beschwert sich, dass er friert.",
+"Lüftungsbauer zum Sohn: „Im Leben musst du immer Luft nach oben lassen. Besonders in der Abhangdecke.“",
+"Warum bestellt der Monteur immer zehn Prozent mehr? Weil zehn Prozent weniger beim Großhändler zwei Tage dauern.",
+"Kunde: „Ist das Kältemittel giftig?“ Monteur: „Nicht so giftig wie die Rechnung.“",
+"Wie nennt man einen Lüftungsbauer ohne Leiter? Bodenpersonal.",
+"Dichtheitsprüfung bestanden. Undicht war nur der Kunde – beim Bezahlen.",
+"Ein Handwerker löst Probleme, von denen du nichts wusstest, zu Preisen, die du nicht für möglich gehalten hast.",
+"Die Fernbedienung der Klimaanlage ist das am häufigsten verschwundene Werkzeug Deutschlands.",
+"Kunde: „Können Sie das Gerät leiser machen?“ Monteur: „Klar. Ausschalten.“",
+"Warum heißt es Splitgerät? Weil sich nach der Montage Kunde und Geld trennen.",
+"Bei uns gibt's schnell, billig und gut. Such dir zwei aus.",
+"Zuluft, Abluft, Fortluft, Außenluft – und die heiße Luft vom Bauherrn.",
+"Ein Monteur ohne Kabelbinder ist wie ein Bauherr ohne Sonderwunsch. Gibt's nicht.",
+"Kunde: „Mein Schwager hätte das billiger gemacht.“ Monteur: „Dann holen Sie doch Ihren Schwager.“ – „Der hat's ja eingebaut.“",
+"Warum laufen Lüftungsbauer nie weg? Die kommen einfach nicht gegen den Volumenstrom an."
+);
+J.sprueche.push(
+"Der frühe Vogel kann mich mal.",
+"Ich bin nicht zu spät. Alle anderen sind nur zu früh.",
+"Ich arbeite nicht fürs Geld. Ohne Geld arbeite ich aber auch nicht.",
+"Wer Ordnung hält, ist nur zu faul zum Suchen.",
+"Nach fest kommt ab.",
+"Bohren ist Silber, Dübeln ist Gold.",
+"Viel Feind, viel Ehr. Viel Nachtrag, viel Umsatz.",
+"Gute Luft ist kein Zufall.",
+"Wo gebohrt wird, fällt der Strom aus.",
+"Ein Kanal kommt selten allein.",
+"Es gibt keine dummen Fragen. Nur Bauherren.",
+"Kaffee ist kein Getränk. Kaffee ist Betriebsmittel.",
+"Was lange währt, wird endlich Nachtrag.",
+"Wir können alles. Außer pünktlich.",
+"Erst messen, dann meckern.",
+"Montags bin ich wie ein Splitgerät: Außen laut, innen kalt.",
+"Wer nichts macht, macht nichts falsch. Wer nichts falsch macht, wird befördert."
+);
+J.schwarz.push(
+"Was ist das Gegenteil von Gerüstaufbau? Gerüstabbau. Manchmal unfreiwillig.",
+"Ich habe dem Tod ins Gesicht gesehen. Er hat gefragt, ob wir auch Wartungsverträge machen.",
+"Die schlechte Nachricht: Das Gerüst ist eingestürzt. Die gute: Der Abbau ist erledigt.",
+"Warum haben Särge keine Lüftung? Die Kunden beschweren sich eh nicht.",
+"Meine Lebensversicherung hat gefragt, was ich beruflich mache. Seitdem schickt sie Beileidskarten im Voraus.",
+"Der Arzt sagt: „Sie brauchen weniger Stress.“ Ich hab gekündigt. Jetzt hab ich Hunger.",
+"Wer es macht, braucht es nicht. Wer es kauft, will es nicht. Wer es benutzt, merkt es nicht. Was ist es? Ein Sarg – und eine Brandschutzklappe.",
+"Warum arbeiten Monteure nicht auf Friedhöfen? Die würden alle Gräber auf Kondensat prüfen.",
+"Das Letzte, was ein Dachdecker hört? Den Applaus vom Boden.",
+"Mein Opa hat immer gesagt: „Mach dir keine Sorgen um morgen.“ Hat er auch nicht. Er war um 23 Uhr schon tot.",
+"Wie nennt man einen Elektriker, der die Phase prüft, indem er sie anfasst? Ehemaligen Elektriker."
+);
+J.versaut.push(
+"Warum haben Lüftungsbauer immer so gute Laune? Die blasen den ganzen Tag. Luft natürlich.",
+"Was haben Liebe und Wickelfalzrohr gemeinsam? Ohne ordentliche Verbindung pfeift's an allen Ecken.",
+"Kältetechniker: „Schatz, heute Nacht wird's heiß!“ – „Hast du endlich die Klima repariert?“ – „Nee, die ist ja kaputt.“",
+"Sie: „Bohr mich an.“ Er: „Beton oder Trockenbau?“",
+"Was sagt der Lüftungsbauer danach? „War gut. Muss nur noch einreguliert werden.“",
+"Was ist das Erotischste auf der Baustelle? Eine vollständige Lieferung.",
+"Warum sind Klimatechniker so gefragt? Die bringen jede zum Tropfen. Kondensat, natürlich.",
+"Azubi: „Wie fest soll ich die Schelle anziehen?“ Geselle: „Bis sie quietscht. Nicht bis sie schreit.“",
+"Sie: „Hast du Lust auf ein Vorspiel?“ Monteur: „Vorspiel? Ich mach erst die Dichtheitsprüfung.“",
+"Was ist der Unterschied zwischen einer Kernbohrung und einem One-Night-Stand? Bei der Kernbohrung bereut man's erst, wenn der Statiker kommt.",
+"Warum nimmt der Monteur immer zwei Dübel mit ins Schlafzimmer? Falls der erste nicht hält."
+);
+J.raetsel.push(
+["Welcher Kanal führt nie Luft?","Der Fernsehkanal. Und der Ärmelkanal."],
+["Was läuft, hat aber keine Beine?","Die Lüftungsanlage – und im Winter die Nase."],
+["Was ist voller Löcher und hält trotzdem Wasser?","Ein Schwamm."],
+["Was kommt einmal in der Minute, zweimal im Moment, aber nie in tausend Jahren?","Der Buchstabe M."],
+["Die Armen haben es, die Reichen brauchen es, wer es isst, stirbt. Was ist das?","Nichts."],
+["Welches Wort wird immer falsch geschrieben?","„Falsch“."],
+["Monteur fährt 7 Uhr los, 1 Stunde Fahrt, 3 Stunden Pause, 2 Stunden Arbeit. Wann ist er fertig?","Gar nicht. Material fehlt."],
+["Was wird größer, je mehr man es teilt?","Die Freude – und der Ärger auf der Baustelle."],
+["Ich bin immer vor dir, aber du kannst mich nie sehen. Was bin ich?","Die Zukunft. Oder der Bauzeitenplan."],
+["Was kann reisen und bleibt doch immer in der Ecke?","Eine Briefmarke."],
+["Welche Schraube passt nirgends rein?","Die, die du in der Hand hast. Die richtige liegt im Auto."],
+["Ein Vater und sein Sohn haben zusammen 36 Jahre. Der Vater ist 30 Jahre älter. Wie alt ist der Sohn?","3 Jahre (Vater 33)."]
+);
+NT.push(
+"Chef zu {n}: „Wenn Sie so schnell arbeiten würden, wie Sie essen, wären wir Marktführer.“",
+"Mitarbeitergespräch. Chef: „{n}, wo liegen Ihre Stärken?“ {n}: „In der Frühstückspause.“",
+"Der Chef hat {n} befördert: vom Beifahrersitz auf den Fahrersitz. Mehr war nicht drin.",
+"Chef: „{n}, Sie sind unersetzlich.“ {n} strahlt. Chef: „Keiner sonst baut so viel kaputt, was wir hinterher abrechnen können.“",
+"Der Chef wollte {n} mehr Gehalt geben. Dann hat er die Tankkartenabrechnung gesehen.",
+"Chef: „{n}, drei Kanäle falsch bestellt!“ {n}: „Dafür passen die anderen auch nicht. Ist wenigstens einheitlich.“",
+"Chef: „{n}, gestern krank, und heute seh ich ein Foto vom Angeln?“ {n}: „Ärztlich verordnet. Fisch ist gesund.“",
+"{n} will mehr Geld. Chef: „Sie kriegen mehr Verantwortung.“ {n}: „Davon kann ich mir keine Bockwurst kaufen.“",
+"Hätte {n} für jede gute Idee einen Euro – es würde für einen Kaffee reichen. Einen kleinen.",
+"{n} ist nicht faul. {n} arbeitet nur extrem energieeffizient.",
+"Wenn {n} sagt „Mach ich gleich“, geht im Lager vorsichtshalber das Licht aus.",
+"{n} hat {sein} Handy im Lüftungskanal verloren. Jetzt hat die Anlage endlich Empfang.",
+"{n} wurde vom Blitz getroffen. Der Blitz hat sich krankgemeldet.",
+"{n} kann sich jeden Morgen nicht entscheiden: heute arbeiten oder nur so aussehen?",
+"Beim Aufmaß hat {n} zwei Meter vergessen. Laut {ihm} sind die „implizit enthalten“.",
+"Wenn {n} kocht, ruft der Rauchmelder vorsorglich selbst die Feuerwehr.",
+"{n} behauptet, das Wort „Feierabend“ erfunden zu haben. Jeden Tag um 15:59.",
+"Der Chef fragt: „Wer war das?“ {n} meldet sich – um aufs Klo zu dürfen.",
+"{n} hat einen Termin beim Chef. Der Chef hat sich krankgemeldet.",
+"{n} wollte im Fitnessstudio anfangen. Der Vertrag liegt noch im Transporter – unter den Bockwurstpappen.",
+"Neulich hat {n} einen Fehler zugegeben. Es war der Fehler eines Kollegen, aber immerhin.",
+"Was haben {n} und ein Wartungsvertrag gemeinsam? Beide sieht man einmal im Jahr.",
+"{n} hat im Lotto gewonnen. Erste Frage: „Muss ich morgen trotzdem kommen?“",
+"Gestern hat {n} Überstunden gemacht. Die Uhr ist vor Schreck stehen geblieben."
+);
+
+const P={m:{er:"er",Er:"Er",sein:"sein",Sein:"Sein",seinen:"seinen",seine:"seine",ihn:"ihn",ihm:"ihm"},
+         w:{er:"sie",Er:"Sie",sein:"ihr",Sein:"Ihr",seinen:"ihren",seine:"ihre",ihn:"sie",ihm:"ihr"}};
+let cat="alle", picked=null, custom="", customFem=false, cur=null;
+let seen=new Set(LS.get("kSpruchSeen",[])), favs=LS.get("kSpruchFavs",[]);
+const saveSeen=()=>LS.set("kSpruchSeen",[...seen]);
+const fill=(t,name,fem)=>{ const p=P[fem?"w":"m"]; return t.replace(/\{(\w+)\}/g,(m,k)=>k==="n"?name:(p[k]??m)); };
+function currentName(){ if(custom) return [custom,customFem]; if(picked) return [picked,FEMALE.has(picked)]; const n=NAMES[Math.floor(Math.random()*NAMES.length)]; return [n,FEMALE.has(n)]; }
+function pool(){
+  const out=[], add=c=>{ if(c==="namen") NT.forEach((t,i)=>out.push({c,t,key:"n"+i}));
+    else J[c].forEach((x,i)=>out.push({c,t:Array.isArray(x)?x[0]:x,a:Array.isArray(x)?x[1]:null,key:c+i})); };
+  if(cat==="alle"){ Object.keys(J).forEach(add); add("namen"); if(picked||custom){ add("namen"); add("namen"); } } else add(cat);
+  return out;
+}
+function next(){
+  const p=pool(); let fresh=p.filter(x=>!seen.has(x.key));
+  if(!fresh.length){ p.forEach(x=>seen.delete(x.key)); fresh=p.filter(x=>!cur||x.key!==cur.key); if(!fresh.length) fresh=p; toast("Alle durch – es geht von vorne los"); }
+  const it=fresh[Math.floor(Math.random()*fresh.length)];
+  let text=it.t; if(it.c==="namen"){ const [n,f]=currentName(); text=fill(it.t,n,f); }
+  seen.add(it.key); saveSeen(); cur={...it,text,shown:false}; render(true);
+}
+const total=()=>Object.values(J).reduce((s,a)=>s+a.length,0)+NT.length;
+function render(flip){
+  if(!cur){ next(); return; }
+  const p=pool(), left=p.filter((x,i,a)=>!seen.has(x.key)&&a.findIndex(y=>y.key===x.key)===i).length, isFav=favs.includes(cur.text);
+  PV.innerHTML=`<section class="panel bo-head"><div class="bo-brand"><svg viewBox="-50 -50 100 100" aria-hidden="true">${LOGO_SVG}</svg><div><div class="bo-co">D+W <b>KRÜGER</b> KLIMATECHNIK</div><div class="bo-sub">Sprücheklopfer</div><div class="note">Klima. Lüftung. Witze.</div></div></div></section>
+  <section class="panel"><span class="note">Kategorie</span><div class="chips">${CATS.map(([k,l])=>`<button type="button" data-pc="${k}" aria-pressed="${k===cat}"${k==="versaut"?' class="sp-adult"':""}>${l}</button>`).join("")}</div>
+    <span class="note">Für wen? (Namenswitze)</span><div class="chips"><button type="button" data-pn="" aria-pressed="${!picked&&!custom}">🎲 Zufall</button>${NAMES.map(n=>`<button type="button" data-pn="${esc(n)}" aria-pressed="${!custom&&picked===n}">${esc(n)}</button>`).join("")}</div>
+    <div class="row" style="flex-wrap:nowrap"><input id="spName" value="${esc(custom)}" placeholder="Eigenen Namen eingeben …" autocomplete="off"><button class="btn small" id="spSex" type="button">${customFem?"sie":"er"}</button></div></section>
+  <section class="panel sp-card${flip?" sp-flip":""}" aria-live="polite"><span class="tag sp-${cur.c}">${esc(TAGS[cur.c])}</span><p class="sp-joke">${esc(cur.text)}</p>
+    ${cur.a?(cur.shown?`<p class="sp-ans">${esc(cur.a)}</p>`:`<button class="btn small" id="spReveal" type="button" style="align-self:flex-start">Auflösung zeigen</button>`):""}
+    <div class="row"><button class="btn small" id="spCopy" type="button">Kopieren</button><button class="btn small" id="spShare" type="button">Teilen</button><button class="btn small" id="spFav" type="button"${isFav?' style="color:var(--accent);border-color:var(--accent)"':""}>${isFav?"★ Gemerkt":"☆ Merken"}</button></div></section>
+  <button class="btn primary big" id="spNext" type="button" style="font:700 22px var(--f-display);letter-spacing:.04em;text-transform:uppercase;padding:18px">Nächster Spruch</button>
+  <div class="row note" style="justify-content:space-between"><span>${total()} Witze, Sprüche &amp; Rätsel · Namenswitze × ${NAMES.length} Namen</span><span>${left} noch nicht gesehen</span></div>
+  <section class="panel"><details><summary>Gemerkte Sprüche (${favs.length})</summary><div class="inner">${favs.length?favs.map((f,i)=>`<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><p style="margin:0;flex:1">${esc(f)}</p><button class="bo-del" data-pfdel="${i}" aria-label="Entfernen">×</button></div>`).join(""):`<span class="note">Noch nichts gemerkt.</span>`}</div></details></section>`;
+}
+const txt=()=>cur.text+(cur.a?"\n→ "+cur.a:"")+"\n— Krüger Sprücheklopfer";
+const pickCatNamen=()=>{ if(cat!=="alle"&&cat!=="namen") cat="namen"; };
+PV.addEventListener("click",async e=>{
+  const b=e.target.closest("button"); if(!b) return; const d=b.dataset;
+  if(d.pc){ cat=d.pc; return next(); }
+  if(d.pn!=null){ picked=d.pn||null; custom=""; if(picked) pickCatNamen(); return next(); }
+  if(b.id==="spSex"){ customFem=!customFem; b.textContent=customFem?"sie":"er"; return; }
+  if(b.id==="spNext") return next();
+  if(b.id==="spReveal"){ cur.shown=true; return render(false); }
+  if(b.id==="spCopy") return copyText(txt());
+  if(b.id==="spShare"){ if(navigator.share){ try{ await navigator.share({text:txt()}); }catch(_){} } else copyText(txt()); return; }
+  if(b.id==="spFav"){ const i=favs.indexOf(cur.text); if(i>=0) favs.splice(i,1); else favs.unshift(cur.text); LS.set("kSpruchFavs",favs); return render(false); }
+  if(d.pfdel!=null){ favs.splice(+d.pfdel,1); LS.set("kSpruchFavs",favs); return render(false); }
+});
+PV.addEventListener("input",e=>{ if(e.target.id==="spName"){ custom=e.target.value.trim(); } });
+PV.addEventListener("keydown",e=>{ if(e.target.id==="spName"&&e.key==="Enter"&&custom){ e.preventDefault(); cat="namen"; next(); } });
+MOD.spruch={render:()=>render(false),title:["Sprücheklopfer","Klima. Lüftung. Witze."],backup:()=>({kSpruchFavs:favs}),restore:o=>{ if(o.kSpruchFavs){ favs=o.kSpruchFavs; LS.set("kSpruchFavs",favs); } }};
+}
+
+$("#view-tools").addEventListener("click",e=>{ const b=e.target.closest("[data-open]"); if(b) showTab(b.dataset.open); });
+
 /* ================= Tabs & Start ================= */
 function showTab(name){
   tab=name;
-  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===name));
-  ["aufmass","bestellung","zeit","tagebuch","tools"].forEach(t=>$("#view-"+t).hidden=t!==name);
+  const navName=SUBS.includes(name)?"tools":name;
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===navName));
+  [...TABS,...SUBS].forEach(t=>$("#view-"+t).hidden=t!==name);
+  if(MOD[name]) MOD[name].render();
   try{localStorage.setItem("kb_tab",name);}catch(e){}
   if(name!=="aufmass"){ $("#fab")?.remove(); $("#footbar")?.remove(); closeViz(); }
   if(name==="aufmass") renderAufmass();
@@ -2462,7 +3471,7 @@ onDataChange=renderAll;
 init3D(); initSettings(); tbReset(); tools();
 let startTab="aufmass"; try{startTab=localStorage.getItem("kb_tab")||"aufmass";}catch(e){}
 const hashTab=location.hash.slice(1);
-showTab(["aufmass","bestellung","zeit","tagebuch","tools"].includes(hashTab)?hashTab:startTab);
+showTab([...TABS,...SUBS].includes(hashTab)?hashTab:([...TABS,...SUBS].includes(startTab)?startTab:"aufmass"));
 initStorage();
 if(MODE==="app"&&"serviceWorker" in navigator&&location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 

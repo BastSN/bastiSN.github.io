@@ -1,5 +1,39 @@
-KANALBUCH – Android-App (Version 3.1)
+KANALBUCH – Android-App (Version 3.3)
 =====================================
+
+NEU in 3.3 – drei neue Bereiche unter „Mehr“ > „Weitere Bereiche“
+  - Wochenbericht Lüftungsbau
+      Kopf (Bericht-Nr., Zeitraum, KW, Projekt, Kunde, BV, Bauleiter). Bei „Zeitraum von“
+      werden KW, „bis“ und die 5 Arbeitstage automatisch eingetragen (Wochenende übersprungen).
+      Pro Tag 3 Tätigkeiten aus der Liste + 1 freie Zeile, je mit Stunden, dazu AK (Personen).
+      Summe Stunden und Personentage rechnet die App selbst. Unterschriften mit dem Finger.
+      „PDF erstellen & teilen“ – im Layout des Wochenbericht-Formulars WB-LB 3.1.
+      „Blatt leeren“ setzt alles auf null (mit Rückfrage).
+      „Nächste Woche“ behält Projekt/Kunde/BV/Namen und rückt Datum + Bericht-Nr. weiter.
+      Jede erstellte PDF landet unter „Letzte Berichte“ (laden, neu als PDF, löschen).
+  - Stahlaufmaß
+      Räume mit Raum-Nr. und Bezeichnung, C-Schienen nach Längen, Konsolen, Winkel, Fuß,
+      Dübel und eigene Materialien mit kg-Werten. Gesamtmasse Stahl automatisch.
+      Export als PDF (Krüger-Briefkopf) und als Excel – beides direkt teilbar.
+  - Sprücheklopfer
+      Alle Witze, Sprüche, Rätsel und Namenswitze, Merkliste, Kopieren und Teilen.
+  - Die Datensicherung enthält jetzt auch Wochenberichte, Stahlaufmaß und gemerkte Sprüche.
+
+NEU in 3.2 – Materialbestellung per Mikrofon überarbeitet
+  - Android-Fehler behoben: Chrome hat gesprochene Sätze teils doppelt geliefert.
+    Jetzt wird jeder Satz genau einmal übernommen. Das Mikrofon hört Satz für Satz
+    und startet nach jeder kurzen Pause selbst wieder, bis du nochmal tippst.
+    (Dabei kann das Handy bei jedem Satz kurz piepen – das ist normal.)
+  - Neue Erkennung der Ansage: Menge, Einheit, DN und Maße werden sauber getrennt.
+      „12 Meter 250er Rohr 4 Muffen 250“      → 12 m Rohr DN 250 · 4 Stk Muffe DN 250
+      „25 Meter Flexschlauch 160 isoliert“    → 25 m Flexschlauch isoliert DN 160
+      „Rohr 160 10 Meter“ (Menge hinten)      → 10 m Rohr DN 160
+      „zweiundzwanzig Meter“, „zweieinhalb“, „400 mal 300“, „200 auf 160“,
+      „90 Grad“, „M8“, „Länge 1 Meter“ werden verstanden.
+  - Gleiche Positionen werden nicht mehr still zusammengezählt. Steht etwas schon auf
+    der Liste, kommt es als eigene Zeile dazu und wird orange markiert.
+  - Beim Ansagen siehst du live mit, was gerade verstanden wird.
+
 
 NEU in 3.1
   - 2D-Skizzen bei Übergängen (US, UA, RS, RA, ES, EA) jetzt maßstäblich nach deinen
@@ -12,9 +46,9 @@ NEU in 3.1
     Datumskachel, Wetter-Symbol, Kennzahlen, Abschnitten, Fotoseite und Unterschriften.
 
 UPDATE einer bestehenden Installation:
-  In deinem GitHub-Repository einfach index.html, sw.js und manifest.webmanifest durch
-  die neuen Dateien ersetzen (Add file > Upload files). Nach 1–2 Minuten die App auf dem
-  Handy zweimal schließen und neu öffnen – dann ist 3.1 drauf (steht unter Mehr > Einstellungen).
+  In deinem GitHub-Repository einfach index.html und sw.js durch die neuen Dateien
+  ersetzen (Add file > Upload files > Commit changes). Nach 1–2 Minuten die App auf dem
+  Handy zweimal schließen und neu öffnen – dann ist 3.2 drauf (steht unter Mehr > Einstellungen).
   Deine Daten bleiben erhalten.
 
 Inhalt dieses Ordners:
