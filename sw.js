@@ -1,6 +1,6 @@
-// Kanalbuch Service Worker – macht die App offline-fähig
-const CACHE = "kanalbuch-3.4";
-const CORE = ["./", "./index.html", "./dichtheit.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+// Krüger App (Kanalbuch) Service Worker – macht die App offline-fähig
+const CACHE = "kanalbuch-3.5";
+const CORE = ["./", "./index.html", "./dichtheit.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./icons/apple-touch-icon.png"];
 const LIB_HOSTS = ["cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", e => {
