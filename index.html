@@ -76,6 +76,11 @@ input[type=number],input[type=time]{font-family:var(--f-mono);font-variant-numer
 input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
 textarea{min-height:76px;resize:vertical}
 .unit{position:relative}
+.pmrow{display:flex;gap:6px;align-items:stretch}
+.pm{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+.pm button{border:0;background:var(--card,#fff);color:var(--muted);font:inherit;font-weight:700;font-size:13px;padding:0 9px;min-height:44px;cursor:pointer;white-space:nowrap}
+.pm button+button{border-left:1px solid var(--line)}
+.pm button[aria-pressed="true"]{background:#e2700e;color:#fff}
 .unit input{padding-right:46px}
 .unit::after{content:attr(data-unit);position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -491,7 +496,7 @@ nav.tabs button[aria-selected="true"]{color:var(--steel)}
 <script>
 (() => {
 "use strict";
-const APP_VERSION = "3.5";
+const APP_VERSION = "3.6";
 const $ = s => document.querySelector(s);
 const fmt = (n, d=2) => Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -673,9 +678,9 @@ const FIELD_HINT={
   KT:{a:"Breite",b:"Höhe"}, BS:{a:"Breite in Biegeebene",b:"Höhe",e:"gerade bis Rahmen",f:"gerade bis Rahmen",r:"innen"},
   BA:{a:"Breite Anfang",c:"Breite Ende",b:"Höhe",e:"gerade bis Rahmen",f:"gerade bis Rahmen",r:"innen"},
   WS:{a:"Breite",b:"Höhe",e:"innen bis Ecke",f:"innen bis Ecke"}, WA:{a:"Breite Anfang",c:"Breite Ende",b:"Höhe",e:"innen bis Ecke",f:"innen bis Ecke"},
-  US:{g:"gerader Ansatz"}, UA:{e:"Versatz seitlich",f:"Versatz Höhe",g:"gerader Ansatz"},
-  RS:{d:"Rohr-Ø",g:"gerader Ansatz"}, RA:{d:"Rohr-Ø",e:"Versatz seitlich",f:"Versatz Höhe",g:"gerader Ansatz"},
-  ES:{e:"Versatz",g:"gerader Ansatz"}, EA:{e:"Versatz seitlich",f:"Versatz Höhe",g:"gerader Ansatz"},
+  US:{g:"gerader Ansatz"}, UA:{e:"Messecke: + nach oben, − nach unten",f:"Messecke: + nach rechts, − nach links",g:"gerader Ansatz"},
+  RS:{d:"Rohr-Ø",g:"gerader Ansatz"}, RA:{d:"Rohr-Ø",e:"Messecke: + nach oben, − nach unten",f:"Messecke: + nach rechts, − nach links",g:"gerader Ansatz"},
+  ES:{e:"Messecke: + nach oben, − nach unten",g:"gerader Ansatz"}, EA:{e:"Messecke: + nach oben, − nach unten",f:"Messecke: + nach rechts, − nach links",g:"gerader Ansatz"},
   TG:{c:"Abzweig Breite",d:"Abzweig Höhe",h:"Stutzen",x:"Lage Mitte Abzweig"}
 };
 const SIGNED={UA:["e","f"],RA:["e","f"],ES:["e"],EA:["e","f"]};
@@ -726,7 +731,11 @@ function geometry(type,v){
     case "US": case "UA": case "ES": case "EA": case "RS": case "RA": {
       const round=type==="RS"||type==="RA", same=type==="ES"||type==="EA";
       const c=same?v.a:v.c, d=round?v.d:(same?v.b:v.d);
-      const e=(type==="UA"||type==="RA"||same)?(v.e||0):0, f=(type==="UA"||type==="RA"||type==="EA")?(v.f||0):0;
+      // Messecke = rechts oben am Rahmen V1. e: + nach oben, f: + nach rechts (Abstand der Messecken V1 → V2)
+      const asym=(type==="UA"||type==="RA"||same);
+      const eM=asym?(v.e||0):0, fM=(type==="UA"||type==="RA"||type==="EA")?(v.f||0):0;
+      const cW=round?d:c; // Breite V2 (rund: Ø)
+      const e=asym?(v.a/2+fM-cW/2):0, f=asym?(v.b/2+eM-d/2):0; // Mitte V2 (x seitlich, y Höhe)
       polys.push(...loft(rectPts(v.a,v.b,0,0,0),rectPts(v.a,v.b,0,0,v.g)));
       if(round){ polys.push(...rectToRound(v.a,v.b,v.g,d,e,f,v.l-v.g)); polys.push(...loft(circlePts(d,e,f,v.l-v.g),circlePts(d,e,f,v.l))); }
       else { polys.push(...loft(rectPts(v.a,v.b,0,0,v.g),rectPts(c,d,e,f,v.l-v.g))); polys.push(...loft(rectPts(c,d,e,f,v.l-v.g),rectPts(c,d,e,f,v.l))); }
@@ -737,8 +746,14 @@ function geometry(type,v){
       else if(!same){ D([e-c/2,f-d/2,v.l],[e+c/2,f-d/2,v.l],"c","ab"); D([e+c/2,f-d/2,v.l],[e+c/2,f+d/2,v.l],"d","ab"); }
       D([v.a/2+30,-v.b/2,0],[v.a/2+30,-v.b/2,v.l],"l","l");
       D([-v.a/2,v.b/2,0],[-v.a/2,v.b/2,v.g],"g","ef");
-      if(e) D([0,0,v.l],[e,0,v.l],"e","ef");
-      if(f) D([e,0,v.l],[e,f,v.l],"f","ef");
+      if(asym){
+        const mx=v.a/2, my=v.b/2;                       // Messecke V1
+        const MV1=[mx,my,0], MV2=[mx+fM,my+eM,v.l];     // Messecke V2
+        dims.push({p1:MV1,p2:MV1,k:"M",col:"r",mark:true});
+        if(eM) D([mx+fM,my,v.l],[mx+fM,my+eM,v.l],"e","ef");
+        if(fM) D([mx,my,v.l],[mx+fM,my,v.l],"f","ef");
+        D([mx,my,0],[mx,my,v.l],"","ef");               // Bezugskante der Messecke bis Ebene V2
+      }
       break; }
     case "BS": case "BA": {
       const al=v.w*deg,c=type==="BA"?v.c:v.a,N=Math.max(12,Math.ceil(v.w/3)),B=v.b/2,cx=v.r+v.a/2;
@@ -908,7 +923,10 @@ function offsetDim(x,y0,y1,label){
 /* Übergänge, Rohrübergänge und Etagen – Draufsicht, Seitenansicht und Ansicht V2, alles maßstäblich */
 function transSketch(v,o){
   const L=k=>`${k} = ${v[k]}`, a=v.a, b=v.b, l=v.l, g=v.g;
-  const c=o.same?a:(o.round?v.d:v.c), d=o.same?b:v.d, e=o.e||0, f=o.f||0;
+  const c=o.same?a:(o.round?v.d:v.c), d=o.same?b:v.d;
+  const asym=o.e!=null||o.f!=null, eM=o.e||0, fM=o.f||0;
+  // Mitte V2 aus Messecke (V1 rechts oben): e nach oben, f nach rechts
+  const e=asym?(a/2+fM-c/2):0, f=asym?(b/2+eM-d/2):0;
   const wMin=Math.min(-a/2,e-c/2), wMax=Math.max(a/2,e+c/2), hMin=Math.min(-b/2,f-d/2), hMax=Math.max(b/2,f+d/2);
   const sx=Math.min(64/(wMax-wMin),68/(hMax-hMin));
   const Lpx=Math.min(176,Math.max(100,l*sx)), k=Lpx/(l*sx), z=t=>t*k;
@@ -925,11 +943,12 @@ function transSketch(v,o){
       +dim(P[0][0],P[0][1],P[0][0],P[7][1],L(keyA),16)
       +(showB?dim(P[3][0],P[4][1],P[3][0],P[3][1],showB,16):"");
     if(showL) s+=dim(P[0][0],yBot,P[3][0],yBot,L("l"),22)+dim(P[0][0],yTop,P[1][0],yTop,"",-10)+TXT((P[0][0]+P[1][0])/2,yTop-16,"g = "+g,"middle");
-    if(off) s+=offsetDim(xm,y0,yo,L(keyB));
+    if(asym&&keyB&&o[keyB]){ const yE0=F.T([0,-w0/2])[1], yE1=F.T([0,-(off+w1/2)])[1], xd=(P[1][0]+P[2][0])/2;
+      s+=`<path class="sk-center" d="M${P[0][0]},${yE0}H${(xd+14).toFixed(1)}M${(xd-14).toFixed(1)},${yE1}H${P[3][0]}"/>`+offsetDim(xd,yE0,yE1,L(keyB)); }
     return s;
   };
-  let s=view(FT,topM,"Draufsicht",14,a,c,e,"a","e",o.same?"":(o.round?"Ø = "+v.d:L("c")),true)
-       +view(FS,sideM,"Seitenansicht",162,b,d,f,"b","f",(o.round||o.same)?"":L("d"),false);
+  let s=view(FT,topM,"Draufsicht",14,a,c,e,"a",o.f!=null?"f":"",o.same?"":(o.round?"Ø = "+v.d:L("c")),true)
+       +view(FS,sideM,"Seitenansicht",162,b,d,f,"b",o.e!=null?"e":"",(o.round||o.same)?"":L("d"),false);
   // Ansicht von V2: Anfang (grau) und Ende (gestrichelt) übereinander
   const st=[[-a/2,-b/2],[a/2,-b/2],[a/2,b/2],[-a/2,b/2]];
   const en=o.round?[[e-d/2,-(f+d/2)],[e+d/2,-(f-d/2)]]:[[e-c/2,-(f+d/2)],[e+c/2,-(f+d/2)],[e+c/2,-(f-d/2)],[e-c/2,-(f-d/2)]];
@@ -937,6 +956,11 @@ function transSketch(v,o){
   s+=LBL(270,108,"Ansicht V2")+skPoly(S);
   s+=o.round?`<circle class="sk-end" cx="${cen[0]}" cy="${cen[1]}" r="${(d/2*sx).toFixed(1)}"/>`:skPoly(en.map(FF.T),"sk-end");
   s+=`<path class="sk-thin" d="M${c0[0]-4},${c0[1]}h8M${c0[0]},${c0[1]-4}v8"/><path class="sk-endc" d="M${cen[0]-5},${cen[1]}h10M${cen[0]},${cen[1]-5}v10"/>`;
+  if(asym){ const m1=FF.T([a/2,-b/2]), m2=FF.T([a/2+fM,-(b/2+eM)]);
+    s+=`<circle cx="${m1[0]}" cy="${m1[1]}" r="3.2" fill="#e2700e"/><circle cx="${m2[0]}" cy="${m2[1]}" r="3.2" fill="none" stroke="#e2700e" stroke-width="1.4"/>`
+      +`<path class="sk-dim" d="M${m1[0]},${m1[1]}L${m2[0]},${m1[1]}L${m2[0]},${m2[1]}"/>`
+      +TXT(m1[0]+4,m1[1]-6,"M");
+    s+=`<text class="sk-note" x="46" y="278">M = Messecke V1 rechts oben · e ${eM>=0?"+ nach oben":"− nach unten"}${o.f!=null&&!o.same||fM?` · f ${fM>=0?"+ nach rechts":"− nach links"}`:""}</text>`; }
   s+=TXT(272,212,`V1 ${a}×${b}`)+`<text class="sk-txt sk-endt" x="272" y="227">${o.round?`V2 Ø${v.d}`:`V2 ${c}×${d}`}</text>`;
   if(Math.abs(k-1)>0.15) s+=`<text class="sk-note" x="46" y="292">Länge ${k<1?"verkürzt":"gestreckt"} gezeichnet, Querschnitte maßstäblich</text>`;
   return s;
@@ -1001,7 +1025,7 @@ function sketch(type,v,print){
     case "UA": vb=[360,300]; body=transSketch(v,{e:v.e,f:v.f}); break;
     case "RS": vb=[360,300]; body=transSketch(v,{round:true}); break;
     case "RA": vb=[360,300]; body=transSketch(v,{round:true,e:v.e,f:v.f}); break;
-    case "ES": vb=[360,300]; body=transSketch(v,{same:true,e:v.e}); break;
+    case "ES": vb=[360,300]; body=transSketch(v,{same:true,e:v.e,f:0}); break;
     case "EA": vb=[360,300]; body=transSketch(v,{same:true,e:v.e,f:v.f}); break;
     case "TG":
       body=LBL(16,22,"Draufsicht")+`<path class="sk-body" d="M20,110H120V60H200V110H260V180H20Z"/><path class="sk-center" d="M10,145H270M160,46V192"/>`
@@ -1217,7 +1241,13 @@ function renderEditor(){
   const prevConn=prev&&prevEnd?resolveConn(prev.conn?.v2||"auto",prevEnd):"";
   const showBanner=prevEnd&&!prevEnd.round&&!bannerClosed;
   const endsList=geometry(ed.type,{...defaults(ed.type),...ed.v}).ends;
-  const fieldHTML=Object.keys(t.f).map(k=>`<label class="f"><span>${FIELD_LABEL[k]}${FIELD_HINT[ed.type]?.[k]?` <span class="note">· ${FIELD_HINT[ed.type][k]}</span>`:""}</span><div class="unit" data-unit="${k==="w"?"°":"mm"}"><input type="number" inputmode="decimal" id="fld_${k}" data-k="${k}" value="${Number.isFinite(ed.v[k])?ed.v[k]:""}" step="${k==="w"?1:5}" placeholder="${FIELD_LABEL[k]}"></div></label>`).join("");
+  const sg=SIGNED[ed.type]||[];
+  const fieldHTML=Object.keys(t.f).map(k=>{
+    const inp=`<div class="unit" data-unit="${k==="w"?"°":"mm"}"${sg.includes(k)?' style="flex:1"':""}><input type="number" inputmode="decimal" id="fld_${k}" data-k="${k}" value="${Number.isFinite(ed.v[k])?(sg.includes(k)?Math.abs(ed.v[k]):ed.v[k]):""}" step="${k==="w"?1:5}" placeholder="${FIELD_LABEL[k]}"></div>`;
+    const neg=Number.isFinite(ed.v[k])&&ed.v[k]<0;
+    const pm=sg.includes(k)?`<div class="pmrow"><div class="pm" role="group" aria-label="Richtung ${k}"><button type="button" data-act="sign" data-sk="${k}" data-sv="1" aria-pressed="${!neg}">+ ${k==="e"?"oben":"rechts"}</button><button type="button" data-act="sign" data-sk="${k}" data-sv="-1" aria-pressed="${neg}">− ${k==="e"?"unten":"links"}</button></div>${inp}</div>`:inp;
+    return `<label class="f"${sg.includes(k)?' style="grid-column:1/-1"':""}><span>${FIELD_LABEL[k]}${FIELD_HINT[ed.type]?.[k]?` <span class="note">· ${FIELD_HINT[ed.type][k]}</span>`:""}</span>${pm}</label>`;
+  }).join("");
   const connSel=(key,round)=>`<label class="f"><span>Verbindung ${key.toUpperCase()}${key==="v3"?" (Abzweig)":key==="v1"?" (Anfang)":" (Ende)"}</span><select data-conn="${key}">${(round?CONN_ROUND:CONN_RECT).map(([v,l])=>`<option value="${v}" ${ed.conn[key]===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
   V.innerHTML=`
   <div class="preview">
@@ -1268,7 +1298,10 @@ function updateEditor(){
 }
 V.addEventListener("input",e=>{
   const t=e.target;
-  if(t.dataset.k){ const n=parseFloat(t.value); ed.v[t.dataset.k]=Number.isFinite(n)?n:NaN; updateEditor(); }
+  if(t.dataset.k){ const k=t.dataset.k, sg=SIGNED[ed.type]||[]; let n=parseFloat(t.value);
+    if(sg.includes(k)&&Number.isFinite(n)&&n>0&&document.querySelector(`[data-act="sign"][data-sk="${k}"][data-sv="-1"][aria-pressed="true"]`)) n=-n; // Minus gewählt → Eingabe bleibt negativ
+    if(sg.includes(k)&&Number.isFinite(n)) document.querySelectorAll(`[data-act="sign"][data-sk="${k}"]`).forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.sv===(n<0?-1:1))));
+    ed.v[k]=Number.isFinite(n)?n:NaN; updateEditor(); }
   else if(t.dataset.zub){ const b=bereich(nav.bereichId); const z={...(b.zub||{})}; z[t.dataset.zub]=parseFloat(t.value)||0; saveBereichDoc({...b,zub:z},true,true); }
   else if(ed&&nav.screen==="editor"){
     if(t.id==="edBez") ed.bez=t.value; else if(t.id==="edQty") ed.qty=t.value; else if(t.id==="edBlech") ed.blech=t.value; else if(t.id==="edZ") ed.zuschlag=t.value; else if(t.id==="edBem") ed.bemerkung=t.value;
@@ -1337,6 +1370,9 @@ document.addEventListener("click",async e=>{
     case "fullscreen": openViz(); break;
     case "closeBanner": bannerClosed=true; renderEditor(); break;
     case "takeConn": ed.v.a=+d.w; ed.v.b=+d.h; ed.conn.v1=d.c; bannerClosed=true; renderEditor(); toast("Anschluss übernommen"); break;
+    case "sign": { const k=d.sk, s=+d.sv, cur=Number.isFinite(ed.v[k])?ed.v[k]:0; ed.v[k]=s*Math.abs(cur);
+      const inp=$("#fld_"+k); if(inp) inp.value=Math.abs(ed.v[k]); document.querySelectorAll(`[data-act="sign"][data-sk="${k}"]`).forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.sv===s)));
+      updateEditor(); break; }
     case "qty": ed.qty=Math.max(1,(parseInt(ed.qty)||1)+parseInt(d.d)); $("#edQty").value=ed.qty; updateEditor(); break;
     case "savePos": savePos(); break;
     case "pdfBereich": pdfBereich(); break;
@@ -1427,7 +1463,7 @@ function build3D(type,v,ok,conn){
       const lg=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...dm.p1),new THREE.Vector3(...dm.p2)]);
       const ln=new THREE.Line(lg,new THREE.LineBasicMaterial({color:new THREE.Color(cssVar(COLKEY[dm.col])),depthTest:false})); ln.renderOrder=10; R.dimGroup.add(ln);
     }
-    R.labels.push({pos:mul(add(dm.p1,dm.p2),0.5),text:dm.k,col:dm.col});
+    if(dm.k) R.labels.push({pos:mul(add(dm.p1,dm.p2),0.5),text:dm.k==="M"?"Messecke":dm.k,col:dm.col});
   }
   geo.computeBoundingBox(); geo.computeBoundingSphere();
   geo.boundingBox.getCenter(R.center); R.size=(geo.boundingSphere.radius||500)+maxP;
