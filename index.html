@@ -496,7 +496,7 @@ nav.tabs button[aria-selected="true"]{color:var(--steel)}
 <script>
 (() => {
 "use strict";
-const APP_VERSION = "3.6.1";
+const APP_VERSION = "3.6.2";
 const $ = s => document.querySelector(s);
 const fmt = (n, d=2) => Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -735,8 +735,8 @@ function geometry(type,v){
       const asym=(type==="UA"||type==="RA"||same);
       const eM=asym?(v.e||0):0, fM=(type==="UA"||type==="RA"||type==="EA")?(v.f||0):0;
       const cW=round?d:c; // Breite V2 (rund: Ø)
-      // Messecke rechts oben an V1 so, wie V1 in der 3D-Ansicht zu sehen ist: rechts = +x, oben = +y
-      const e=asym?(v.a/2+fM-cW/2):0, f=asym?(v.b/2+eM-d/2):0; // Mitte V2 (x seitlich, y Höhe)
+      // Messecke rechts oben an V1, Blick auf V1 von vorn (in Luftrichtung): rechts = -x, oben = +y
+      const e=asym?-(v.a/2+fM-cW/2):0, f=asym?(v.b/2+eM-d/2):0; // Mitte V2 (x seitlich, y Höhe)
       polys.push(...loft(rectPts(v.a,v.b,0,0,0),rectPts(v.a,v.b,0,0,v.g)));
       if(round){ polys.push(...rectToRound(v.a,v.b,v.g,d,e,f,v.l-v.g)); polys.push(...loft(circlePts(d,e,f,v.l-v.g),circlePts(d,e,f,v.l))); }
       else { polys.push(...loft(rectPts(v.a,v.b,0,0,v.g),rectPts(c,d,e,f,v.l-v.g))); polys.push(...loft(rectPts(c,d,e,f,v.l-v.g),rectPts(c,d,e,f,v.l))); }
@@ -748,11 +748,11 @@ function geometry(type,v){
       D([v.a/2+30,-v.b/2,0],[v.a/2+30,-v.b/2,v.l],"l","l");
       D([-v.a/2,v.b/2,0],[-v.a/2,v.b/2,v.g],"g","ef");
       if(asym){
-        const mx=v.a/2, my=v.b/2;                       // Messecke V1 rechts oben
+        const mx=-v.a/2, my=v.b/2;                      // Messecke V1 rechts oben (Blick auf V1)
         const MV1=[mx,my,0];
         dims.push({p1:MV1,p2:MV1,k:"M",col:"r",mark:true});
-        if(fM) D([mx,my,v.l],[mx+fM,my,v.l],"f","ef");      // f: + nach rechts
-        if(eM) D([mx+fM,my,v.l],[mx+fM,my+eM,v.l],"e","ef"); // e: + nach oben
+        if(fM) D([mx,my,v.l],[mx-fM,my,v.l],"f","ef");      // f: + nach rechts (= -x)
+        if(eM) D([mx-fM,my,v.l],[mx-fM,my+eM,v.l],"e","ef"); // e: + nach oben
         D([mx,my,0],[mx,my,v.l],"","ef");               // Bezugskante der Messecke bis Ebene V2
       }
       break; }
@@ -927,7 +927,7 @@ function transSketch(v,o){
   const c=o.same?a:(o.round?v.d:v.c), d=o.same?b:v.d;
   const asym=o.e!=null||o.f!=null, eM=o.e||0, fM=o.f||0;
   // Mitte V2 aus Messecke (V1 rechts oben): e nach oben, f nach rechts
-  const e=asym?(a/2+fM-c/2):0, f=asym?(b/2+eM-d/2):0; // Messecke V1 rechts oben: x rechts, y oben
+  const e=asym?-(a/2+fM-c/2):0, f=asym?(b/2+eM-d/2):0; // Messecke V1 rechts oben (Blick auf V1): rechts = -x
   const wMin=Math.min(-a/2,e-c/2), wMax=Math.max(a/2,e+c/2), hMin=Math.min(-b/2,f-d/2), hMax=Math.max(b/2,f+d/2);
   const sx=Math.min(64/(wMax-wMin),68/(hMax-hMin));
   const Lpx=Math.min(176,Math.max(100,l*sx)), k=Lpx/(l*sx), z=t=>t*k;
@@ -944,7 +944,7 @@ function transSketch(v,o){
       +dim(P[0][0],P[0][1],P[0][0],P[7][1],L(keyA),16)
       +(showB?dim(P[3][0],P[4][1],P[3][0],P[3][1],showB,16):"");
     if(showL) s+=dim(P[0][0],yBot,P[3][0],yBot,L("l"),22)+dim(P[0][0],yTop,P[1][0],yTop,"",-10)+TXT((P[0][0]+P[1][0])/2,yTop-16,"g = "+g,"middle");
-    if(asym&&keyB&&o[keyB]){ const yE0=F.T([0,-w0/2])[1], yE1=F.T([0,-(off+w1/2)])[1], xd=(P[1][0]+P[2][0])/2;
+    if(asym&&keyB&&o[keyB]){ const top=keyB==="e", yE0=F.T([0,top?-w0/2:w0/2])[1], yE1=F.T([0,top?-(off+w1/2):-(off-w1/2)])[1], xd=(P[1][0]+P[2][0])/2;
       s+=`<path class="sk-center" d="M${P[0][0]},${yE0}H${(xd+14).toFixed(1)}M${(xd-14).toFixed(1)},${yE1}H${P[3][0]}"/>`+offsetDim(xd,yE0,yE1,L(keyB)); }
     return s;
   };
@@ -952,7 +952,7 @@ function transSketch(v,o){
        +view(FS,sideM,"Seitenansicht",162,b,d,f,"b",o.e!=null?"e":"",(o.round||o.same)?"":L("d"),false);
   // Ansicht von V2: Anfang (grau) und Ende (gestrichelt) übereinander
   const st=[[-a/2,-b/2],[a/2,-b/2],[a/2,b/2],[-a/2,b/2]];
-  const ue=e; // Ansicht V1 wie in 3D: rechts = +x
+  const ue=-e; // Ansicht V1 von vorn (wie 3D „Vorne“): rechts = -x
   const en=o.round?[[ue-d/2,-(f+d/2)],[ue+d/2,-(f-d/2)]]:[[ue-c/2,-(f+d/2)],[ue+c/2,-(f+d/2)],[ue+c/2,-(f-d/2)],[ue-c/2,-(f-d/2)]];
   const FF=fitView([...st,...en],{x:272,y:120,w:70,h:70},sx), S=st.map(FF.T), cen=FF.T([ue,-f]), c0=FF.T([0,0]);
   s+=LBL(270,108,"Ansicht V1")+skPoly(S);
@@ -1385,7 +1385,8 @@ document.addEventListener("click",async e=>{
 
 /* ================= 3D ================= */
 let R=null;
-const VIEWS={iso:{rx:-0.42,ry:0.8},links:{rx:-0.3,ry:-0.95},vorne:{rx:-0.25,ry:0},rechts:{rx:-0.3,ry:0.95},oben:{rx:-1.45,ry:0}};
+// Kamera steht auf der V1-Seite und schaut in Luftrichtung (V1 vorne) – so liegt die Messecke rechts oben an V1
+const VIEWS={iso:{rx:-0.42,ry:Math.PI-0.8},links:{rx:-0.3,ry:Math.PI-0.95},vorne:{rx:-0.25,ry:Math.PI},rechts:{rx:-0.3,ry:Math.PI+0.95},oben:{rx:-1.45,ry:Math.PI}};
 const COLKEY={ab:"--c-ab",ef:"--c-ef",r:"--c-r",l:"--c-l",v:"--c-v"};
 const PRINTCOL={ab:"#3949ab",ef:"#0f8a78",r:"#e2700e",l:"#8f45c4",v:"#64748b"};
 function init3D(){
