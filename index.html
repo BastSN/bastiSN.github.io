@@ -496,7 +496,7 @@ nav.tabs button[aria-selected="true"]{color:var(--steel)}
 <script>
 (() => {
 "use strict";
-const APP_VERSION = "3.6";
+const APP_VERSION = "3.6.1";
 const $ = s => document.querySelector(s);
 const fmt = (n, d=2) => Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -735,6 +735,7 @@ function geometry(type,v){
       const asym=(type==="UA"||type==="RA"||same);
       const eM=asym?(v.e||0):0, fM=(type==="UA"||type==="RA"||type==="EA")?(v.f||0):0;
       const cW=round?d:c; // Breite V2 (rund: Ø)
+      // Messecke rechts oben an V1 so, wie V1 in der 3D-Ansicht zu sehen ist: rechts = +x, oben = +y
       const e=asym?(v.a/2+fM-cW/2):0, f=asym?(v.b/2+eM-d/2):0; // Mitte V2 (x seitlich, y Höhe)
       polys.push(...loft(rectPts(v.a,v.b,0,0,0),rectPts(v.a,v.b,0,0,v.g)));
       if(round){ polys.push(...rectToRound(v.a,v.b,v.g,d,e,f,v.l-v.g)); polys.push(...loft(circlePts(d,e,f,v.l-v.g),circlePts(d,e,f,v.l))); }
@@ -747,11 +748,11 @@ function geometry(type,v){
       D([v.a/2+30,-v.b/2,0],[v.a/2+30,-v.b/2,v.l],"l","l");
       D([-v.a/2,v.b/2,0],[-v.a/2,v.b/2,v.g],"g","ef");
       if(asym){
-        const mx=v.a/2, my=v.b/2;                       // Messecke V1
-        const MV1=[mx,my,0], MV2=[mx+fM,my+eM,v.l];     // Messecke V2
+        const mx=v.a/2, my=v.b/2;                       // Messecke V1 rechts oben
+        const MV1=[mx,my,0];
         dims.push({p1:MV1,p2:MV1,k:"M",col:"r",mark:true});
-        if(eM) D([mx+fM,my,v.l],[mx+fM,my+eM,v.l],"e","ef");
-        if(fM) D([mx,my,v.l],[mx+fM,my,v.l],"f","ef");
+        if(fM) D([mx,my,v.l],[mx+fM,my,v.l],"f","ef");      // f: + nach rechts
+        if(eM) D([mx+fM,my,v.l],[mx+fM,my+eM,v.l],"e","ef"); // e: + nach oben
         D([mx,my,0],[mx,my,v.l],"","ef");               // Bezugskante der Messecke bis Ebene V2
       }
       break; }
@@ -926,7 +927,7 @@ function transSketch(v,o){
   const c=o.same?a:(o.round?v.d:v.c), d=o.same?b:v.d;
   const asym=o.e!=null||o.f!=null, eM=o.e||0, fM=o.f||0;
   // Mitte V2 aus Messecke (V1 rechts oben): e nach oben, f nach rechts
-  const e=asym?(a/2+fM-c/2):0, f=asym?(b/2+eM-d/2):0;
+  const e=asym?(a/2+fM-c/2):0, f=asym?(b/2+eM-d/2):0; // Messecke V1 rechts oben: x rechts, y oben
   const wMin=Math.min(-a/2,e-c/2), wMax=Math.max(a/2,e+c/2), hMin=Math.min(-b/2,f-d/2), hMax=Math.max(b/2,f+d/2);
   const sx=Math.min(64/(wMax-wMin),68/(hMax-hMin));
   const Lpx=Math.min(176,Math.max(100,l*sx)), k=Lpx/(l*sx), z=t=>t*k;
@@ -951,9 +952,10 @@ function transSketch(v,o){
        +view(FS,sideM,"Seitenansicht",162,b,d,f,"b",o.e!=null?"e":"",(o.round||o.same)?"":L("d"),false);
   // Ansicht von V2: Anfang (grau) und Ende (gestrichelt) übereinander
   const st=[[-a/2,-b/2],[a/2,-b/2],[a/2,b/2],[-a/2,b/2]];
-  const en=o.round?[[e-d/2,-(f+d/2)],[e+d/2,-(f-d/2)]]:[[e-c/2,-(f+d/2)],[e+c/2,-(f+d/2)],[e+c/2,-(f-d/2)],[e-c/2,-(f-d/2)]];
-  const FF=fitView([...st,...en],{x:272,y:120,w:70,h:70},sx), S=st.map(FF.T), cen=FF.T([e,-f]), c0=FF.T([0,0]);
-  s+=LBL(270,108,"Ansicht V2")+skPoly(S);
+  const ue=e; // Ansicht V1 wie in 3D: rechts = +x
+  const en=o.round?[[ue-d/2,-(f+d/2)],[ue+d/2,-(f-d/2)]]:[[ue-c/2,-(f+d/2)],[ue+c/2,-(f+d/2)],[ue+c/2,-(f-d/2)],[ue-c/2,-(f-d/2)]];
+  const FF=fitView([...st,...en],{x:272,y:120,w:70,h:70},sx), S=st.map(FF.T), cen=FF.T([ue,-f]), c0=FF.T([0,0]);
+  s+=LBL(270,108,"Ansicht V1")+skPoly(S);
   s+=o.round?`<circle class="sk-end" cx="${cen[0]}" cy="${cen[1]}" r="${(d/2*sx).toFixed(1)}"/>`:skPoly(en.map(FF.T),"sk-end");
   s+=`<path class="sk-thin" d="M${c0[0]-4},${c0[1]}h8M${c0[0]},${c0[1]-4}v8"/><path class="sk-endc" d="M${cen[0]-5},${cen[1]}h10M${cen[0]},${cen[1]-5}v10"/>`;
   if(asym){ const m1=FF.T([a/2,-b/2]), m2=FF.T([a/2+fM,-(b/2+eM)]);
